@@ -103,6 +103,16 @@ export const auth = (db: D1Database, kv: KVNamespace | null, env?: {
                  * Esto permite centralizar la seguridad de las claves.
                  */
                 hash: async (password) => {
+                    // Validación de fortaleza en el servidor (Seguridad extra)
+                    const isStrong = password.length >= 8 &&
+                        /[A-Z]/.test(password) &&
+                        /[a-z]/.test(password) &&
+                        (/[0-9]/.test(password) || /[^A-Za-z0-9]/.test(password));
+
+                    if (!isStrong) {
+                        throw new Error("La contraseña no cumple con los requisitos de seguridad (mínimo 8 caracteres, mayúsculas y números)");
+                    }
+
                     const response = await fetch(`${env?.HASH_SERVICE_URL}/hash`, {
                         method: "POST",
                         headers: {

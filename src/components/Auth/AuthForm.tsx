@@ -22,6 +22,10 @@ interface Props {
     passwordPlaceholder: string;
     genericError: string;
     loading: string;
+    passwordWeak: string;
+    passwordWeakText: string;
+    passwordMediumText: string;
+    passwordStrongText: string;
   };
   redirectPath: string;
 }
@@ -37,6 +41,8 @@ export default function AuthForm({ translations, redirectPath }: Props) {
   const [error, setError] = useState<string | null>(null); // Mensajes de error para el usuario
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null); // Token de verificación de Cloudflare
   const [showPassword, setShowPassword] = useState(false); // Controla la visibilidad de la contraseña
+  const [password, setPassword] = useState(''); // Valor de la contraseña para validación en tiempo real
+  const [strength, setStrength] = useState(0); // 0: Vacío, 1: Débil, 2: Medio, 3: Fuerte
   const turnstileRef = useRef<TurnstileInstance>(null); // Referencia para controlar el widget de Turnstile
 
   /**
@@ -47,7 +53,28 @@ export default function AuthForm({ translations, redirectPath }: Props) {
     setIsLogin(!isLogin);
     setError(null);
     setTurnstileToken(null);
+    setPassword('');
+    setStrength(0);
     turnstileRef.current?.reset();
+  };
+
+  /**
+   * Evalúa la fortaleza de la contraseña basada en patrones.
+   * Devuelve un score de 0 a 3.
+   */
+  const checkStrength = (pass: string) => {
+    if (!pass) return 0;
+    let score = 0;
+    if (pass.length >= 8) score++;
+    if (/[A-Z]/.test(pass) && /[a-z]/.test(pass)) score++;
+    if (/[0-9]/.test(pass) || /[^A-Za-z0-9]/.test(pass)) score++;
+    return score;
+  };
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setPassword(val);
+    setStrength(checkStrength(val));
   };
 
   /**
@@ -61,6 +88,12 @@ export default function AuthForm({ translations, redirectPath }: Props) {
     // Verificación obligatoria de Turnstile en el cliente
     if (!turnstileToken) {
       setError('Por favor completa la verificación de seguridad');
+      return;
+    }
+
+    // Validación de fortaleza en el registro
+    if (!isLogin && strength < 3) {
+      setError(translations.passwordWeak);
       return;
     }
 
@@ -167,6 +200,8 @@ export default function AuthForm({ translations, redirectPath }: Props) {
                 type={showPassword ? "text" : "password"}
                 autoComplete="current-password"
                 required
+                value={password}
+                onChange={handlePasswordChange}
                 className="appearance-none rounded-2xl relative block w-full px-12 py-4 border border-(--auth-border) bg-(--auth-input-bg) text-(--auth-text) placeholder-(--auth-placeholder) focus:outline-none focus:ring-2 focus:ring-(--auth-accent)/40 focus:border-(--auth-accent)/40 focus:z-10 sm:text-sm transition-all"
                 placeholder={translations.passwordPlaceholder}
               />
@@ -186,12 +221,29 @@ export default function AuthForm({ translations, redirectPath }: Props) {
                 )}
               </button>
             </div>
+
+            {/* Indicador de Fortaleza (Solo en Signup) */}
+            {!isLogin && password && (
+              <div className="mt-2 px-1">
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-(--auth-label)">
+                    {strength === 1 ? translations.passwordWeakText : strength === 2 ? translations.passwordMediumText : translations.passwordStrongText}
+                  </span>
+                  <span className="text-[10px] font-mono text-(--auth-label)">{password.length}/8+</span>
+                </div>
+                <div className="h-1.5 w-full bg-base-300 rounded-full overflow-hidden flex gap-1">
+                  <div className={`h-full transition-all duration-500 rounded-full ${strength >= 1 ? 'w-1/3 bg-red-500' : 'w-0'}`} />
+                  <div className={`h-full transition-all duration-500 rounded-full ${strength >= 2 ? 'w-1/3 bg-yellow-500' : 'w-0'}`} />
+                  <div className={`h-full transition-all duration-500 rounded-full ${strength >= 3 ? 'w-1/3 bg-green-500' : 'w-0'}`} />
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
         {/* Sección de Mensajes de Error */}
         {error && (
-          <div className="text-red-600 dark:text-red-400 shadow-md text-xs font-bold text-center animate-bounce bg-red-100 dark:bg-red-400/10 py-2.5 px-4 rounded-xl border border-red-300 dark:border-red-400/20">
+          <div className="text-red-600 dark:text-red-400 shadow-md text-xs font-bold text-center bg-red-100 dark:bg-red-400/10 py-2.5 px-4 rounded-xl border border-red-300 dark:border-red-400/20">
             {error}
           </div>
         )}

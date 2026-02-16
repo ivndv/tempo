@@ -80,6 +80,10 @@ export const ui = {
     'auth.password.placeholder': '••••••••',
     'auth.error.generic': 'Ocurrió un error. Inténtalo de nuevo.',
     'auth.loading': 'Cargando...',
+    'auth.error.passwordWeak': 'La contraseña es muy débil. Debe tener al menos 8 caracteres, mayúsculas y números.',
+    'auth.password.weak': 'Débil',
+    'auth.password.medium': 'Media',
+    'auth.password.strong': 'Fuerte',
 
     // Blog
     'blog.title': 'Sinx Blog',
@@ -113,7 +117,7 @@ export const ui = {
     'timer.short': 'Break',
     'timer.long': 'Break',
     'timer.setup.title': 'Setup your Cycle',
-    'timer.setup.subtitle': 'How much time do you have?', // Changed from previous "Setup your Cycle" to match question
+    'timer.setup.subtitle': 'How much time do you have?',
     'timer.setup.btn.start': 'Start Session',
     'timer.setup.btn.start.disabled': 'Select time...',
     'timer.run.pause': '⏸ Pause',
@@ -165,6 +169,10 @@ export const ui = {
     'auth.password.placeholder': '••••••••',
     'auth.error.generic': 'An error occurred. Please try again.',
     'auth.loading': 'Loading...',
+    'auth.error.passwordWeak': 'Password is too weak. It must have at least 8 characters, uppercase and numbers.',
+    'auth.password.weak': 'Weak',
+    'auth.password.medium': 'Medium',
+    'auth.password.strong': 'Strong',
 
     // Blog
     'blog.title': 'Sinx Blog',
