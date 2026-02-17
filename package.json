@@ -10,7 +10,8 @@
     "preview": "astro preview",
     "astro": "astro",
     "format": "biome format --write .",
-    "lint": "biome lint --write ."
+    "lint": "biome lint --write .",
+    "test": "vitest run"
   },
   "overrides": {
     "@types/react": "^19.0.0",
