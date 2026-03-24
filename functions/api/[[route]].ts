@@ -39,8 +39,8 @@ app.use('*', async (c, next) => {
 */
 
 // Helper para rate limiting usando KV
-// Límite predeterminado: 5 intentos por 15 minutos
-const checkRateLimit = async (kv: KVNamespace, ip: string, maxAttempts = 5, windowMinutes = 15) => {
+// Límite predeterminado: 20 intentos por 5 minutos
+const checkRateLimit = async (kv: KVNamespace, ip: string, maxAttempts = 20, windowMinutes = 5) => {
     const key = `rate-limit:login:${ip}`;
     const now = Date.now();
 
@@ -122,7 +122,7 @@ app.all("*", async (c) => {
 
             if (!allowed) {
                 return c.json({
-                    error: "Demasiados intentos. Por favor intente de nuevo en 15 minutos."
+                    error: "Demasiados intentos. Por favor intente de nuevo en 5 minutos."
                 }, 429);
             }
         }
