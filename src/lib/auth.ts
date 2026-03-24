@@ -121,8 +121,8 @@ export const auth = (db: D1Database, kv: KVNamespace | null, env?: {
                         },
                         body: JSON.stringify({ password }),
                     });
-                    const data = await response.json() as { hash: string };
-                    return data.hash;
+                    const jsonRes = await response.json() as { data: { hash: string } };
+                    return jsonRes.data.hash;
                 },
                 /**
                  * Verificación de contraseñas vía microservicio externo.
@@ -136,8 +136,8 @@ export const auth = (db: D1Database, kv: KVNamespace | null, env?: {
                         },
                         body: JSON.stringify({ password, hash }),
                     });
-                    const data = await response.json() as { match: boolean };
-                    return data.match;
+                    const jsonRes = await response.json() as { data: { match: boolean } };
+                    return jsonRes.data.match;
                 }
             }
         },
