@@ -1,10 +1,13 @@
 name = "pomodoro"
 pages_build_output_dir = "./dist"
-compatibility_date = "2026-03-24"
+compatibility_date = "2026-04-30"
 compatibility_flags = [ "nodejs_compat" ]
 
+[vars]
+NODE_VERSION = "24.14.1"
+BUN_VERSION = "1.3.13"
+
 # ⚡ D1 Database Binding
-# This allows your code to access the DB via `env.DB`
 [[d1_databases]]
 binding = "DB"
 database_name = "pomodoro-db"
