@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
+import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
 export const user = sqliteTable("user", {
 	id: text("id").primaryKey(),
@@ -34,7 +34,9 @@ export const account = sqliteTable("account", {
 	refreshToken: text("refreshToken"),
 	idToken: text("idToken"),
 	accessTokenExpiresAt: integer("accessTokenExpiresAt", { mode: "timestamp" }),
-	refreshTokenExpiresAt: integer("refreshTokenExpiresAt", { mode: "timestamp" }),
+	refreshTokenExpiresAt: integer("refreshTokenExpiresAt", {
+		mode: "timestamp",
+	}),
 	scope: text("scope"),
 	password: text("password"),
 	createdAt: integer("createdAt", { mode: "timestamp" }).notNull(),
@@ -51,9 +53,11 @@ export const verification = sqliteTable("verification", {
 });
 
 export const pomodoroLog = sqliteTable("pomodoro_log", {
-    id: integer("id").primaryKey({ autoIncrement: true }),
-    userId: text("user_id").notNull().references(() => user.id),
-    type: text("type").notNull(), // focus, short, long
-    minutes: integer("minutes").notNull(),
-    createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+	id: integer("id").primaryKey({ autoIncrement: true }),
+	userId: text("user_id")
+		.notNull()
+		.references(() => user.id),
+	type: text("type").notNull(), // focus, short, long
+	minutes: integer("minutes").notNull(),
+	createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
 });
