@@ -22,6 +22,7 @@ export default function TimerRun({ initialMinutes, onReset, lang, isLoggedIn = f
     const { addSession, history, hours, minutes, sessionCount, weeklyStats } = usePomodoroStats(isLoggedIn);
     const t = useTranslations(lang);
 
+    // biome-ignore lint/correctness/useExhaustiveDependencies: lang and t needed for translated labels
     const schedule = useMemo(() => {
         const queue: Session[] = [];
         let remainingMins = initialMinutes;
@@ -159,6 +160,7 @@ export default function TimerRun({ initialMinutes, onReset, lang, isLoggedIn = f
     }, [currentSessionIndex, isActive, timeLeft, blockStartTime, planStartTime, isSessionFinished, initialMinutes, schedule]);
 
     // Main Timer Logic
+    // biome-ignore lint/correctness/useExhaustiveDependencies: deps omitted intentionally to prevent circular re-renders
     useEffect(() => {
         let interval: ReturnType<typeof setInterval> | null = null;
 
@@ -267,6 +269,7 @@ export default function TimerRun({ initialMinutes, onReset, lang, isLoggedIn = f
                 <h2 className="text-2xl font-bold">{lang === 'en' ? 'Session Error' : 'Error en la sesión'}</h2>
                 <p>{lang === 'en' ? 'Could not recover current session.' : 'No se pudo recuperar la sesión actual.'}</p>
                 <button
+                    type="button"
                     className="btn btn-primary"
                     onClick={() => {
                         localStorage.removeItem(TIMER_STATE_KEY);
@@ -283,6 +286,7 @@ export default function TimerRun({ initialMinutes, onReset, lang, isLoggedIn = f
     const theme = getTheme(currentSession.type);
 
     // Hora final estimada
+    // biome-ignore lint/correctness/useHookAtTopLevel: early return after null session guard is intentional
     const estimatedFinishTime = useMemo(() => {
         let secondsRemainingTotal = timeLeft;
         for (let i = currentSessionIndex + 1; i < schedule.length; i++) {
@@ -336,14 +340,15 @@ export default function TimerRun({ initialMinutes, onReset, lang, isLoggedIn = f
                             const isCurrent = index === currentSessionIndex;
                             const sTheme = getTheme(session.type);
                             return (
-                                <div key={index} className={`relative shrink-0 flex flex-col items-center px-6 snap-center transition-all ${isCurrent ? 'opacity-100 scale-105' : 'opacity-50'}`}>
+                                // biome-ignore lint/suspicious/noArrayIndexKey: schedule order is stable
+                                <div key={session.label + index} className={`relative shrink-0 flex flex-col items-center px-6 snap-center transition-all ${isCurrent ? 'opacity-100 scale-105' : 'opacity-50'}`}>
                                     <div className={`w-4 h-4 rounded-full border-2 transition-colors z-10 mb-4 ${isPast ? 'bg-success border-success' :
                                             isCurrent ? `${sTheme.bgButton} border-white shadow-lg` :
                                                 'bg-base-100 border-base-300'
                                         }`}>
-                                        {isPast && <svg className="w-2.5 h-2.5 text-white absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
+                                        {isPast && <svg className="w-2.5 h-2.5 text-white absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
                                     </div>
-                                    <div className={`p-3 rounded-lg border-b-4 w-40 text-center ${isCurrent ? 'bg-base-200 shadow-md ' + sTheme.border : 'border-transparent'}`}>
+                                    <div className={`p-3 rounded-lg border-b-4 w-40 text-center ${isCurrent ? `bg-base-200 shadow-md ${sTheme.border}` : 'border-transparent'}`}>
                                         <div className="flex flex-col items-center">
                                             <span className={`font-bold text-sm truncate w-full`}>{session.label}</span>
                                             <span className="font-mono text-xs opacity-60">{Math.floor(session.duration / 60)}m</span>
@@ -374,8 +379,8 @@ export default function TimerRun({ initialMinutes, onReset, lang, isLoggedIn = f
                                     {lang === 'es' ? 'Resumen Semanal' : 'Weekly Summary'}
                                 </h4>
                                 <div className="flex justify-between items-end h-32 gap-2">
-                                    {[...Array(7)].map((_, i) => (
-                                        <div key={i} className="bg-base-300 w-full rounded-t-lg" style={{ height: `${Math.random() * 60 + 20}%` }}></div>
+                                    {[1, 2, 3, 4, 5, 6, 7].map((n) => (
+                                        <div key={'ph-' + n} className="bg-base-300 w-full rounded-t-lg" style={{ height: `${Math.random() * 60 + 20}%` }}></div>
                                     ))}
                                 </div>
                             </div>

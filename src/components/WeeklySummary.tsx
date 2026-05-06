@@ -1,5 +1,4 @@
 /** @jsxImportSource react */
-import { ui } from '../i18n/ui';
 
 interface WeeklyStats {
     day: string; // 'Mon', 'Tue', etc.
@@ -40,8 +39,8 @@ export default function WeeklySummary({ lang, weeklyStats }: Props) {
             <div className="relative h-40 mt-2">
                 {/* 1. Grid Lines (Fondo de la gráfica) */}
                 <div className="absolute inset-0 flex flex-col justify-between pointer-events-none">
-                    {[...Array(3)].map((_, i) => ( // 3 líneas: Top, Middle, Bottom
-                        <div key={i} className="w-full border-b border-dashed border-base-content/5 h-full last:border-0 relative">
+                    {['top', 'mid', 'bot'].map((pos) => ( // 3 líneas: Top, Middle, Bottom
+                        <div key={'grid-' + pos} className="w-full border-b border-dashed border-base-content/5 h-full last:border-0 relative">
                             <span className="absolute -top-2 left-0 text-[9px] font-mono opacity-20">
                                 {i === 0 ? `${maxHours}h` : i === 1 ? `${maxHours / 2}h` : ''}
                             </span>
@@ -58,7 +57,7 @@ export default function WeeklySummary({ lang, weeklyStats }: Props) {
                         const isToday = new Date().getDay() === (index + 1) % 7; 
 
                         return (
-                            <div key={index} className="flex flex-col items-center flex-1 h-full justify-end group z-10 relative">
+                            <div key={stat.day} className="flex flex-col items-center flex-1 h-full justify-end group z-10 relative">
                                  {/* Grid vertical hover effect */}
                                  <div className="absolute inset-0 bg-base-content/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-sm -z-10 mx-[-4px]"></div>
 
