@@ -39,7 +39,7 @@ Esta es una aplicación web moderna diseñada para ayudarte a gestionar tu tiemp
 1. **Clonar el Repositorio**: Descarga el código de este proyecto en tu máquina usando Git.
 
 ```bash
-git clone https://github.com/Ivandv19/sinx-pomodoro-v2.git
+git clone https://github.com/Ivandv19/sinx-pomodoro.git
 ```
 
 2. **Instalar Dependencias**: Abre una terminal en la carpeta del proyecto y ejecuta:
