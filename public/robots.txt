@@ -10,4 +10,4 @@ Allow: /
 User-agent: *
 Allow: /
 
-Sitemap: https://sinx-pomodoro.mgdc.site/sitemap-index.xml
+Sitemap: https://tempo.mgdc.site/sitemap-index.xml

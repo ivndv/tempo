@@ -6,7 +6,7 @@ import icon from "astro-icon";
 
 export default defineConfig({
 	output: "static",
-	site: "https://sinx-pomodoro.mgdc.site",
+	site: "https://tempo.mgdc.site",
 	prefetch: true,
 	integrations: [react(), sitemap(), icon()],
 

@@ -164,7 +164,7 @@ export const auth = (
 		// Orígenes de confianza para CORS y redirects
 		trustedOrigins: [
 			"http://localhost:4321",
-			"https://sinx-pomodoro.mgdc.site",
+			"https://tempo.mgdc.site",
 		],
 
 		/**

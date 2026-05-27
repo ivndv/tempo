@@ -1,4 +1,4 @@
-# Sinx Pomodoro
+# Tempo
 Una herramienta web minimalista de productividad basada en la técnica Pomodoro.
 
 ## Herramientas
@@ -13,7 +13,7 @@ Una herramienta web minimalista de productividad basada en la técnica Pomodoro.
 
 ---
 
-# Sinx Pomodoro (English)
+# Tempo (English)
 A minimalist web productivity tool based on the Pomodoro technique.
 
 ## Tools

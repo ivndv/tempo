@@ -1,8 +1,8 @@
-# Sinx Pomodoro (Temporizador de Productividad) ⏱️
+# Tempo (Temporizador de Productividad)
 
 ## Descripción
 
-Esta es una aplicación web moderna diseñada para ayudarte a gestionar tu tiempo de estudio o trabajo utilizando la técnica Pomodoro. El objetivo es maximizar tu productividad dividiendo el tiempo en bloques de enfoque total seguidos de breves descansos, todo dentro de una interfaz limpia y rápida.
+Aplicación web moderna diseñada para ayudarte a gestionar tu tiempo de estudio o trabajo utilizando la técnica Pomodoro. El objetivo es maximizar tu productividad dividiendo el tiempo en bloques de enfoque total seguidos de breves descansos, todo dentro de una interfaz limpia y rápida.
 
 ## Características
 
@@ -20,14 +20,14 @@ Esta es una aplicación web moderna diseñada para ayudarte a gestionar tu tiemp
 
 ## Uso
 
-- **Visualizar Contenido**: La aplicación ya está activa y puedes usarla para concentrarte aquí: [Sinx Pomodoro](https://sinx-pomodoro.mgdc.site/).
+- **Visualizar Contenido**: La aplicación ya está activa y puedes usarla para concentrarte aquí: [Tempo](https://tempo.mgdc.site/).
 - **Configurar y Arrancar**: Elige cuánto tiempo vas a trabajar y dale al botón de inicio; la app se encarga de organizar los descansos automáticamente.
 - **Alternar Idiomas**: Puedes cambiar entre español e inglés de forma sencilla para que la interfaz se adapte a tu preferencia.
 
 ## Tecnologías Utilizadas
 
 - HTML / CSS / TypeScript
-- Astro 5
+- Astro 6
 - React 19
 - Tailwind CSS 4
 - Hono
@@ -39,7 +39,7 @@ Esta es una aplicación web moderna diseñada para ayudarte a gestionar tu tiemp
 1. **Clonar el Repositorio**: Descarga el código de este proyecto en tu máquina usando Git.
 
 ```bash
-git clone https://github.com/Ivandv19/sinx-pomodoro.git
+git clone https://github.com/Ivandv19/tempo.git
 ```
 
 2. **Instalar Dependencias**: Abre una terminal en la carpeta del proyecto y ejecuta:
@@ -56,15 +56,9 @@ bun install
 bun run dev
 ```
 
-## Créditos
-
-Este proyecto es parte de las herramientas de productividad personal de mi ecosistema.
-
-- Desarrollado por Ivan Cruz.
-
 ## Despliegue
 
-La aplicación está construida para ser sumamente ligera y se encuentra desplegada de forma global a través de Cloudflare Pages. Puedes usarla directamente aquí: [sinx-pomodoro.mgdc.site](https://sinx-pomodoro.mgdc.site/)
+La aplicación está construida para ser sumamente ligera y se encuentra desplegada de forma global a través de Cloudflare Pages. Puedes usarla directamente aquí: [tempo.mgdc.site](https://tempo.mgdc.site/)
 
 ## Licencia
 

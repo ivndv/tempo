@@ -18,7 +18,7 @@ interface Props {
 
 // 2. Extraemos los valores o ponemos unos por defecto
 const { 
-	title = "Sinx Pomodoro",
+	title = "Tempo",
 	description = "Maximiza tu productividad y concentración. La herramienta ideal para estudiantes, profesionales y creativos que buscan enfoque total.", 
 	image = "https://pomodoro-assets.mgdc.site/og-image.png",
     lang = "es"
@@ -40,11 +40,11 @@ const jsonLdDescription = lang === 'en'
 		<title>{title}</title>
 		<meta name="robots" content="index, follow" />
 		<link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />
-		<meta name="keywords" content="pomodoro, timer, focus, productivity, study, work, technique, tomato, temporizador, enfoque, productividad, estudio, trabajo, tecnica" />
+		<meta name="keywords" content="tempo, pomodoro, timer, focus, productivity, study, work, technique, tomato, temporizador, enfoque, productividad, estudio, trabajo, tecnica" />
 		
-		<link rel="alternate" hreflang="x-default" href="https://sinx-pomodoro.mgdc.site" />
-		<link rel="alternate" hreflang="es" href="https://sinx-pomodoro.mgdc.site" />
-		<link rel="alternate" hreflang="en" href="https://sinx-pomodoro.mgdc.site/en" />
+		<link rel="alternate" hreflang="x-default" href="https://tempo.mgdc.site" />
+		<link rel="alternate" hreflang="es" href="https://tempo.mgdc.site" />
+		<link rel="alternate" hreflang="en" href="https://tempo.mgdc.site/en" />
 
 		<ClientRouter />
 		<!-- Umami Analytics -->
@@ -130,7 +130,7 @@ const jsonLdDescription = lang === 'en'
 		<script type="application/ld+json" set:html={JSON.stringify({
 			  "@context": "https://schema.org",
 			  "@type": "SoftwareApplication",
-			  "name": "Sinx Pomodoro",
+			  "name": "Tempo",
 			  "operatingSystem": "Any",
 			  "applicationCategory": "ProductivityApplication",
 			  "offers": {

@@ -39,3 +39,6 @@ por-hacer.md
 *.db
 *.sqlite3
 .d1/
+
+# CodeGraph index
+.codegraph/

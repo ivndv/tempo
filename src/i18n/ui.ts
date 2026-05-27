@@ -88,10 +88,10 @@ export const ui = {
 		"auth.password.strong": "Fuerte",
 
 		// Blog
-		"blog.title": "Sinx Blog",
-		"blog.description":
-			"Estamos preparando el blog de Sinx Pomodoro. Muy pronto compartiremos consejos sobre productividad y enfoque.",
-		"blog.comingSoon": "Próximamente más contenido",
+"blog.title": "Tempo Blog",
+
+		"blog.description": "Estamos preparando el blog de Tempo. Muy pronto compartiremos consejos sobre productividad y enfoque.",
+
 		"blog.body":
 			"Estamos preparando artículos increíbles sobre productividad, la técnica Pomodoro y cómo sacar el máximo provecho a tu tiempo de enfoque.",
 		"blog.back": "Volver al Inicio",
@@ -182,9 +182,9 @@ export const ui = {
 		"auth.password.strong": "Strong",
 
 		// Blog
-		"blog.title": "Sinx Blog",
+		"blog.title": "Tempo Blog",
 		"blog.description":
-			"We are preparing the Sinx Pomodoro blog. Very soon we will share tips on productivity and focus.",
+			"We are preparing the Tempo blog. Very soon we will share tips on productivity and focus.",
 		"blog.comingSoon": "More content coming soon",
 		"blog.body":
 			"We are preparing amazing articles about productivity, the Pomodoro technique, and how to get the most out of your focus time.",
