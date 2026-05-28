@@ -12,8 +12,6 @@ interface VerifyResponse {
 	data: { match: boolean };
 }
 
-const authInstances = new Map<string, ReturnType<typeof betterAuth>>();
-
 const checkHashService = async (url: string): Promise<boolean> => {
 	const controller = new AbortController();
 	const timeout = setTimeout(() => controller.abort(), 2000);
@@ -63,22 +61,6 @@ export const auth = (
 ) => {
 	if (!db) {
 		throw new Error("Se requiere base de datos (D1) para autenticación");
-	}
-
-	const cacheKey = `${env?.BETTER_AUTH_URL || "local"}-${env?.BETTER_AUTH_SECRET?.substring(0, 5) || "no-secret"}-${env?.TURNSTILE_SECRET_KEY?.substring(0, 5) || "no-turnstile"}`;
-
-	if (authInstances.has(cacheKey)) {
-		return authInstances.get(cacheKey) as ReturnType<typeof betterAuth>;
-	}
-
-	if (authInstances.size >= 10) {
-		const oldestKey = authInstances.keys().next().value;
-		if (oldestKey) {
-			authInstances.delete(oldestKey);
-			console.warn(
-				`🧹 Límite de cache alcanzado, eliminado entorno más antiguo: ${oldestKey}`,
-			);
-		}
 	}
 
 	const d1 = drizzle(db, { schema });
@@ -277,8 +259,6 @@ export const auth = (
 			},
 		},
 	});
-
-	authInstances.set(cacheKey, authInstance);
 
 	return authInstance;
 };
