@@ -7,7 +7,9 @@ export interface UserInfo {
 export interface UserSlice {
 	user: UserInfo | null;
 	isLoggedIn: boolean;
+	sessionLoading: boolean;
 	setUser: (session: { user: UserInfo } | null) => void;
+	setSessionDone: () => void;
 }
 
 export const crearSliceUsuario = (
@@ -19,10 +21,11 @@ export const crearSliceUsuario = (
 ): UserSlice => ({
 	user: null,
 	isLoggedIn: false,
+	sessionLoading: true,
 
 	setUser: (session) => {
 		if (!session) {
-			set({ user: null, isLoggedIn: false });
+			set({ user: null, isLoggedIn: false, sessionLoading: false });
 			return;
 		}
 		set({
@@ -32,6 +35,11 @@ export const crearSliceUsuario = (
 				name: session.user.name,
 			},
 			isLoggedIn: true,
+			sessionLoading: false,
 		});
+	},
+
+	setSessionDone: () => {
+		set({ sessionLoading: false });
 	},
 });

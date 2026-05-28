@@ -1,6 +1,6 @@
 /** @jsxImportSource react */
 import { useEffect } from "react";
-import { authClient } from "../lib/auth-client";
+import { useShallow } from "zustand/react/shallow";
 import { useStore } from "../stores/store";
 import BreakTimer from "./BreakTimer";
 import ErrorBoundary from "./ErrorBoundary";
@@ -15,9 +15,7 @@ interface Props {
 }
 
 export default function PomodoroManager({ lang = "es" }: Props) {
-	const { data: session } = authClient.useSession();
 	const {
-		setUser,
 		isLoggedIn,
 		initTareas,
 		initCategorias,
@@ -28,11 +26,18 @@ export default function PomodoroManager({ lang = "es" }: Props) {
 		iniciar,
 		initPomodoros,
 		setLang,
-	} = useStore();
-
-	useEffect(() => {
-		setUser(session ?? null);
-	}, [session, setUser]);
+	} = useStore(useShallow((s) => ({
+		isLoggedIn: s.isLoggedIn,
+		initTareas: s.initTareas,
+		initCategorias: s.initCategorias,
+		createTarea: s.createTarea,
+		selectTarea: s.selectTarea,
+		pomodoroActivo: s.pomodoroActivo,
+		breakActivo: s.breakActivo,
+		iniciar: s.iniciar,
+		initPomodoros: s.initPomodoros,
+		setLang: s.setLang,
+	})));
 
 	useEffect(() => {
 		setLang(lang);

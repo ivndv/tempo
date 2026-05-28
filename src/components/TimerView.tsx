@@ -2,6 +2,7 @@
 
 import { Icon } from "@iconify/react";
 import { useEffect, useRef, useState } from "react";
+import { useShallow } from "zustand/react/shallow";
 import { useTranslations } from "../i18n/utils";
 import { getTodaysStats, getWeeklyStats } from "../lib/stats";
 import { useStore } from "../stores/store";
@@ -22,10 +23,10 @@ const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 export default function TimerView({ lang }: Props) {
 	const t = useTranslations(lang);
 	const {
-		tareaActiva,
 		tareas,
 		updateTarea,
 		pomodoroActivo,
+		tareaActiva,
 		completar,
 		deleteTarea,
 		interrumpir,
@@ -33,7 +34,19 @@ export default function TimerView({ lang }: Props) {
 		history,
 		isLoggedIn,
 		iniciarBreak,
-	} = useStore();
+	} = useStore(useShallow((s) => ({
+		tareas: s.tareas,
+		updateTarea: s.updateTarea,
+		pomodoroActivo: s.pomodoroActivo,
+		tareaActiva: s.tareaActiva,
+		completar: s.completar,
+		deleteTarea: s.deleteTarea,
+		interrumpir: s.interrumpir,
+		reset: s.reset,
+		history: s.history,
+		isLoggedIn: s.isLoggedIn,
+		iniciarBreak: s.iniciarBreak,
+	})));
 	const POMODORO_SECONDS = (pomodoroActivo?.minutesPlanned || 25) * 60;
 	const savedSecs = (() => {
 		try {

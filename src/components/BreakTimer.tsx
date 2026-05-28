@@ -15,8 +15,10 @@ const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
 export default function BreakTimer({ lang }: Props) {
 	const t = useTranslations(lang);
-	const { breakActivo, completarBreak, saltarBreak, isLoggedIn } =
-		useStore();
+	const breakActivo = useStore((s) => s.breakActivo);
+	const completarBreak = useStore((s) => s.completarBreak);
+	const saltarBreak = useStore((s) => s.saltarBreak);
+	const isLoggedIn = useStore((s) => s.isLoggedIn);
 
 	const totalSeconds = (breakActivo?.minutesPlanned ?? 5) * 60;
 	const [timeLeft, setTimeLeft] = useState(totalSeconds);

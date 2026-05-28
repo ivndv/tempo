@@ -2,6 +2,7 @@
 
 import { Icon } from "@iconify/react";
 import { useState } from "react";
+import { useShallow } from "zustand/react/shallow";
 import { useTranslations } from "../i18n/utils";
 import { getTodaysStats, getWeeklyStats } from "../lib/stats";
 import { useStore } from "../stores/store";
@@ -48,7 +49,15 @@ export default function TaskSelector({
 		history,
 		tareasPendientes,
 		isLoggedIn,
-	} = useStore();
+	} = useStore(useShallow((s) => ({
+		tareas: s.tareas,
+		categorias: s.categorias,
+		updateTarea: s.updateTarea,
+		deleteTarea: s.deleteTarea,
+		history: s.history,
+		tareasPendientes: s.tareasPendientes,
+		isLoggedIn: s.isLoggedIn,
+	})));
 	const t = useTranslations(lang);
 	const [nombre, setNombre] = useState("");
 	const [categoriaId, setCategoriaId] = useState<number | undefined>();

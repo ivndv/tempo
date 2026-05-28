@@ -3,6 +3,7 @@ import { ClientRouter } from 'astro:transitions';
 import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import SessionProvider from '../components/SessionProvider.tsx';
 
 // Import Outfit Font
 // Import Outfit Font
@@ -155,6 +156,7 @@ const jsonLdDescription = lang === 'en'
 		<meta name="twitter:image" content={image} />
 	</head>
 	<body class="min-h-screen flex flex-col antialiased">
+		<SessionProvider client:only="react" />
 		<Header />
 		<main class="grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 			<slot />
