@@ -1,9 +1,11 @@
+/* Tailwind + daisyUI base */
 @import "tailwindcss";
 
 @plugin "daisyui" {
   themes: nord, business;
 }
 
+/* Colores personalizados del tema */
 @theme {
   --font-outfit: 'Outfit', sans-serif;
 
@@ -20,6 +22,7 @@
   --color-long-600: #4f46e5;
 }
 
+/* Tema claro */
 [data-theme="nord"] {
 	--bg-page: #ffffff;
 
@@ -46,6 +49,7 @@
 	--card-border: rgba(0, 0, 0, 0.05);
 }
 
+/* Tema oscuro */
 [data-theme="business"] {
 	--bg-page: #1d232a;
 
@@ -72,6 +76,7 @@
 	--card-border: rgba(255, 255, 255, 0.08);
 }
 
+/* Tipografía base */
 body {
 	font-family: var(--font-outfit);
 	background-color: var(--bg-page);
@@ -110,6 +115,7 @@ header.header-scrolled {
 	box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
 }
 
+/* Animación de entrada */
 @keyframes fadeInUp {
 	from {
 		opacity: 0;
@@ -139,6 +145,7 @@ header.header-scrolled {
 	animation-delay: 500ms;
 }
 
+/* Respeta preferencia de movimiento reducido */
 @media (prefers-reduced-motion: reduce) {
 	.animate-fade-in-up {
 		opacity: 1;
@@ -152,6 +159,7 @@ header.header-scrolled {
 	}
 }
 
+/* Scrollbar oculto */
 .hide-scrollbar {
 	-ms-overflow-style: none;
 	scrollbar-width: none;
@@ -161,6 +169,7 @@ header.header-scrolled {
 	display: none;
 }
 
+/* Scrollbar personalizada */
 .custom-scrollbar {
 	scrollbar-width: thin;
 	scrollbar-color: oklch(0.5 0.03 250 / 0.2) transparent;
@@ -183,7 +192,7 @@ header.header-scrolled {
 	background-color: oklch(0.5 0.03 250 / 0.4);
 }
 
-/* ─── Z-INDEX SYSTEM ─────────────────── */
+/* ─── Z-INDEX SYSTEM ───────────────────── */
 :root {
 	--z-header: 40;
 	--z-mobile-overlay: 50;
@@ -192,7 +201,7 @@ header.header-scrolled {
 	--z-tooltip: 20;
 }
 
-/* ─── FOCUS VISIBLE ──────────────────── */
+/* ─── FOCUS VISIBLE ────────────────────── */
 :focus-visible {
 	outline: none;
 }
@@ -206,7 +215,7 @@ textarea:focus-visible {
 	border-radius: var(--rounded-box, 0.5rem);
 }
 
-/* ─── MOBILE MENU ────────────────────── */
+/* ─── MOBILE MENU ──────────────────────── */
 #mobile-overlay {
 	z-index: var(--z-mobile-overlay);
 	transition:
@@ -232,6 +241,7 @@ body.menu-open {
 	overflow: hidden;
 }
 
+/* Animación de fade in */
 @keyframes fadeIn {
 	from {
 		opacity: 0;
@@ -247,6 +257,7 @@ body.menu-open {
 	animation: fadeIn 0.3s ease-out forwards;
 }
 
+/* Animación de slide in */
 @keyframes slideIn {
 	from {
 		opacity: 0;

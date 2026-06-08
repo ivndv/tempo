@@ -1,69 +1,39 @@
 /** @jsxImportSource react */
-
+// Turnstile
 import { Turnstile, type TurnstileInstance } from "@marsidev/react-turnstile";
+// React
 import type React from "react";
 import { useRef, useState } from "react";
+// Autenticación
 import { authClient, signIn, signUp } from "../../lib/auth-client";
+// Validaciones
 import { loginSchema, signupSchema } from "../../lib/validations";
+// Utilidades
+import { checkStrength } from "../../lib/password";
+import { useStore } from "../../stores/store";
+import { useTranslations } from "../../i18n/utils";
 
-/**
- * Interfaz para las traducciones pasadas desde Astro
- */
-interface Props {
-	translations: {
-		loginTitle: string;
-		signupTitle: string;
-		loginSubtitle: string;
-		signupSubtitle: string;
-		toggleLogin: string;
-		toggleSignup: string;
-		btnLogin: string;
-		btnSignup: string;
-		emailLabel: string;
-		emailPlaceholder: string;
-		passwordLabel: string;
-		passwordPlaceholder: string;
-		genericError: string;
-		captchaRequired: string;
-		captchaError: string;
-		captchaExpired: string;
-		loading: string;
-		passwordWeak: string;
-		passwordWeakText: string;
-		passwordMediumText: string;
-		passwordStrongText: string;
-		forgotLink: string;
-		forgotLinkText: string;
-		emailVerificationSent: string;
-		signupSuccess: string;
-		backHome: string;
-		confirmPasswordLabel: string;
-		confirmPasswordPlaceholder: string;
-	};
+// Props del componente (interfaz local)
+interface AuthFormProps {
 	redirectPath: string;
 }
 
-/**
- * Componente AuthForm: Maneja tanto el inicio de sesión como el registro.
- * Utiliza Better Auth para la lógica y Turnstile para la verificación de seguridad.
- */
-export default function AuthForm({ translations, redirectPath }: Props) {
-	// --- Estados del Componente ---
-	const [isLogin, setIsLogin] = useState(true); // Controla si estamos en modo Login o Signup
-	const [loading, setLoading] = useState(false); // Estado de carga durante las peticiones
-	const [error, setError] = useState<string | null>(null); // Mensajes de error para el usuario
-	const [turnstileToken, setTurnstileToken] = useState<string | null>(null); // Token de verificación de Cloudflare
+// Maneja login y registro con validación y Turnstile
+export default function AuthForm({ redirectPath }: AuthFormProps) {
+	const t = useTranslations(useStore((s) => s.lang));
+	// Estados del formulario
+	const [isLogin, setIsLogin] = useState(true);
+	const [loading, setLoading] = useState(false);
+	const [error, setError] = useState<string | null>(null);
+	const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
 	const [showPassword, setShowPassword] = useState(false);
 	const [password, setPassword] = useState("");
 	const [confirmPassword, setConfirmPassword] = useState("");
 	const [strength, setStrength] = useState(0);
 	const [signupDone, setSignupDone] = useState(false);
-	const turnstileRef = useRef<TurnstileInstance>(null); // Referencia para controlar el widget de Turnstile
+	const turnstileRef = useRef<TurnstileInstance>(null);
 
-	/**
-	 * Cambia entre el modo de inicio de sesión y el de registro.
-	 * Resetea errores y tokens para evitar estados inconsistentes.
-	 */
+	// Cambia entre login y registro, resetea estados
 	const toggleMode = () => {
 		setIsLogin(!isLogin);
 		setError(null);
@@ -74,35 +44,20 @@ export default function AuthForm({ translations, redirectPath }: Props) {
 		turnstileRef.current?.reset();
 	};
 
-	/**
-	 * Evalúa la fortaleza de la contraseña basada en patrones.
-	 * Devuelve un score de 0 a 3.
-	 */
-	const checkStrength = (pass: string) => {
-		if (!pass) return 0;
-		let score = 0;
-		if (pass.length >= 8) score++;
-		if (/[A-Z]/.test(pass) && /[a-z]/.test(pass)) score++;
-		if (/[0-9]/.test(pass) || /[^A-Za-z0-9]/.test(pass)) score++;
-		return score;
-	};
-
+	// Actualiza la contraseña y su fortaleza
 	const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const val = e.target.value;
 		setPassword(val);
 		setStrength(checkStrength(val));
 	};
 
-	/**
-	 * Maneja el envío del formulario.
-	 * Realiza validaciones básicas y llama a las funciones de Better Auth.
-	 */
+	// Maneja el envío del formulario (login o registro)
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		setError(null);
 
 		if (!turnstileToken) {
-			setError(translations.captchaRequired);
+			setError(t("auth.captcha.required"));
 			return;
 		}
 
@@ -114,7 +69,7 @@ export default function AuthForm({ translations, redirectPath }: Props) {
 		if (isLogin) {
 			const result = loginSchema.safeParse({ email, password });
 			if (!result.success) {
-				setError(result.error.issues[0]?.message || translations.genericError);
+				setError(result.error.issues[0]?.message || t("auth.error.generic"));
 				return;
 			}
 		} else {
@@ -124,7 +79,7 @@ export default function AuthForm({ translations, redirectPath }: Props) {
 				confirmPassword,
 			});
 			if (!result.success) {
-				setError(result.error.issues[0]?.message || translations.passwordWeak);
+				setError(result.error.issues[0]?.message || t("auth.password.weak"));
 				return;
 			}
 		}
@@ -143,7 +98,7 @@ export default function AuthForm({ translations, redirectPath }: Props) {
 						},
 					},
 				});
-				if (error) throw new Error(error.message || translations.genericError);
+				if (error) throw new Error(error.message || t("auth.error.generic"));
 			} else {
 				// --- Proceso de Registro ---
 				const { error } = await signUp.email({
@@ -156,7 +111,7 @@ export default function AuthForm({ translations, redirectPath }: Props) {
 						},
 					},
 				});
-				if (error) throw new Error(error.message || translations.genericError);
+				if (error) throw new Error(error.message || t("auth.error.generic"));
 
 				// autoSignIn: false → mostrar mensaje de verificación
 				authClient.sendVerificationEmail({
@@ -186,14 +141,14 @@ export default function AuthForm({ translations, redirectPath }: Props) {
 			<div className="max-w-md w-full mx-4 text-center space-y-6 animate-fade-in-up">
 				<div className="text-6xl">📧</div>
 				<h2 className="text-2xl font-bold">
-					{translations.emailVerificationSent || "Revisa tu email"}
+					{t("auth.emailVerificationSent")}
 				</h2>
 				<p className="text-sm opacity-70">
-					{translations.signupSuccess ||
+					{t("auth.signupSuccess") ||
 						"Te enviamos un link de verificación. Revisa tu bandeja de entrada."}
 				</p>
 				<a href={redirectPath} className="btn btn-primary">
-					{translations.backHome || "Volver al inicio"}
+					{t("auth.backHome")}
 				</a>
 			</div>
 		);
@@ -207,19 +162,19 @@ export default function AuthForm({ translations, redirectPath }: Props) {
 					key={isLogin ? "login-title" : "signup-title"}
 					className="text-4xl font-black bg-linear-to-r from-(--auth-title-from) to-(--auth-title-to) bg-clip-text text-transparent font-[Outfit] tracking-tight py-1 animate-fade-in-up"
 				>
-					{isLogin ? translations.loginTitle : translations.signupTitle}
+					{isLogin ? t("auth.login.title") : t("auth.signup.title")}
 				</h2>
 				<p
 					key={isLogin ? "login-sub" : "signup-sub"}
 					className="text-sm text-(--auth-text-secondary) font-medium"
 				>
-					{isLogin ? translations.loginSubtitle : translations.signupSubtitle}{" "}
+					{isLogin ? t("auth.login.subtitle") : t("auth.signup.subtitle")}{" "}
 					<button
 						onClick={toggleMode}
 						type="button"
 						className="text-[var(--auth-accent)] hover:text-[var(--auth-accent-hover)] underline underline-offset-4 transition-all cursor-pointer font-bold"
 					>
-						{isLogin ? translations.toggleSignup : translations.toggleLogin}
+						{isLogin ? t("auth.btn.toggle.signup") : t("auth.btn.toggle.login")}
 					</button>
 				</p>
 			</div>
@@ -236,7 +191,7 @@ export default function AuthForm({ translations, redirectPath }: Props) {
 							htmlFor="email-address"
 							className="block text-xs font-bold text-(--auth-label) uppercase tracking-widest mb-1.5 ml-1"
 						>
-							{translations.emailLabel}
+							{t("auth.email.label")}
 						</label>
 						<div className="relative group-focus-within:scale-[1.01] transition-transform">
 							<input
@@ -246,7 +201,7 @@ export default function AuthForm({ translations, redirectPath }: Props) {
 								autoComplete="email"
 								required
 								className="appearance-none rounded-2xl relative block w-full px-12 py-4 border border-(--auth-border) bg-(--auth-input-bg) text-(--auth-text) placeholder-(--auth-placeholder) focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/60 focus:z-10 sm:text-sm transition-all duration-300"
-								placeholder={translations.emailPlaceholder}
+								placeholder={t("auth.email.placeholder")}
 							/>
 							<span className="absolute left-0 inset-y-0 flex items-center pl-4 pointer-events-none text-(--auth-label) group-focus-within:text-(--auth-accent) transition-colors">
 								<svg
@@ -275,7 +230,7 @@ export default function AuthForm({ translations, redirectPath }: Props) {
 							ext-id="password-label"
 							className="block text-xs font-bold text-(--auth-label) uppercase tracking-widest mb-1.5 ml-1"
 						>
-							{translations.passwordLabel}
+							{t("auth.password.label")}
 						</label>
 						<div className="relative group-focus-within:scale-[1.01] transition-transform">
 							<input
@@ -287,7 +242,7 @@ export default function AuthForm({ translations, redirectPath }: Props) {
 								value={password}
 								onChange={handlePasswordChange}
 								className="appearance-none rounded-2xl relative block w-full px-12 py-4 border border-(--auth-border) bg-(--auth-input-bg) text-(--auth-text) placeholder-(--auth-placeholder) focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/60 focus:z-10 sm:text-sm transition-all duration-300"
-								placeholder={translations.passwordPlaceholder}
+								placeholder={t("auth.password.placeholder")}
 							/>
 							<span className="absolute left-0 inset-y-0 flex items-center pl-4 pointer-events-none text-(--auth-label) group-focus-within:text-(--auth-accent) transition-colors">
 								<svg
@@ -367,10 +322,10 @@ export default function AuthForm({ translations, redirectPath }: Props) {
 										{strength === 0
 											? ""
 											: strength === 1
-												? translations.passwordWeakText
+												? t("auth.password.weak")
 												: strength === 2
-													? translations.passwordMediumText
-													: translations.passwordStrongText}
+													? t("auth.password.medium")
+													: t("auth.password.strong")}
 									</span>
 									<span className="text-[10px] font-mono text-(--auth-placeholder)">
 										{password.length}/8
@@ -394,11 +349,11 @@ export default function AuthForm({ translations, redirectPath }: Props) {
 						{isLogin && (
 							<div className="mt-2 text-right">
 								<a
-									href={translations.forgotLink || "/forgot-password"}
+									href={t("auth.forgot.link")}
 									data-astro-reload
 									className="text-xs font-medium text-(--auth-accent) hover:text-(--auth-accent-hover) underline underline-offset-4 transition-colors"
 								>
-									{translations.forgotLinkText || "¿Olvidaste tu contraseña?"}
+									{t("auth.forgot.link")}
 								</a>
 							</div>
 						)}
@@ -409,7 +364,7 @@ export default function AuthForm({ translations, redirectPath }: Props) {
 								htmlFor="confirm-password"
 								className="block text-xs font-bold text-(--auth-label) uppercase tracking-widest mb-1.5 ml-1"
 							>
-								{translations.confirmPasswordLabel}
+								{t("auth.confirmPassword.label")}
 							</label>
 							<div className="relative group-focus-within:scale-[1.01] transition-transform">
 								<input
@@ -421,7 +376,7 @@ export default function AuthForm({ translations, redirectPath }: Props) {
 									value={confirmPassword}
 									onChange={(e) => setConfirmPassword(e.target.value)}
 									className="appearance-none rounded-2xl relative block w-full px-12 py-4 border border-(--auth-border) bg-(--auth-input-bg) text-(--auth-text) placeholder-(--auth-placeholder) focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/60 focus:z-10 sm:text-sm transition-all duration-300"
-									placeholder={translations.confirmPasswordPlaceholder}
+									placeholder={t("auth.confirmPassword.placeholder")}
 								/>
 								<span className="absolute left-0 inset-y-0 flex items-center pl-4 pointer-events-none text-(--auth-label) group-focus-within:text-(--auth-accent) transition-colors">
 									<svg
@@ -481,11 +436,11 @@ export default function AuthForm({ translations, redirectPath }: Props) {
 						onSuccess={(token) => setTurnstileToken(token)}
 						onError={() => {
 							setTurnstileToken(null);
-							setError(translations.captchaError);
+							setError(t("auth.captcha.error"));
 						}}
 						onExpire={() => {
 							setTurnstileToken(null);
-							setError(translations.captchaExpired);
+							setError(t("auth.captcha.expired"));
 						}}
 					/>
 				</div>
@@ -520,7 +475,7 @@ export default function AuthForm({ translations, redirectPath }: Props) {
 										d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
 									></path>
 								</svg>
-								<span>{translations.loading}</span>
+								<span>{t("auth.loading")}</span>
 							</span>
 						) : (
 							<span className="flex items-center space-x-2">
@@ -542,7 +497,7 @@ export default function AuthForm({ translations, redirectPath }: Props) {
 									<line x1="15" y1="12" x2="3" y2="12" />
 								</svg>
 								<span>
-									{isLogin ? translations.btnLogin : translations.btnSignup}
+									{isLogin ? t("auth.btn.login") : t("auth.btn.signup")}
 								</span>
 							</span>
 						)}

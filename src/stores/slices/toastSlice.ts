@@ -1,5 +1,6 @@
 /** @jsxImportSource react */
 
+// Una notificación temporal
 export interface Toast {
 	id: string;
 	title?: string;
@@ -7,6 +8,7 @@ export interface Toast {
 	type: "success" | "error" | "info";
 }
 
+// Slice de notificaciones toast
 export interface ToastSlice {
 	toasts: Toast[];
 	addToast: (message: string, type: Toast["type"], title?: string) => void;
@@ -15,6 +17,7 @@ export interface ToastSlice {
 
 let toastCounter = 0;
 
+// Crea el slice de notificaciones (auto-eliminación a los 5s)
 export const crearToastSlice = (
 	set: (fn: (state: ToastSlice) => Partial<ToastSlice>) => void,
 ): ToastSlice => ({

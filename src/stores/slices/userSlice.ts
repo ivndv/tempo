@@ -1,9 +1,11 @@
+// Información básica del usuario autenticado
 export interface UserInfo {
 	id: string;
 	email: string;
 	name: string;
 }
 
+// Slice de autenticación y sesión
 export interface UserSlice {
 	user: UserInfo | null;
 	isLoggedIn: boolean;
@@ -12,6 +14,7 @@ export interface UserSlice {
 	setSessionDone: () => void;
 }
 
+// Crea el slice de usuario (autenticación)
 export const crearSliceUsuario = (
 	set: (
 		partial: Partial<UserSlice> | ((state: UserSlice) => Partial<UserSlice>),

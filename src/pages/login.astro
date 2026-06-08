@@ -1,0 +1,12 @@
+---
+// Layout
+import Layout from '../layouts/Layout.astro';
+// Componentes
+import AuthForm from '../components/auth/AuthForm';
+---
+
+<Layout title="Acceder | Pomodoro">
+	<div class="min-h-screen flex items-center justify-center py-8 sm:py-12 px-3 sm:px-6 lg:px-8 transition-colors duration-300">
+		<AuthForm client:only="react" redirectPath="/" />
+	</div>
+</Layout>

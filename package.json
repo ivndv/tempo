@@ -21,31 +21,31 @@
 		"@types/react-dom": "^19.0.0"
 	},
 	"dependencies": {
-		"@astrojs/cloudflare": "^13.5.5",
-		"@astrojs/react": "^5.0.5",
+		"@astrojs/cloudflare": "^13.6.1",
+		"@astrojs/react": "^5.0.7",
 		"@astrojs/sitemap": "^3.7.3",
 		"@fontsource/outfit": "^5.2.8",
 		"@hono/swagger-ui": "^0.6.1",
 		"@hono/zod-openapi": "^1.4.0",
-		"@iconify-json/lucide": "^1.2.109",
+		"@iconify-json/lucide": "^1.2.111",
 		"@iconify/react": "^6.0.2",
 		"@marsidev/react-turnstile": "^1.5.2",
 		"@tailwindcss/vite": "^4.3.0",
-		"astro": "^6.3.8",
+		"astro": "^6.4.4",
 		"astro-icon": "^1.1.5",
 		"better-auth": "1.6.11",
 		"drizzle-orm": "^0.45.2",
 		"hono": "4.12.23",
-		"react": "^19.2.6",
-		"react-dom": "^19.2.6",
+		"react": "^19.2.7",
+		"react-dom": "^19.2.7",
 		"resend": "^6.12.4",
 		"tailwindcss": "^4.3.0",
-		"zod": "^4",
-		"zustand": "^5.0.13"
+		"zod": "^4.4.3",
+		"zustand": "^5.0.14"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.4.16",
-		"@cloudflare/workers-types": "^4.20260527.1",
-		"daisyui": "^5.5.20"
+		"@cloudflare/workers-types": "^4.20260608.1",
+		"daisyui": "^5.5.23"
 	}
 }

@@ -1,32 +1,34 @@
 ---
+// Astro
 import { ClientRouter } from 'astro:transitions';
+// Estilos
 import '../styles/global.css';
-import Header from '../components/Header.astro';
-import Footer from '../components/Footer.astro';
-import SessionProvider from '../components/SessionProvider.tsx';
-
-// Import Outfit Font
-// Import Outfit Font
+// Componentes
+import Header from '../components/layout/Header.astro';
+import Footer from '../components/layout/Footer.astro';
+import SessionProvider from '../components/session/SessionProvider.tsx';
+// Fuentes
 import '@fontsource/outfit';
 
-// 1. Definimos las propiedades que aceptará el Layout
+// 1. Props del layout principal
 interface Props {
 	title: string;
-	description?: string; // El ? significa que es opcional
+	description?: string;
 	image?: string;
     lang?: string;
 }
 
-// 2. Extraemos los valores o ponemos unos por defecto
-const { 
+// 2. Valores por defecto de props
+const {
 	title = "Tempo",
-	description = "Maximiza tu productividad y concentración. La herramienta ideal para estudiantes, profesionales y creativos que buscan enfoque total.", 
+	description = "Maximiza tu productividad y concentración. La herramienta ideal para estudiantes, profesionales y creativos que buscan enfoque total.",
 	image = "https://pomodoro-assets.mgdc.site/og-image.png",
     lang = "es"
 } = Astro.props;
 
-const jsonLdDescription = lang === 'en' 
-    ? "A minimalist Pomodoro timer designed to improve productivity and focus." 
+// 3. Descripción JSON-LD según el idioma
+const jsonLdDescription = lang === 'en'
+    ? "A minimalist Pomodoro timer designed to improve productivity and focus."
     : "Un temporizador Pomodoro minimalista diseñado para mejorar la productividad y el enfoque.";
 ---
 
@@ -37,12 +39,13 @@ const jsonLdDescription = lang === 'en'
 		<meta name="viewport" content="width=device-width" />
 		<link rel="icon" type="image/png" href="https://pomodoro-assets.mgdc.site/favicon.png" />
 		<meta name="generator" content={Astro.generator} />
-		
+
+		<!-- SEO y metadatos -->
 		<title>{title}</title>
 		<meta name="robots" content="index, follow" />
 		<link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />
 		<meta name="keywords" content="tempo, pomodoro, timer, focus, productivity, study, work, technique, tomato, temporizador, enfoque, productividad, estudio, trabajo, tecnica" />
-		
+		<!-- Idiomas alternativos -->
 		<link rel="alternate" hreflang="x-default" href="https://tempo.mgdc.site" />
 		<link rel="alternate" hreflang="es" href="https://tempo.mgdc.site" />
 		<link rel="alternate" hreflang="en" href="https://tempo.mgdc.site/en" />
@@ -51,7 +54,7 @@ const jsonLdDescription = lang === 'en'
 		<!-- Umami Analytics -->
 		<script defer src="https://umami.fluxdv.icu/script.js" data-website-id="933a5505-2604-4ea0-9870-1313b25d5827"></script>
 		<script is:inline>
-			// 1. Core Logic for Theme Application
+			// 1. Obtiene el tema guardado o el del sistema
 			const getTheme = () => {
 				if (typeof localStorage !== 'undefined' && localStorage.getItem('theme')) {
 					return localStorage.getItem('theme');
@@ -62,6 +65,7 @@ const jsonLdDescription = lang === 'en'
 				return 'nord';
 			};
 
+			// 2. Aplica el tema al DOM y lo persiste en localStorage
 			const applyTheme = (theme) => {
 				document.documentElement.setAttribute('data-theme', theme);
 				if (theme === 'business') {
@@ -70,20 +74,20 @@ const jsonLdDescription = lang === 'en'
 					document.documentElement.classList.remove('dark');
 				}
 				localStorage.setItem('theme', theme);
-				
-				// Sync checkbox state if it exists
+
+				// 2a. Sincroniza el estado del checkbox si existe
 				const controller = document.querySelector('.theme-controller');
 				if (controller) {
 					controller.checked = theme === 'business';
 				}
 			};
 
-			// 2. Initialize immediately to avoid FOUC
+			// 3. Inicializa inmediatamente para evitar FOUC
 			const currentTheme = getTheme();
 			applyTheme(currentTheme);
 			document.documentElement.setAttribute('data-theme-initialized', 'true');
 
-			// 3. Event Listeners for Persistence (Runs on every navigation)
+			// 4. Event listeners para persistencia en cada navegación
 			const onPageLoad = () => {
 				const theme = getTheme();
 				applyTheme(theme);
@@ -97,7 +101,7 @@ const jsonLdDescription = lang === 'en'
 					});
 				}
 
-				// Header scroll detection
+				// 4a. Detecta scroll para cambiar estilo del header
 				const headerScroll = () => {
 					const header = document.querySelector('header');
 					if (!header) return;
@@ -114,7 +118,7 @@ const jsonLdDescription = lang === 'en'
 			document.addEventListener('astro:page-load', onPageLoad);
 			document.addEventListener('astro:after-swap', () => {
 				applyTheme(getTheme());
-				// Re-check header state after page swap
+				// 4b. Revisa estado del header después del cambio de página
 				const header = document.querySelector('header');
 				if (header) {
 					if (window.scrollY > 30) {
@@ -125,9 +129,10 @@ const jsonLdDescription = lang === 'en'
 				}
 			});
 		</script>
-		
+
 		<meta name="description" content={description} />
 
+		<!-- Schema.org JSON-LD -->
 		<script type="application/ld+json" set:html={JSON.stringify({
 			  "@context": "https://schema.org",
 			  "@type": "SoftwareApplication",
@@ -144,12 +149,13 @@ const jsonLdDescription = lang === 'en'
 			})}>
 		</script>
 
+		<!-- Open Graph -->
 		<meta property="og:title" content={title} />
 		<meta property="og:description" content={description} />
 		<meta property="og:type" content="website" />
 		<meta property="og:image" content={image} />
 		<meta property="og:url" content={Astro.url} />
-
+		<!-- Twitter Cards -->
 		<meta name="twitter:card" content="summary_large_image" />
 		<meta name="twitter:title" content={title} />
 		<meta name="twitter:description" content={description} />

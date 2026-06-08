@@ -1,4 +1,6 @@
+// Zod
 import { z } from "@hono/zod-openapi";
+// Constantes
 import {
 	ESTADOS_BREAK,
 	ESTADOS_POMODORO,

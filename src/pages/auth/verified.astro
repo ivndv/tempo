@@ -1,5 +1,7 @@
 ---
+// Layout
 import Layout from '../../layouts/Layout.astro';
+// i18n
 import { useTranslations } from '../../i18n/utils';
 
 const lang = (Astro.currentLocale || 'es') as 'es' | 'en';
@@ -11,15 +13,13 @@ const t = useTranslations(lang);
 		<div class="text-center space-y-6 animate-fade-in-up max-w-md">
 			<div class="text-7xl">✅</div>
 			<h1 class="text-3xl font-black">
-				{lang === 'es' ? 'Correo verificado' : 'Email verified'}
+				{t("auth.verified.title")}
 			</h1>
 			<p class="text-base-content/70 text-lg">
-				{lang === 'es'
-					? 'Tu correo electrónico ha sido verificado exitosamente. Ya puedes iniciar sesión.'
-					: 'Your email has been verified successfully. You can now sign in.'}
+				{t("auth.verified.message")}
 			</p>
 			<a href={lang === 'en' ? '/en/login' : '/login'} data-astro-reload class="btn btn-primary btn-lg mt-4">
-				{lang === 'es' ? 'Iniciar sesión' : 'Sign in'}
+				{t("auth.verified.cta")}
 			</a>
 		</div>
 	</div>

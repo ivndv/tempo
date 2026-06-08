@@ -1,51 +1,12 @@
 ---
+// Layout
 import Layout from "../../layouts/Layout.astro";
-import AuthForm from "../../components/Auth/AuthForm";
-import { ui } from "../../i18n/ui";
-
-const t = ui.en;
-
-const authTranslations = {
-    loginTitle: t["auth.login.title"],
-    signupTitle: t["auth.signup.title"],
-    loginSubtitle: t["auth.login.subtitle"],
-    signupSubtitle: t["auth.signup.subtitle"],
-    toggleLogin: t["auth.btn.toggle.login"],
-    toggleSignup: t["auth.btn.toggle.signup"],
-    btnLogin: t["auth.btn.login"],
-    btnSignup: t["auth.btn.signup"],
-    emailLabel: t["auth.email.label"],
-    emailPlaceholder: t["auth.email.placeholder"],
-    passwordLabel: t["auth.password.label"],
-    passwordPlaceholder: t["auth.password.placeholder"],
-    confirmPasswordLabel: t["auth.confirmPassword.label"],
-    confirmPasswordPlaceholder: t["auth.confirmPassword.placeholder"],
-    genericError: t["auth.error.generic"],
-    captchaRequired: t["auth.captcha.required"],
-    captchaError: t["auth.captcha.error"],
-    captchaExpired: t["auth.captcha.expired"],
-    loading: t["auth.loading"],
-    passwordWeak: t["auth.error.passwordWeak"],
-    passwordWeakText: t["auth.password.weak"],
-    passwordMediumText: t["auth.password.medium"],
-    passwordStrongText: t["auth.password.strong"],
-    forgotLink: "/en/forgot-password",
-    forgotLinkText: t["auth.forgot.link"],
-    emailVerificationSent: t["auth.emailVerificationSent"],
-    signupSuccess: t["auth.signupSuccess"],
-    backHome: t["auth.backHome"],
-};
+// Componentes
+import AuthForm from "../../components/auth/AuthForm";
 ---
 
-<Layout title="Log In | Pomodoro">
-    <div
-        class="min-h-screen flex items-center justify-center py-8 sm:py-12 px-3 sm:px-6 lg:px-8 transition-colors duration-300"
-    >
-        <!-- Auth Component -->
-        <AuthForm
-            client:only="react"
-            translations={authTranslations}
-            redirectPath="/en/"
-        />
-    </div>
+<Layout title="Log In | Tempo" lang="en">
+	<div class="min-h-screen flex items-center justify-center py-8 sm:py-12 px-3 sm:px-6 lg:px-8">
+		<AuthForm client:only="react" redirectPath="/en" />
+	</div>
 </Layout>

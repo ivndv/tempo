@@ -42,3 +42,9 @@ por-hacer.md
 
 # CodeGraph index
 .codegraph/
+
+# Editor settings
+.vscode/
+
+# opencode config
+.opencode/

@@ -1,0 +1,112 @@
+/** @jsxImportSource react */
+// i18n
+import { useTranslations } from "../../i18n/utils";
+// Store
+import { useStore } from "../../stores/store";
+// Tipos locales
+import type { DailySummaryProps } from "./types";
+
+// Muestra el resumen diario de pomodoros (totales + timeline)
+export default function DailySummary({
+	history,
+	hours,
+	minutes,
+	count,
+}: DailySummaryProps) {
+	const lang = useStore((s) => s.lang);
+	const t = useTranslations(lang);
+
+	// Formatea la fecha actual según el idioma
+	const todayDateLabel = new Intl.DateTimeFormat(
+		lang === "es" ? "es-ES" : "en-US",
+		{ dateStyle: "full" },
+	).format(new Date());
+
+	// Formatea un timestamp a hora legible
+	const formatHour = (isoString: string) =>
+		new Date(isoString).toLocaleTimeString([], {
+			hour: "2-digit",
+			minute: "2-digit",
+		});
+
+	return (
+		<div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4 animate-fade-in-up">
+			{/* Tarjeta Izquierda: Totales */}
+			<div className="bg-base-100/40 backdrop-blur-md p-6 md:p-8 rounded-3xl border border-base-200/60 shadow-xl flex flex-col justify-center items-center text-center">
+				{/* Fecha actual */}
+				<span className="text-xs font-bold uppercase opacity-60 mb-2 tracking-widest first-letter:uppercase">
+					{todayDateLabel}
+				</span>
+				{/* Tiempo real acumulado */}
+				<span className="text-xs font-bold uppercase opacity-50 mb-1">
+					{t("stats.realTime")}
+				</span>
+				{/* Horas y minutos */}
+				<div className="text-5xl font-black text-primary">
+					{hours}
+					<span className="text-xl font-normal opacity-50">h</span> {minutes}
+					<span className="text-xl font-normal opacity-50">m</span>
+				</div>
+				{/* Sesiones completadas */}
+				<div className="text-sm mt-2 opacity-60">
+					{count} {t("stats.completedSessions")}
+				</div>
+			</div>
+
+			{/* Tarjeta Derecha: Timeline Vertical */}
+			<div className="bg-base-100/40 backdrop-blur-md p-6 md:p-8 rounded-3xl border border-base-200/60 shadow-xl max-h-60 overflow-y-auto relative">
+				<h4 className="text-xs font-bold uppercase opacity-50 mb-6 sticky top-0 bg-base-100/60 backdrop-blur-md pb-2 z-20 text-center">
+					{t("stats.log.title")}
+				</h4>
+
+				{/* Lista de entradas del historial */}
+				{history.length === 0 ? (
+					<div className="text-center opacity-30 py-4 italic">
+						{t("stats.log.empty")}
+					</div>
+				) : (
+					<div className="ml-2 border-l-2 border-base-content/10 space-y-6">
+						{history
+							.slice()
+							.reverse()
+							.map((entry) => (
+								<div key={entry.id} className="relative pl-6">
+									{/* Puntito de color según el tipo */}
+									<div
+										className={`absolute -left-[9px] top-0 w-4 h-4 rounded-full border-2 border-base-200 ${
+											entry.type === "focus"
+												? "bg-primary-500"
+												: entry.type === "short"
+													? "bg-short-500"
+													: "bg-long-500"
+										}`}
+									></div>
+
+									<div className="flex flex-col">
+										{/* Nombre del tipo y duración */}
+										<div className="flex justify-between items-start">
+											<span className="font-bold text-sm">
+												{entry.type === "focus"
+													? t("timer.focus")
+													: entry.type === "short"
+														? t("timer.short")
+														: t("timer.long")}
+											</span>
+											<span className="text-xs font-mono opacity-50 bg-base-content/5 px-2 py-0.5 rounded">
+												{entry.minutes} min
+											</span>
+										</div>
+										{/* Horario de inicio y fin */}
+										<div className="text-xs opacity-60 font-mono mt-1">
+											{formatHour(entry.startTime)} -{" "}
+											{formatHour(entry.endTime)}
+										</div>
+									</div>
+								</div>
+							))}
+					</div>
+				)}
+			</div>
+		</div>
+	);
+}

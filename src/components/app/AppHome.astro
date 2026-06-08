@@ -1,0 +1,12 @@
+---
+// Componentes
+import PomodoroManager from './PomodoroManager';
+
+// 1. Obtiene el idioma actual de la URL
+const lang = (Astro.currentLocale || 'es') as 'es' | 'en';
+---
+
+<!-- Contenedor principal del temporizador -->
+<div class="mt-8">
+    <PomodoroManager client:only="react" {lang} />
+</div>

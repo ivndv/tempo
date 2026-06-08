@@ -1,0 +1,174 @@
+---
+// Astro
+import { getRelativeLocaleUrl } from "astro:i18n";
+// i18n
+import { useTranslations } from "../../i18n/utils";
+import { languages } from "../../i18n/ui";
+// Componentes
+import ThemeToggle from "../ui/ThemeToggle.astro";
+import AuthButton from "../auth/AuthButton";
+
+// 1. Obtiene el idioma desde las props del componente padre (interfaz local)
+interface Props {
+  lang: 'es' | 'en';
+}
+
+const { lang } = Astro.props;
+// 2. Inicializa las traducciones
+const t = useTranslations(lang);
+// 3. Obtiene la ruta actual sin prefijo de idioma
+const currentPath = Astro.url.pathname
+  .replace(/^\/(en|es)\//, "/")
+  .replace(/^\//, "");
+// 4. Verifica si la ruta actual coincide con la del link de navegación
+const isActive = (path: string) => {
+  return Astro.url.pathname === getRelativeLocaleUrl(lang, path);
+};
+---
+
+<!-- Botón de menú hamburguesa -->
+<button
+  id="hamburger-btn"
+  class="btn btn-ghost btn-sm lg:hidden"
+  aria-label="Toggle menu"
+  aria-expanded="false"
+>
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="3" y1="6" x2="21" y2="6"/>
+    <line x1="3" y1="12" x2="21" y2="12"/>
+    <line x1="3" y1="18" x2="21" y2="18"/>
+  </svg>
+</button>
+
+<!-- Fondo oscuro -->
+<div id="mobile-overlay" class="fixed inset-0 bg-black/50 z-40 invisible opacity-0"></div>
+
+<!-- Panel deslizante -->
+<div id="mobile-panel" class="fixed top-0 right-0 h-full w-72 bg-base-100 z-50 shadow-2xl translate-x-full flex flex-col">
+
+  <!-- Encabezado del panel -->
+  <div class="flex items-center justify-between p-4 border-b border-base-200">
+    <span class="font-bold text-lg">Tempo</span>
+    <button id="mobile-close" class="btn btn-ghost btn-sm btn-circle" aria-label="Close menu">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"/>
+        <line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Enlaces de navegación -->
+  <div class="p-4 space-y-1 flex-1">
+    <a
+      href={getRelativeLocaleUrl(lang, "about")}
+      class={`
+        block px-4 py-3 rounded-lg font-medium transition-all duration-200
+        ${isActive('about')
+          ? 'bg-primary/10 text-primary border-l-2 border-primary'
+          : 'text-base-content/70 hover:bg-base-200 hover:text-base-content border-l-2 border-transparent'}
+      `}
+    >
+      {t('nav.about')}
+    </a>
+    <a
+      href={getRelativeLocaleUrl(lang, "blog")}
+      class={`
+        block px-4 py-3 rounded-lg font-medium transition-all duration-200
+        ${isActive('blog')
+          ? 'bg-primary/10 text-primary border-l-2 border-primary'
+          : 'text-base-content/70 hover:bg-base-200 hover:text-base-content border-l-2 border-transparent'}
+      `}
+    >
+      {t('nav.blog')}
+    </a>
+  </div>
+
+  <!-- Acciones inferiores -->
+  <div class="p-4 border-t border-base-200 space-y-4">
+    <!-- Idioma -->
+    <div class="flex items-center justify-between">
+      <span class="text-sm opacity-60">{t("nav.language")}</span>
+      <div class="flex gap-1">
+        {Object.entries(languages).map(([labelLang, label]) => (
+          <a
+            href={getRelativeLocaleUrl(labelLang, currentPath)}
+            class={`
+              px-3 py-1.5 rounded-lg text-sm font-medium transition-all
+              ${lang === labelLang
+                ? 'bg-primary/10 text-primary'
+                : 'text-base-content/50 hover:text-base-content hover:bg-base-200'}
+            `}
+          >
+            {label}
+          </a>
+        ))}
+      </div>
+    </div>
+
+    <!-- Tema -->
+    <div class="flex items-center justify-between">
+      <span class="text-sm opacity-60">{t("nav.theme")}</span>
+      <ThemeToggle />
+    </div>
+
+    <!-- Autenticación -->
+    <AuthButton
+      client:only="react"
+      loginUrl={getRelativeLocaleUrl(lang, "login")}
+    />
+  </div>
+</div>
+
+<script is:inline>
+  (function() {
+    const setupMobileMenu = () => {
+      // 1. Obtiene referencias a los elementos del DOM
+      const btn = document.getElementById('hamburger-btn');
+      const close = document.getElementById('mobile-close');
+      const panel = document.getElementById('mobile-panel');
+      const overlay = document.getElementById('mobile-overlay');
+
+      if (!btn || !close || !panel || !overlay) return;
+
+      // 2. Abre el menú
+      const open = () => {
+        btn.setAttribute('aria-expanded', 'true');
+        panel.classList.add('open');
+        overlay.classList.add('open');
+        document.body.classList.add('menu-open');
+      };
+
+      // 3. Cierra el menú
+      const closeMenu = () => {
+        btn.setAttribute('aria-expanded', 'false');
+        panel.classList.remove('open');
+        overlay.classList.remove('open');
+        document.body.classList.remove('menu-open');
+      };
+
+      // 4. Event listeners
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        open();
+      });
+
+      close.addEventListener('click', closeMenu);
+      overlay.addEventListener('click', closeMenu);
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && panel.classList.contains('open')) {
+          closeMenu();
+          btn.focus();
+        }
+      });
+
+      // 5. Cierra al hacer clic en un enlace
+      panel.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', closeMenu);
+      });
+    };
+
+    setupMobileMenu();
+    document.addEventListener('astro:page-load', setupMobileMenu);
+  })();
+</script>

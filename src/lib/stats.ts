@@ -1,5 +1,7 @@
+// Store
 import type { LogEntry } from "../stores/slices/pomodoroSlice";
 
+// Calcula estadísticas semanales (minutos y sesiones por día)
 export function getWeeklyStats(history: LogEntry[]) {
 	const now = new Date();
 	const distanceToMonday = (now.getDay() + 6) % 7;
@@ -25,6 +27,7 @@ export function getWeeklyStats(history: LogEntry[]) {
 	});
 }
 
+// Calcula estadísticas del día actual
 export function getTodaysStats(history: LogEntry[]) {
 	const today = new Date().toLocaleDateString();
 	const todaysHistory = history.filter(

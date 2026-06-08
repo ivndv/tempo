@@ -1,28 +1,21 @@
 /** @jsxImportSource react */
+// React
 import { useEffect, useState } from "react";
+// Autenticación
 import { authClient } from "../../lib/auth-client";
+// Validaciones
 import { signupSchema } from "../../lib/validations";
+// i18n
+import { useTranslations } from "../../i18n/utils";
+// Store
+import { useStore } from "../../stores/store";
 
-interface Props {
-	translations: {
-		title: string;
-		subtitle: string;
-		btn: string;
-		success: string;
-		passwordLabel: string;
-		passwordPlaceholder: string;
-		confirmPasswordLabel: string;
-		confirmPasswordPlaceholder: string;
-		loading: string;
-		passwordWeak: string;
-		passwordWeakText: string;
-		passwordMediumText: string;
-		passwordStrongText: string;
-		backHome: string;
-	};
+// Props del componente (interfaz local)
+interface ResetPasswordFormProps {
 	redirectPath: string;
 }
 
+// Evalúa la fortaleza de la contraseña (0-3)
 const checkStrength = (pass: string) => {
 	if (!pass) return 0;
 	let score = 0;
@@ -32,10 +25,12 @@ const checkStrength = (pass: string) => {
 	return score;
 };
 
+// Formulario para restablecer la contraseña con token
 export default function ResetPasswordForm({
-	translations: t,
 	redirectPath,
-}: Props) {
+}: ResetPasswordFormProps) {
+	const t = useTranslations(useStore((s) => s.lang));
+	// Estados del formulario
 	const [token, setToken] = useState("");
 	const [password, setPassword] = useState("");
 	const [confirmPassword, setConfirmPassword] = useState("");
@@ -45,22 +40,24 @@ export default function ResetPasswordForm({
 	const [error, setError] = useState<string | null>(null);
 	const [showPassword, setShowPassword] = useState(false);
 
+	// Extrae el token y errores de la URL al montar
 	useEffect(() => {
 		const params = new URLSearchParams(window.location.search);
 		const tokenParam = params.get("token");
 		const errorParam = params.get("error");
 
 		if (errorParam) {
-			setError(errorParam === "INVALID_TOKEN" ? t.loading : t.loading);
+			setError(errorParam === "INVALID_TOKEN" ? t("auth.error.generic") : t("auth.error.generic"));
 		}
 
 		if (tokenParam) {
 			setToken(tokenParam);
 		} else {
-			setError("Token no encontrado. Usa el link del email.");
+			setError(t("auth.error.generic"));
 		}
-	}, [t.loading]);
+	}, []);
 
+	// Envía la nueva contraseña
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		setError(null);
@@ -71,7 +68,7 @@ export default function ResetPasswordForm({
 			confirmPassword,
 		});
 		if (!result.success) {
-			setError(result.error.issues[0]?.message || t.passwordWeak);
+			setError(result.error.issues[0]?.message || t("auth.password.weak"));
 			return;
 		}
 
@@ -85,21 +82,25 @@ export default function ResetPasswordForm({
 		setLoading(false);
 
 		if (err) {
-			setError(err.message || t.loading);
+			setError(err.message || t("auth.error.generic"));
 			return;
 		}
 
 		setDone(true);
 	};
 
+	// Vista de confirmación de cambio exitoso
 	if (done) {
 		return (
 			<div className="max-w-md w-full mx-4 text-center space-y-6 animate-fade-in-up">
+				{/* Ícono de éxito */}
 				<div className="text-6xl">✅</div>
-				<h2 className="text-2xl font-bold">{t.title}</h2>
-				<p className="text-sm opacity-70">{t.success}</p>
+				{/* Título y mensaje */}
+				<h2 className="text-2xl font-bold">{t("auth.reset.title")}</h2>
+				<p className="text-sm opacity-70">{t("auth.reset.success")}</p>
+				{/* Volver al inicio */}
 				<a href={redirectPath} className="btn btn-primary">
-					{t.backHome}
+					{t("auth.backHome")}
 				</a>
 			</div>
 		);
@@ -108,20 +109,24 @@ export default function ResetPasswordForm({
 	return (
 		<div className="max-w-md w-full mx-4">
 			<div className="bg-base-100/50 backdrop-blur-sm border border-base-200 p-10 rounded-3xl shadow-2xl animate-fade-in-up">
+				{/* Encabezado */}
 				<div className="text-center space-y-2 mb-8">
 					<div className="text-4xl">🔐</div>
-					<h2 className="text-2xl font-bold">{t.title}</h2>
-					<p className="text-sm opacity-70">{t.subtitle}</p>
+					<h2 className="text-2xl font-bold">{t("auth.reset.title")}</h2>
+					<p className="text-sm opacity-70">{t("auth.reset.subtitle")}</p>
 				</div>
 
+				{/* Formulario */}
 				<form onSubmit={handleSubmit} className="space-y-4">
+					{/* Campo de nueva contraseña */}
 					<div className="group">
 						<label
 							htmlFor="password"
 							className="block text-xs font-bold text-(--auth-label) uppercase tracking-widest mb-1.5 ml-1"
 						>
-							{t.passwordLabel}
+							{t("auth.password.label")}
 						</label>
+						{/* Input con icono y toggle de visibilidad */}
 						<div className="relative group-focus-within:scale-[1.01] transition-transform">
 							<input
 								id="password"
@@ -134,8 +139,9 @@ export default function ResetPasswordForm({
 									setStrength(checkStrength(e.target.value));
 								}}
 								className="appearance-none rounded-2xl relative block w-full px-12 py-4 border border-(--auth-border) bg-(--auth-input-bg) text-(--auth-text) placeholder-(--auth-placeholder) focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/60 focus:z-10 sm:text-sm transition-all duration-300"
-								placeholder={t.passwordPlaceholder}
+								placeholder={t("auth.password.placeholder")}
 							/>
+							{/* Icono de candado */}
 							<span className="absolute left-0 inset-y-0 flex items-center pl-4 pointer-events-none text-(--auth-label) group-focus-within:text-(--auth-accent) transition-colors">
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
@@ -153,6 +159,7 @@ export default function ResetPasswordForm({
 									<path d="M7 11V7a5 5 0 0 1 10 0v4" />
 								</svg>
 							</span>
+							{/* Toggle de visibilidad */}
 							<button
 								type="button"
 								onClick={() => setShowPassword(!showPassword)}
@@ -197,6 +204,7 @@ export default function ResetPasswordForm({
 							</button>
 						</div>
 
+						{/* Indicador de fortaleza */}
 						{password && (
 							<div className="mt-2 px-1">
 								<div className="flex justify-between items-center mb-1">
@@ -212,16 +220,17 @@ export default function ResetPasswordForm({
 										{strength === 0
 											? ""
 											: strength === 1
-												? t.passwordWeakText
+												? t("auth.password.weak")
 												: strength === 2
-													? t.passwordMediumText
-													: t.passwordStrongText}
+													? t("auth.password.medium")
+													: t("auth.password.strong")}
 									</span>
 									<span className="text-[10px] font-mono text-(--auth-placeholder)">
 										{password.length}/8
 									</span>
 								</div>
 								<div className="w-full h-1.5 bg-(--auth-border) rounded-full overflow-hidden">
+									{/* Barra de progreso */}
 									<div
 										className={`h-full transition-all duration-500 rounded-full ${
 											strength === 0
@@ -238,12 +247,13 @@ export default function ResetPasswordForm({
 						)}
 					</div>
 
+					{/* Campo de confirmación de contraseña */}
 					<div className="group">
 						<label
 							htmlFor="confirm-password"
 							className="block text-xs font-bold text-(--auth-label) uppercase tracking-widest mb-1.5 ml-1"
 						>
-							{t.confirmPasswordLabel}
+							{t("auth.confirmPassword.label")}
 						</label>
 						<div className="relative group-focus-within:scale-[1.01] transition-transform">
 							<input
@@ -254,8 +264,9 @@ export default function ResetPasswordForm({
 								value={confirmPassword}
 								onChange={(e) => setConfirmPassword(e.target.value)}
 								className="appearance-none rounded-2xl relative block w-full px-12 py-4 border border-(--auth-border) bg-(--auth-input-bg) text-(--auth-text) placeholder-(--auth-placeholder) focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/60 focus:z-10 sm:text-sm transition-all duration-300"
-								placeholder={t.confirmPasswordPlaceholder}
+								placeholder={t("auth.confirmPassword.placeholder")}
 							/>
+							{/* Icono de candado */}
 							<span className="absolute left-0 inset-y-0 flex items-center pl-4 pointer-events-none text-(--auth-label) group-focus-within:text-(--auth-accent) transition-colors">
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
@@ -276,12 +287,14 @@ export default function ResetPasswordForm({
 						</div>
 					</div>
 
+					{/* Mensaje de error */}
 					{error && (
 						<div className="text-sm text-error bg-error/10 border border-error/20 rounded-xl p-3 animate-fade-in">
 							{error}
 						</div>
 					)}
 
+					{/* Botón de enviar */}
 					<button
 						type="submit"
 						disabled={loading || !password || !confirmPassword || !token}
@@ -290,7 +303,7 @@ export default function ResetPasswordForm({
 						{loading ? (
 							<span className="loading loading-spinner loading-sm" />
 						) : (
-							t.btn
+							t("auth.reset.btn")
 						)}
 					</button>
 				</form>

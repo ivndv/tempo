@@ -1,9 +1,12 @@
 import type { TareaResponse } from "../../lib/validations";
 
+// Clave para persistir tareas en localStorage (offline)
 const TAREAS_KEY = "tempo_tareas";
 
+// Genera IDs únicos para tareas offline
 const generarId = () => Date.now() + Math.floor(Math.random() * 1000);
 
+// Slice de gestión de tareas (CRUD con API + localStorage offline)
 export interface TareaSlice {
 	tareas: TareaResponse[];
 	tareaActiva: TareaResponse | null;
@@ -24,6 +27,7 @@ export interface TareaSlice {
 	selectTarea: (tarea: TareaResponse | null) => void;
 }
 
+// Crea el slice de tareas
 export const crearSliceTareas = (
 	set: (
 		partial: Partial<TareaSlice> | ((state: TareaSlice) => Partial<TareaSlice>),
@@ -35,6 +39,7 @@ export const crearSliceTareas = (
 	cargando: false,
 
 	init: async (isLoggedIn) => {
+		// 1. Si está autenticado, carga desde la API
 		if (isLoggedIn) {
 			try {
 				const res = await fetch("/api/tareas");
@@ -44,8 +49,10 @@ export const crearSliceTareas = (
 				}
 			} catch (error) {
 				console.error("[TareaStore] init tareas error:", error);
+				(_get() as any).addToast?.("Error al cargar tareas", "error");
 			}
 		} else {
+			// 2. Si no, carga desde localStorage
 			try {
 				const saved = localStorage.getItem(TAREAS_KEY);
 				if (saved) {
@@ -58,6 +65,7 @@ export const crearSliceTareas = (
 	},
 
 	createTarea: async (nombre, isLoggedIn, categoriaId) => {
+		// 1. Si está autenticado, crea en la API
 		if (isLoggedIn) {
 			try {
 				const res = await fetch("/api/tareas", {
@@ -72,10 +80,11 @@ export const crearSliceTareas = (
 				return tarea;
 			} catch (error) {
 				console.error("[TareaStore] createTarea error:", error);
+				(_get() as any).addToast?.("Error al crear tarea", "error");
 				return null;
 			}
 		}
-
+		// 2. Si no, crea localmente con ID generado
 		const tarea: TareaResponse = {
 			id: generarId(),
 			nombre,
@@ -95,6 +104,7 @@ export const crearSliceTareas = (
 	},
 
 	updateTarea: async (id, data, isLoggedIn) => {
+		// 1. Si está autenticado, actualiza en la API
 		if (isLoggedIn) {
 			try {
 				await fetch(`/api/tareas/${id}`, {
@@ -106,7 +116,7 @@ export const crearSliceTareas = (
 				console.error("[TareaStore] updateTarea error:", error);
 			}
 		}
-
+		// 2. Actualiza en el store y persiste si es offline
 		set((state) => {
 			const tareas = state.tareas.map((t) =>
 				t.id === id ? { ...t, ...data } : t,
@@ -119,14 +129,16 @@ export const crearSliceTareas = (
 	},
 
 	deleteTarea: async (id, isLoggedIn) => {
+		// 1. Si está autenticado, elimina en la API
 		if (isLoggedIn) {
 			try {
 				await fetch(`/api/tareas/${id}`, { method: "DELETE" });
 			} catch (error) {
 				console.error("[TareaStore] deleteTarea error:", error);
+				(_get() as any).addToast?.("Error al eliminar tarea", "error");
 			}
 		}
-
+		// 2. Elimina del store y persiste si es offline
 		set((state) => {
 			const tareas = state.tareas.filter((t) => t.id !== id);
 			if (!isLoggedIn) {

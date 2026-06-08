@@ -1,5 +1,7 @@
+// Drizzle
 import { relations } from "drizzle-orm";
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+// Constantes
 import {
 	ESTADOS_BREAK,
 	ESTADOS_POMODORO,
@@ -7,8 +9,9 @@ import {
 	TIPOS_BREAK,
 } from "../lib/constants";
 
-// ─── Better Auth ───────────────────────────────────────────
+// ─── Better Auth ─────────────────────────────────────────────
 
+// Usuarios de la aplicación
 export const user = sqliteTable("user", {
 	id: text("id").primaryKey(),
 	name: text("name"),
@@ -19,6 +22,7 @@ export const user = sqliteTable("user", {
 	updatedAt: integer("updatedAt", { mode: "timestamp" }).notNull(),
 });
 
+// Sesiones de usuario
 export const session = sqliteTable("session", {
 	id: text("id").primaryKey(),
 	expiresAt: integer("expiresAt", { mode: "timestamp" }).notNull(),
@@ -32,6 +36,7 @@ export const session = sqliteTable("session", {
 		.references(() => user.id),
 });
 
+// Cuentas vinculadas (OAuth, email, etc.)
 export const account = sqliteTable("account", {
 	id: text("id").primaryKey(),
 	accountId: text("accountId").notNull(),
@@ -52,6 +57,7 @@ export const account = sqliteTable("account", {
 	updatedAt: integer("updatedAt", { mode: "timestamp" }).notNull(),
 });
 
+// Verificaciones de email
 export const verification = sqliteTable("verification", {
 	id: text("id").primaryKey(),
 	identifier: text("identifier").notNull(),
@@ -61,8 +67,9 @@ export const verification = sqliteTable("verification", {
 	updatedAt: integer("updatedAt", { mode: "timestamp" }),
 });
 
-// ─── App ───────────────────────────────────────────────────
+// ─── App ─────────────────────────────────────────────────────
 
+// Categorías para clasificar tareas (Trabajo, Estudio, Personal)
 export const categoria = sqliteTable("categoria", {
 	id: integer("id").primaryKey({ autoIncrement: true }),
 	nombre: text("nombre").notNull(),
@@ -71,6 +78,7 @@ export const categoria = sqliteTable("categoria", {
 		.references(() => user.id),
 });
 
+// Tareas del usuario con estado y categoría opcional
 export const tarea = sqliteTable("tarea", {
 	id: integer("id").primaryKey({ autoIncrement: true }),
 	nombre: text("nombre").notNull(),
@@ -87,6 +95,7 @@ export const tarea = sqliteTable("tarea", {
 	completedAt: integer("completed_at", { mode: "timestamp" }),
 });
 
+// Sesiones de pomodoro registradas por tarea
 export const pomodoro = sqliteTable("pomodoro", {
 	id: integer("id").primaryKey({ autoIncrement: true }),
 	tareaId: integer("tarea_id")
@@ -102,6 +111,7 @@ export const pomodoro = sqliteTable("pomodoro", {
 
 // ─── Relations ──────────────────────────────────────────────
 
+// Relaciones de categoría → usuario y tareas
 export const categoriaRelations = relations(categoria, ({ one, many }) => ({
 	user: one(user, {
 		fields: [categoria.userId],
@@ -110,6 +120,7 @@ export const categoriaRelations = relations(categoria, ({ one, many }) => ({
 	tareas: many(tarea),
 }));
 
+// Relaciones de tarea → categoría, usuario y pomodoros
 export const tareaRelations = relations(tarea, ({ one, many }) => ({
 	categoria: one(categoria, {
 		fields: [tarea.categoriaId],
@@ -122,6 +133,7 @@ export const tareaRelations = relations(tarea, ({ one, many }) => ({
 	pomodoros: many(pomodoro),
 }));
 
+// Relaciones de pomodoro → tarea
 export const pomodoroRelations = relations(pomodoro, ({ one }) => ({
 	tarea: one(tarea, {
 		fields: [pomodoro.tareaId],
@@ -129,6 +141,7 @@ export const pomodoroRelations = relations(pomodoro, ({ one }) => ({
 	}),
 }));
 
+// Descansos registrados por el usuario (cortos/largos)
 export const break_ = sqliteTable("break", {
 	id: integer("id").primaryKey({ autoIncrement: true }),
 	userId: text("user_id")

@@ -1,10 +1,16 @@
+// Cloudflare
 import type { D1Database, KVNamespace } from "@cloudflare/workers-types";
+// Autenticación
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+// Base de datos
 import { drizzle } from "drizzle-orm/d1";
+// Email
 import { Resend } from "resend";
+// Schema
 import * as schema from "../db/schema";
 
+// Tipos de respuestas del servicio de hash externo
 interface HashResponse {
 	data: { hash: string };
 }
@@ -12,11 +18,13 @@ interface VerifyResponse {
 	data: { match: boolean };
 }
 
+// Verifica que el servicio de hash esté disponible
 const checkHashService = async (url: string): Promise<boolean> => {
 	const controller = new AbortController();
 	const timeout = setTimeout(() => controller.abort(), 2000);
 
 	try {
+		// Llama al health endpoint del servicio de hash
 		const res = await fetch(`${url}/health`, {
 			signal: controller.signal,
 		});
@@ -28,6 +36,7 @@ const checkHashService = async (url: string): Promise<boolean> => {
 	}
 };
 
+// Fetch con timeout para evitar colgarse si el servicio no responde
 const fetchWithTimeout = async (
 	url: string,
 	options: RequestInit,
@@ -37,6 +46,7 @@ const fetchWithTimeout = async (
 	const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
 	try {
+		// Ejecuta el fetch con señal de aborto
 		const res = await fetch(url, { ...options, signal: controller.signal });
 		clearTimeout(timeout);
 		return res;
@@ -46,6 +56,7 @@ const fetchWithTimeout = async (
 	}
 };
 
+// Configura y retorna la instancia de Better Auth con D1, KV y email
 export const auth = (
 	db: D1Database,
 	kv: KVNamespace | null,
@@ -59,13 +70,17 @@ export const auth = (
 		RESEND_FROM?: string;
 	},
 ) => {
+	// 1. Valida que la base de datos exista
 	if (!db) {
 		throw new Error("Se requiere base de datos (D1) para autenticación");
 	}
 
+	// 2. Inicializa Drizzle con el schema
 	const d1 = drizzle(db, { schema });
 
+	// 3. Configura Better Auth
 	const authInstance = betterAuth({
+		// 3a. Adaptador de base de datos (SQLite vía D1)
 		database: drizzleAdapter(d1, {
 			provider: "sqlite",
 			schema: {
@@ -78,6 +93,7 @@ export const auth = (
 		secret: env?.BETTER_AUTH_SECRET,
 		baseURL: env?.BETTER_AUTH_URL,
 
+		// 3b. Configuración de sesiones
 		session: {
 			expiresIn: 60 * 60 * 24 * 7,
 			updateAge: 60 * 60 * 8,
@@ -89,6 +105,7 @@ export const auth = (
 			storeSessionInDatabase: true,
 		},
 
+		// 3c. Almacenamiento secundario en KV para sesiones
 		secondaryStorage: kv
 			? {
 					get: async (key: string) => {
@@ -116,16 +133,19 @@ export const auth = (
 				}
 			: undefined,
 
+		// 3d. Email y contraseña con hash externo y reset por email
 		emailAndPassword: {
 			enabled: true,
 			autoSignIn: false,
 			requireEmailVerification: true,
 			sendResetPassword: async ({ user, url }) => {
+				// 3d1. Verifica que RESEND_API_KEY esté configurada
 				if (!env?.RESEND_API_KEY) {
 					console.error("[Auth] RESEND_API_KEY no configurada");
 					return;
 				}
 				try {
+					// 3d2. Envía el email de restablecimiento
 					const resend = new Resend(env.RESEND_API_KEY);
 					const result = await resend.emails.send({
 						from: env.RESEND_FROM || "Tempo <noreply@mgdc.site>",
@@ -138,17 +158,19 @@ export const auth = (
 					console.error("[Auth] Error sending reset email:", error);
 				}
 			},
+			// 3e. Hash y verificación mediante servicio externo
 			password: {
 				hash: async (password) => {
+					// 3e1. Valida longitud mínima de 8 caracteres
 					if (password.length < 8) {
 						throw new Error("La contraseña debe tener al menos 8 caracteres");
 					}
-
+					// 3e2. Verifica que el servicio de hash esté disponible
 					const healthy = await checkHashService(env?.HASH_SERVICE_URL || "");
 					if (!healthy) {
 						throw new Error("Servicio de autenticación no disponible");
 					}
-
+					// 3e3. Envía la contraseña al servicio externo para hashear
 					const response = await fetchWithTimeout(
 						`${env?.HASH_SERVICE_URL}/hash`,
 						{
@@ -165,11 +187,12 @@ export const auth = (
 					return jsonRes.data.hash;
 				},
 				verify: async ({ hash, password }) => {
+					// 3e4. Verifica disponibilidad del servicio
 					const healthy = await checkHashService(env?.HASH_SERVICE_URL || "");
 					if (!healthy) {
 						throw new Error("Servicio de autenticación no disponible");
 					}
-
+					// 3e5. Envía contraseña y hash para verificar coincidencia
 					const response = await fetchWithTimeout(
 						`${env?.HASH_SERVICE_URL}/verify`,
 						{
@@ -187,17 +210,20 @@ export const auth = (
 			},
 		},
 
+		// 3f. Verificación de email con Resend
 		emailVerification: {
 			autoSignInAfterVerification: true,
 			sendOnSignUp: false,
 			sendOnSignIn: true,
 			sendVerificationEmail: async ({ user, url, token: _token }, _request) => {
 				console.log("[Auth] sendVerificationEmail CALLED for", user?.email);
+				// 3f1. Verifica RESEND_API_KEY
 				if (!env?.RESEND_API_KEY) {
 					console.error("[Auth] RESEND_API_KEY no configurada");
 					return;
 				}
 				try {
+					// 3f2. Envía email de verificación vía Resend
 					const resend = new Resend(env.RESEND_API_KEY);
 					const result = await resend.emails.send({
 						from: env.RESEND_FROM || "Tempo <noreply@mgdc.site>",
@@ -214,6 +240,7 @@ export const auth = (
 
 		trustedOrigins: ["http://localhost:4321", "https://tempo.mgdc.site"],
 
+		// 3g. Hooks: verificación Turnstile en login/registro
 		hooks: {
 			before: async (context) => {
 				if (!context.request) return;
@@ -221,6 +248,7 @@ export const auth = (
 				const url = new URL(context.request.url);
 				const path = url.pathname;
 
+				// 3g1. Solo intercepta sign-in y sign-up con email
 				if (
 					path.endsWith("/sign-up/email") ||
 					path.endsWith("/sign-in/email")
@@ -228,6 +256,7 @@ export const auth = (
 					const token = context.request.headers.get("x-turnstile-token");
 					const secret = env?.TURNSTILE_SECRET_KEY;
 
+					// 3g2. Sin secret configurado → permite localhost, rechaza en producción
 					if (!secret) {
 						if (env?.BETTER_AUTH_URL?.includes("localhost")) {
 							return;
@@ -236,11 +265,11 @@ export const auth = (
 							"Error de configuración: TURNSTILE_SECRET_KEY no está definida",
 						);
 					}
-
+					// 3g3. Sin token de Turnstile → rechaza
 					if (!token) {
 						throw new Error("Se requiere verificación de seguridad");
 					}
-
+					// 3g4. Verifica el token con Cloudflare Turnstile
 					const result = await fetch(
 						"https://challenges.cloudflare.com/turnstile/v0/siteverify",
 						{

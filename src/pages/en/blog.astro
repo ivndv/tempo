@@ -1,8 +1,11 @@
 ---
+// Layout
 import Layout from "../../layouts/Layout.astro";
+// i18n
 import { useTranslations } from "../../i18n/utils";
 
-const t = useTranslations("en");
+const lang = (Astro.currentLocale ?? "en") as "es" | "en";
+const t = useTranslations(lang);
 ---
 
 <Layout title={t("blog.title")} lang="en" description={t("blog.description")}>

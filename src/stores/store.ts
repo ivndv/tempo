@@ -1,4 +1,6 @@
+// Zustand
 import { create } from "zustand";
+// Slices
 import { type BreakSlice, crearSliceBreaks } from "./slices/breakSlice";
 import {
 	type CategoriaSlice,
@@ -13,6 +15,7 @@ import { crearSliceTareas, type TareaSlice } from "./slices/tareaSlice";
 import { crearToastSlice, type ToastSlice } from "./slices/toastSlice";
 import { crearSliceUsuario, type UserSlice } from "./slices/userSlice";
 
+// Estado combinado de todos los slices más init methods
 export type AppState = TareaSlice &
 	PomodoroSlice &
 	ToastSlice &
@@ -25,13 +28,14 @@ export type AppState = TareaSlice &
 		initCategorias: (isLoggedIn: boolean) => Promise<void>;
 	};
 
+// Crea el store unificado combinando todos los slices
 const useStore = create<AppState>()((set, get) => {
 	const tareaSlice = crearSliceTareas(set, get);
 	const pomodoroSlice = crearSlicePomodoros(set, get);
 	const toastSlice = crearToastSlice(set);
 	const userSlice = crearSliceUsuario(set);
 	const settingsSlice = crearSliceSettings(set);
-	const categoriaSlice = crearSliceCategorias(set);
+	const categoriaSlice = crearSliceCategorias(set, get);
 	const breakSlice = crearSliceBreaks(set, get);
 
 	return {

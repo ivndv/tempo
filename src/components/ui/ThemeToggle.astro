@@ -1,0 +1,30 @@
+---
+// Iconos
+import { Icon } from 'astro-icon/components';
+// i18n
+import { useTranslations } from '../../i18n/utils';
+
+// 1. Obtiene el idioma actual de la URL
+const currentLang = (Astro.currentLocale || 'es') as 'es' | 'en';
+// 2. Inicializa las traducciones
+const t = useTranslations(currentLang);
+---
+
+{/* Checkbox de cambio de tema */}
+<label
+  class="btn btn-ghost btn-sm gap-2 px-3 cursor-pointer group"
+>
+  <div class="swap swap-rotate">
+    <input
+      type="checkbox"
+      class="theme-controller"
+      value="business"
+      aria-label="Toggle theme"
+    />
+    {/* Icono de sol/luna según el tema actual */}
+    <Icon name="lucide:sun" class="swap-off w-4 h-4 group-hover:text-primary transition-colors" />
+    <Icon name="lucide:moon" class="swap-on w-4 h-4 group-hover:text-primary transition-colors" />
+  </div>
+  {/* Etiqueta de tema */}
+  <span class="hidden sm:inline">{t("nav.theme")}</span>
+</label>

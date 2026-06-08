@@ -1,5 +1,7 @@
+// Tipos de sesión
 export type SessionType = "focus" | "short" | "long";
 
+// Entrada del historial de pomodoros
 export interface LogEntry {
 	id: number;
 	type: SessionType;
@@ -8,12 +10,14 @@ export interface LogEntry {
 	endTime: string;
 }
 
+// Estadísticas por día
 interface DiaStat {
 	day: string;
 	minutes: number;
 	count: number;
 }
 
+// Pomodoro activo en memoria
 interface PomodoroActivo {
 	tareaId: number;
 	status: "active";
@@ -25,6 +29,7 @@ const STORAGE_KEY = "pomodoro_active_session";
 const HISTORY_KEY = "pomodoro_history";
 const REMAINING_KEY = "pomodoro_remaining";
 
+// Carga el mapa de tiempo restante desde localStorage
 const cargarRemaining = (): Record<number, number> => {
 	if (typeof localStorage === "undefined") return {};
 	try {
@@ -36,6 +41,7 @@ const cargarRemaining = (): Record<number, number> => {
 	}
 };
 
+// Guarda el mapa de tiempo restante en localStorage
 const guardarRemaining = (map: Record<number, number>) => {
 	try {
 		localStorage.setItem(REMAINING_KEY, JSON.stringify(map));
@@ -44,6 +50,7 @@ const guardarRemaining = (map: Record<number, number>) => {
 	}
 };
 
+// Slice de gestión de pomodoros (sesiones, historial, estadísticas)
 export interface PomodoroSlice {
 	pomodoroActivo: PomodoroActivo | null;
 	history: LogEntry[];
@@ -61,6 +68,7 @@ export interface PomodoroSlice {
 	clearTareaPendiente: (taskId: number) => void;
 }
 
+// Crea el slice de pomodoros
 export const crearSlicePomodoros = (
 	set: (
 		partial:
@@ -76,6 +84,7 @@ export const crearSlicePomodoros = (
 	tareasPendientes: cargarRemaining(),
 
 	init: async (isLoggedIn) => {
+		// 1. Si está autenticado, carga historial desde la API
 		if (isLoggedIn) {
 			try {
 				const res = await fetch("/api/pomodoros");
@@ -97,9 +106,10 @@ export const crearSlicePomodoros = (
 				}
 			} catch (error) {
 				console.error("[PomodoroStore] init error:", error);
+				(get() as any).addToast?.("Error al cargar historial", "error");
 			}
 		}
-
+		// 2. Combina con historial local de localStorage
 		try {
 			const saved = localStorage.getItem(HISTORY_KEY);
 			if (saved) {
@@ -112,7 +122,7 @@ export const crearSlicePomodoros = (
 			console.error("[PomodoroStore] init localStorage error:", error);
 			localStorage.removeItem(HISTORY_KEY);
 		}
-
+		// 3. Restaura sesión activa si existe
 		get().restaurar();
 	},
 
@@ -136,8 +146,10 @@ export const crearSlicePomodoros = (
 
 		const minutes = pomodoroActivo.minutesPlanned;
 
+		// 1. Limpia tiempo pendiente de la tarea
 		get().clearTareaPendiente(pomodoroActivo.tareaId);
 
+		// 2. Si está autenticado, registra en la API
 		if (isLoggedIn) {
 			try {
 				await fetch("/api/pomodoros", {
@@ -151,9 +163,10 @@ export const crearSlicePomodoros = (
 				});
 			} catch (error) {
 				console.error("[PomodoroStore] completar error:", error);
+				(get() as any).addToast?.("Error al completar pomodoro", "error");
 			}
 		}
-
+		// 3. Guarda en historial local y limpia sesión activa
 		get().guardarLocal("focus", minutes);
 		localStorage.removeItem(STORAGE_KEY);
 		set({ pomodoroActivo: null });
@@ -166,6 +179,7 @@ export const crearSlicePomodoros = (
 		const remainingSecs =
 			Math.max(pomodoroActivo.minutesPlanned - minutesActual, 0) * 60;
 
+		// 1. Guarda tiempo restante para reanudar después
 		if (remainingSecs > 0) {
 			set((state) => {
 				const map = {
@@ -176,7 +190,7 @@ export const crearSlicePomodoros = (
 				return { tareasPendientes: map };
 			});
 		}
-
+		// 2. Si está autenticado, registra interrupción en la API
 		if (isLoggedIn) {
 			try {
 				await fetch("/api/pomodoros", {
@@ -190,9 +204,10 @@ export const crearSlicePomodoros = (
 				});
 			} catch (error) {
 				console.error("[PomodoroStore] interrumpir error:", error);
+				(get() as any).addToast?.("Error al interrumpir pomodoro", "error");
 			}
 		}
-
+		// 3. Guarda en historial local y limpia sesión activa
 		get().guardarLocal("focus", minutesActual);
 		localStorage.removeItem(STORAGE_KEY);
 		set({ pomodoroActivo: null });
