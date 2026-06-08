@@ -66,6 +66,7 @@ export const crearSliceBreaks = (
 				});
 			} catch (error) {
 				console.error("[BreakStore] completar error:", error);
+				// biome-ignore lint/suspicious/noExplicitAny: acceso cross-slice a addToast
 				(get() as any).addToast?.("Error al registrar descanso", "error");
 			}
 		}
@@ -97,6 +98,7 @@ export const crearSliceBreaks = (
 				});
 			} catch (error) {
 				console.error("[BreakStore] saltar error:", error);
+				// biome-ignore lint/suspicious/noExplicitAny: acceso cross-slice a addToast
 				(get() as any).addToast?.("Error al saltar descanso", "error");
 			}
 		}

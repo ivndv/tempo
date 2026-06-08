@@ -55,7 +55,7 @@ export default function ResetPasswordForm({
 		} else {
 			setError(t("auth.error.generic"));
 		}
-	}, []);
+	}, [t]);
 
 	// Envía la nueva contraseña
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {

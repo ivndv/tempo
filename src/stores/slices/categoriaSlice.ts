@@ -54,6 +54,7 @@ export const crearSliceCategorias = (
 			}
 		} catch (error) {
 			console.error("[CategoriaStore] init error:", error);
+			// biome-ignore lint/suspicious/noExplicitAny: acceso cross-slice a addToast
 			(_get() as any).addToast?.("Error al cargar categorías", "error");
 		} finally {
 			set({ cargando: false });
@@ -78,6 +79,7 @@ export const crearSliceCategorias = (
 			return cat;
 		} catch (error) {
 			console.error("[CategoriaStore] create error:", error);
+			// biome-ignore lint/suspicious/noExplicitAny: acceso cross-slice a addToast
 			(_get() as any).addToast?.("Error al crear categoría", "error");
 			return null;
 		}
@@ -95,6 +97,7 @@ export const crearSliceCategorias = (
 			});
 		} catch (error) {
 			console.error("[CategoriaStore] update error:", error);
+			// biome-ignore lint/suspicious/noExplicitAny: acceso cross-slice a addToast
 			(_get() as any).addToast?.("Error al actualizar categoría", "error");
 		}
 		// 2. Actualiza en el store
@@ -113,6 +116,7 @@ export const crearSliceCategorias = (
 			await fetch(`/api/categorias/${id}`, { method: "DELETE" });
 		} catch (error) {
 			console.error("[CategoriaStore] delete error:", error);
+			// biome-ignore lint/suspicious/noExplicitAny: acceso cross-slice a addToast
 			(_get() as any).addToast?.("Error al eliminar categoría", "error");
 		}
 		// 2. Elimina del store

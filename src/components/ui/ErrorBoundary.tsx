@@ -36,20 +36,19 @@ export default class ErrorBoundary extends Component<Props, State> {
 
 	// Renderiza el fallback o los hijos según el estado
 	render() {
+		// biome-ignore lint/correctness/useHookAtTopLevel: class component no soporta hooks, patrón válido
+		const t = useTranslations(useStore.getState().lang);
+
 		if (this.state.hasError) {
-			const t = useTranslations(useStore.getState().lang);
 			return (
 				this.props.fallback || (
 					<div className="flex items-center justify-center min-h-[200px]">
 						<div className="text-center space-y-4 p-8">
-							{/* Ícono de error */}
 							<div className="text-4xl">💥</div>
-							{/* Título y mensaje */}
 							<h2 className="text-xl font-bold">{t("error.title")}</h2>
 							<p className="text-sm opacity-70">
 								{t("error.message")}
 							</p>
-							{/* Botón de recargar */}
 							<button
 								type="button"
 								onClick={() => window.location.reload()}

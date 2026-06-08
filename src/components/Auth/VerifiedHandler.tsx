@@ -27,7 +27,7 @@ export default function VerifiedHandler() {
 			url.searchParams.delete("verified");
 			window.history.replaceState({}, "", url.toString());
 		}
-	}, [addToast]);
+	}, [addToast, t]);
 
 	return null;
 }

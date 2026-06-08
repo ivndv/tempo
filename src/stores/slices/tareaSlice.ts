@@ -49,6 +49,7 @@ export const crearSliceTareas = (
 				}
 			} catch (error) {
 				console.error("[TareaStore] init tareas error:", error);
+				// biome-ignore lint/suspicious/noExplicitAny: acceso cross-slice a addToast
 				(_get() as any).addToast?.("Error al cargar tareas", "error");
 			}
 		} else {
@@ -80,6 +81,7 @@ export const crearSliceTareas = (
 				return tarea;
 			} catch (error) {
 				console.error("[TareaStore] createTarea error:", error);
+				// biome-ignore lint/suspicious/noExplicitAny: acceso cross-slice a addToast
 				(_get() as any).addToast?.("Error al crear tarea", "error");
 				return null;
 			}
@@ -135,6 +137,7 @@ export const crearSliceTareas = (
 				await fetch(`/api/tareas/${id}`, { method: "DELETE" });
 			} catch (error) {
 				console.error("[TareaStore] deleteTarea error:", error);
+				// biome-ignore lint/suspicious/noExplicitAny: acceso cross-slice a addToast
 				(_get() as any).addToast?.("Error al eliminar tarea", "error");
 			}
 		}

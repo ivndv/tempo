@@ -106,6 +106,7 @@ export const crearSlicePomodoros = (
 				}
 			} catch (error) {
 				console.error("[PomodoroStore] init error:", error);
+				// biome-ignore lint/suspicious/noExplicitAny: acceso cross-slice a addToast
 				(get() as any).addToast?.("Error al cargar historial", "error");
 			}
 		}
@@ -163,6 +164,7 @@ export const crearSlicePomodoros = (
 				});
 			} catch (error) {
 				console.error("[PomodoroStore] completar error:", error);
+				// biome-ignore lint/suspicious/noExplicitAny: acceso cross-slice a addToast
 				(get() as any).addToast?.("Error al completar pomodoro", "error");
 			}
 		}
@@ -204,6 +206,7 @@ export const crearSlicePomodoros = (
 				});
 			} catch (error) {
 				console.error("[PomodoroStore] interrumpir error:", error);
+				// biome-ignore lint/suspicious/noExplicitAny: acceso cross-slice a addToast
 				(get() as any).addToast?.("Error al interrumpir pomodoro", "error");
 			}
 		}
