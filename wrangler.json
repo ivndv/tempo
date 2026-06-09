@@ -1,0 +1,20 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "tempo",
+	"pages_build_output_dir": "./dist",
+	"compatibility_date": "2026-04-30",
+	"compatibility_flags": ["nodejs_compat"],
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "pomodoro-db",
+			"database_id": "896db0a5-ecfc-4f4d-92d2-302a54266f3d"
+		}
+	],
+	"kv_namespaces": [
+		{
+			"binding": "LUCIA_KV",
+			"id": "2f41dca3b1444beebacd5a4d94284baa"
+		}
+	]
+}

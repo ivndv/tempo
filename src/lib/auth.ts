@@ -2,13 +2,15 @@
 import type { D1Database, KVNamespace } from "@cloudflare/workers-types";
 // Autenticación
 import { betterAuth } from "better-auth";
-import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { drizzleAdapter } from "@better-auth/drizzle-adapter";
 // Base de datos
 import { drizzle } from "drizzle-orm/d1";
 // Email
 import { Resend } from "resend";
 // Schema
 import * as schema from "../db/schema";
+// Plugins
+import { captcha } from "better-auth/plugins";
 
 // Tipos de respuestas del servicio de hash externo
 interface HashResponse {
@@ -76,12 +78,12 @@ export const auth = (
 	}
 
 	// 2. Inicializa Drizzle con el schema
-	const d1 = drizzle(db, { schema });
+	const drizzleDb = drizzle(db, { schema });
 
 	// 3. Configura Better Auth
 	const authInstance = betterAuth({
 		// 3a. Adaptador de base de datos (SQLite vía D1)
-		database: drizzleAdapter(d1, {
+		database: drizzleAdapter(drizzleDb, {
 			provider: "sqlite",
 			schema: {
 				user: schema.user,
@@ -99,7 +101,7 @@ export const auth = (
 			updateAge: 60 * 60 * 8,
 			cookieCache: {
 				enabled: true,
-				maxAge: 60 * 60 * 8,
+				maxAge: 5 * 60,
 				strategy: "compact",
 			},
 			storeSessionInDatabase: true,
@@ -240,56 +242,13 @@ export const auth = (
 
 		trustedOrigins: ["http://localhost:4321", "https://tempo.mgdc.site"],
 
-		// 3g. Hooks: verificación Turnstile en login/registro
-		hooks: {
-			before: async (context) => {
-				if (!context.request) return;
-
-				const url = new URL(context.request.url);
-				const path = url.pathname;
-
-				// 3g1. Solo intercepta sign-in y sign-up con email
-				if (
-					path.endsWith("/sign-up/email") ||
-					path.endsWith("/sign-in/email")
-				) {
-					const token = context.request.headers.get("x-turnstile-token");
-					const secret = env?.TURNSTILE_SECRET_KEY;
-
-					// 3g2. Sin secret configurado → permite localhost, rechaza en producción
-					if (!secret) {
-						if (env?.BETTER_AUTH_URL?.includes("localhost")) {
-							return;
-						}
-						throw new Error(
-							"Error de configuración: TURNSTILE_SECRET_KEY no está definida",
-						);
-					}
-					// 3g3. Sin token de Turnstile → rechaza
-					if (!token) {
-						throw new Error("Se requiere verificación de seguridad");
-					}
-					// 3g4. Verifica el token con Cloudflare Turnstile
-					const result = await fetch(
-						"https://challenges.cloudflare.com/turnstile/v0/siteverify",
-						{
-							method: "POST",
-							headers: {
-								"Content-Type": "application/x-www-form-urlencoded",
-							},
-							body: `secret=${secret}&response=${token}`,
-						},
-					);
-
-					const outcome: { success: boolean } = await result.json();
-					if (!outcome.success) {
-						throw new Error(
-							"La verificación de seguridad falló. Intenta de nuevo.",
-						);
-					}
-				}
-			},
-		},
+		// 3g. Captcha con Cloudflare Turnstile
+		plugins: [
+			captcha({
+				provider: "cloudflare-turnstile",
+				secretKey: env?.TURNSTILE_SECRET_KEY || "",
+			}),
+		],
 	});
 
 	return authInstance;

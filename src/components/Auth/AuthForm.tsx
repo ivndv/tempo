@@ -94,7 +94,7 @@ export default function AuthForm({ redirectPath }: AuthFormProps) {
 					fetchOptions: {
 						headers: {
 							// El token se pasa en el header para ser procesado por el hook en el servidor
-							"x-turnstile-token": turnstileToken,
+							"x-captcha-response": turnstileToken,
 						},
 					},
 				});
@@ -107,7 +107,7 @@ export default function AuthForm({ redirectPath }: AuthFormProps) {
 					name: email.split("@")[0] || "User",
 					fetchOptions: {
 						headers: {
-							"x-turnstile-token": turnstileToken,
+							"x-captcha-response": turnstileToken,
 						},
 					},
 				});

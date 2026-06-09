@@ -24,6 +24,7 @@
 		"@astrojs/cloudflare": "^13.6.1",
 		"@astrojs/react": "^5.0.7",
 		"@astrojs/sitemap": "^3.7.3",
+		"@better-auth/drizzle-adapter": "^1.6.15",
 		"@fontsource/outfit": "^5.2.8",
 		"@hono/swagger-ui": "^0.6.1",
 		"@hono/zod-openapi": "^1.4.0",
