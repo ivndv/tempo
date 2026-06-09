@@ -11,7 +11,7 @@ import HeroSection from "../layout/HeroSection";
 import TaskSelector from "../tasks/TaskSelector";
 import TimerView from "../timer/TimerView";
 import Toast from "../ui/Toast";
-import VerifiedHandler from "../auth/VerifiedHandler";
+import VerifiedHandler from "../Auth/VerifiedHandler";
 
 // Props del componente (interfaz local)
 interface PomodoroManagerProps {
