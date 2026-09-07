@@ -47,8 +47,8 @@ Guía operativa y técnica para agentes de Inteligencia Artificial que colaboren
 | **Validación** | **Zod 4** | `zod ^4.5.4` |
 | **Servicio de Email** | **Resend** | `resend ^6.26.0` |
 | **Linter & Formatter** | **Biome 2** | `@biomejs/biome ^2.5.12` (`biome.json`) |
-| **Pruebas Unitarias** | **Vitest 5** | `vitest ^5.0.0` (58 tests de slices y helpers) |
-| **Pruebas E2E & Smoke** | **Playwright** | `@playwright/test ^1.62.1` (24 E2E + 9 Smoke tests) |
+| **Pruebas Unitarias** | **Vitest 5** | `vitest ^5.0.0` (96 tests de slices, sync y storage) |
+| **Pruebas E2E & Smoke** | **Playwright** | `@playwright/test ^1.62.1` (45 E2E + 9 Smoke tests) |
 | **Accesibilidad (A11y)** | **@axe-core/playwright** | `@axe-core/playwright ^4.13.0` (WCAG 2.1 AA) |
 | **Regresión Visual** | **Playwright Visual Snapshots** | Comparación de snapshots en Chromium Linux |
 | **Infraestructura & Edge** | **Cloudflare Pages, D1, KV & R2** | `wrangler ^4.129.0` |
@@ -80,33 +80,31 @@ tempo/
 │   │   ├── timer/                 → TimerView, BreakTimer, diálogos de interrupción y confirmación
 │   │   └── ui/                    → Primitivos shadcn/ui, ThemeToggle, ErrorBoundary
 │   ├── db/                        → Esquemas Drizzle (schema.ts, migrations_better_auth.sql)
+│   ├── hooks/                     → Custom hooks de React (useTheme, useStats, etc.)
 │   ├── i18n/                      → Diccionarios y utilidades de traducción (ui.ts, utils.ts)
 │   ├── layouts/                   → Layout.astro principal
-│   ├── lib/                       → Lógica de sync offline, validaciones, auth y stats
-│   │   ├── auth-client.ts         → Cliente Better Auth en el navegador
-│   │   ├── auth.ts                → Configuración Better Auth en backend
-│   │   ├── sync.ts                → Sincronización bidireccional y traducción de IDs
-│   │   └── syncLocalToCloud.ts    → Migración de datos locales a la nube al iniciar sesión
+│   ├── lib/                       → Lógica modular por entorno y responsabilidad
+│   │   ├── client/                → auth-client.ts (Better Auth cliente)
+│   │   ├── server/                → auth.ts (Better Auth backend + D1 + Hashy)
+│   │   ├── shared/                → validaciones (Zod/OpenAPI), constantes y helpers
+│   │   └── sync/                  → sync.ts, syncLocalToCloud.ts
 │   ├── pages/                     → Rutas Astro (index, about, blog, login, forgot-password, en/)
-│   └── stores/                    → Store Zustand 5 compuesto (store.ts)
+│   └── stores/                    → Store Zustand 5 y persistencia centralizada
+│       ├── storage.ts             → Persistencia segura (safeStorage, persistKeys)
+│       ├── store.ts               → Store compuesto unificado
 │       └── slices/                → 7 slices: tarea, pomodoro, break, user, settings, categoria, toast
 │
 ├── tests/                         → Suites de Pruebas Automatizadas
-│   ├── unit/                      → Pruebas unitarias de slices con Vitest (58 tests)
-│   ├── e2e/                       → Pruebas E2E completas con Playwright (24 tests)
-│   │   ├── 00-warmup.spec.ts      → Calentamiento de funciones y rutas
-│   │   ├── a11y.spec.ts           → Accesibilidad WCAG 2.1 AA con Axe-core
-│   │   ├── api.spec.ts            → Pruebas directas de contrato HTTP
-│   │   ├── auth.setup.ts          → Setup y preservación de estado de autenticación
-│   │   ├── i18n.spec.ts           → Validación de idiomas español e inglés
-│   │   ├── idempotencia.spec.ts   → Prevención de duplicados en recarga
-│   │   ├── offline.spec.ts        → Sincronización y persistencia offline-first
-│   │   ├── online.spec.ts         → Flujo en línea de tareas y pomodoros
-│   │   ├── resiliencia.spec.ts    → Manejo de fallos en servicios externos
-│   │   ├── visual.spec.ts         → Regresión visual con Playwright snapshots
-│   │   └── visual.spec.ts-snapshots/ → Baselines visuales de Chromium Linux
-│   └── smoke/                     → Pruebas de humo críticas en entorno completo
-│       └── smoke.spec.ts          → 9 tests de renderizado, registro, email y reset password
+│   ├── support/                   → Infraestructura compartida (fixtures.sql, hashy-stub, seed, helpers)
+│   ├── unit/                      → Pruebas unitarias de slices, sync y storage (96 tests Vitest)
+│   ├── e2e/                       → Pruebas E2E organizadas por dominio (45 tests Playwright)
+│   │   ├── setup/                 → auth.setup.ts (estado de autenticación)
+│   │   ├── flows/                 → 00-warmup, online, offline, idempotencia, i18n
+│   │   ├── api/                   → api.spec.ts (contratos HTTP y paginación por cursor)
+│   │   ├── visual/                → visual.spec.ts y snapshots Chromium Linux
+│   │   ├── a11y/                  → a11y.spec.ts (WCAG 2.1 AA con Axe-core)
+│   │   └── resilience/            → resiliencia.spec.ts (fallos de red y hash)
+│   └── smoke/                     → Pruebas de humo críticas en entorno completo (9 tests)
 │
 ├── public/                        → Assets estáticos públicos
 ├── docs/                          → Documentación técnica interna (ignorado en Git)
@@ -140,13 +138,13 @@ bun run check
 bun run lint
 bun run format
 
-# Pruebas Unitarias (Vitest - 58 tests)
+# Pruebas Unitarias (Vitest - 96 tests)
 bun run test:unit
 
 # Pruebas de Humo (Playwright - 9 tests críticos)
 bun run test:smoke
 
-# Pruebas End-to-End completas (Playwright - 24 tests)
+# Pruebas End-to-End completas (Playwright - 45 tests)
 bun run test:e2e
 
 # Operaciones de Base de Datos (D1 / Drizzle)
@@ -163,7 +161,7 @@ bun run db:check           # Verificar integridad del esquema Drizzle
 * **NO ejecutar comandos de test de forma reactiva tras cada pequeño cambio.** Realizar todos los cambios de código primero y acumularlos; correr las suites de pruebas únicamente al final cuando todo el conjunto esté listo y verificado.
 
 ### 6.2 Reglas Críticas de Negocio
-* **Traducción obligatoria de IDs locales:** Jamás enviar IDs generados localmente (`Date.now() + random`) a endpoints de la API (`/api/*`) sin pasar previamente por `traducirTareaId` (`src/lib/sync.ts:58`).
+* **Traducción obligatoria de IDs locales:** Jamás enviar IDs generados localmente (`Date.now() + random`) a endpoints de la API (`/api/*`) sin pasar previamente por `traducirTareaId` (`src/lib/sync/sync.ts:37`).
 * **Vinculación estricta de Pomodoro:** Prohibido iniciar un pomodoro sin un `tareaId` válido asignado.
 * **Compatibilidad de Better Auth:** Mantener la versión de `better-auth` en `1.6.27` para preservar la compatibilidad con el esquema actual de SQLite en Cloudflare D1.
 
