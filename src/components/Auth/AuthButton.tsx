@@ -1,6 +1,6 @@
 /** @jsxImportSource react */
 import { Icon } from "@iconify/react";
-import { authClient } from "../../lib/auth-client";
+import { authClient } from "../../lib/client/auth-client";
 import { cn } from "../../lib/utils";
 import { useStore } from "../../stores/store";
 import { Button, buttonVariants } from "../ui/button";

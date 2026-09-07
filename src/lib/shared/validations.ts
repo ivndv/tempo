@@ -1,6 +1,5 @@
-// Zod
+// Esquemas de validación (Zod y OpenAPI)
 import { z } from "@hono/zod-openapi";
-// Constantes
 import {
 	ESTADOS_BREAK,
 	ESTADOS_POMODORO,
@@ -36,7 +35,7 @@ export type LoginInput = z.infer<typeof loginSchema>;
 
 // ─── Compartidos ──────────────────────────────────────────
 
-// Fecha en formato YYYY-MM-DD (para query params de filtrado por día)
+// Formato YYYY-MM-DD para filtros por fecha
 const FECHA_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 
 export const idParamSchema = z.coerce

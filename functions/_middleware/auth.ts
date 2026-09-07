@@ -1,6 +1,6 @@
 import type { OpenAPIHono } from "@hono/zod-openapi";
 import type { Context } from "hono";
-import { auth } from "../../src/lib/auth";
+import { auth } from "../../src/lib/server/auth";
 import { checkRateLimit } from "../_shared/helpers";
 import type { Bindings } from "../_shared/types";
 

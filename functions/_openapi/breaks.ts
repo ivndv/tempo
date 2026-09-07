@@ -7,7 +7,7 @@ import {
 	breakResponse as breakResponseSchema,
 	crearBreakSchema,
 	listarPomodorosQuery,
-} from "../../src/lib/validations";
+} from "../../src/lib/shared/validations";
 // Helpers
 import { dataResponse, errorSchema } from "../_shared/helpers";
 

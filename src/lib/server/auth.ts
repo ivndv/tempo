@@ -11,7 +11,7 @@ import { drizzle } from "drizzle-orm/d1";
 // Email
 import { Resend } from "resend";
 // Schema
-import * as schema from "../db/schema";
+import * as schema from "../../db/schema";
 
 // Tipos de respuestas del servicio de hash externo
 interface HashResponse {

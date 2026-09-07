@@ -1,6 +1,6 @@
 import type { KVNamespace } from "@cloudflare/workers-types";
 import { z } from "@hono/zod-openapi";
-import { auth } from "../../src/lib/auth";
+import { auth } from "../../src/lib/server/auth";
 import type { Bindings } from "./types";
 
 // Schema base para respuestas de error (string o detalle)

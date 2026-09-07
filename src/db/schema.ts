@@ -14,7 +14,7 @@ import {
 	ESTADOS_POMODORO,
 	ESTADOS_TAREA,
 	TIPOS_BREAK,
-} from "../lib/constants";
+} from "../lib/shared/constants";
 
 // ─── Better Auth ─────────────────────────────────────────────
 

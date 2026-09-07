@@ -1,16 +1,10 @@
-// Orquestación del sync local → nube (ADR-001).
-// Importado únicamente por SessionProvider: no hay ciclos de imports.
-//
-// Flujo: 1) tareas offline → nube (construye el mapa de IDs)
-//        2) pomodoros del historial local no sincronizados
-//        3) breaks del historial local no sincronizados
-//
-// Idempotente: cada entrada marcada con synced:true no se vuelve a subir.
-// Un fallo de red deja la entrada sin synced → se reintenta en el próximo login.
+// Sincronización local → nube (ADR-001)
+// Flujo: tareas offline → pomodoros → breaks (idempotente)
 
-import type { BreakLogEntry } from "../stores/slices/breakSlice";
-import type { LogEntry } from "../stores/slices/pomodoroSlice";
-import { useStore } from "../stores/store";
+import type { BreakLogEntry } from "../../stores/slices/breakSlice";
+import type { LogEntry } from "../../stores/slices/pomodoroSlice";
+import { useStore } from "../../stores/store";
+import type { TareaResponse } from "../shared/validations";
 import {
 	cargarMapaIds,
 	guardarMapaIds,
@@ -18,18 +12,16 @@ import {
 	subirPomodoro,
 	traducirTareaId,
 } from "./sync";
-import type { TareaResponse } from "./validations";
 
 const TAREAS_KEY = "tempo_tareas";
 
-// Tarea local: además de lo que devuelve la API, lleva el flag de sync.
-// Los IDs locales se generan con Date.now() + random (≈1.7e12); los IDs
-// reales de D1 son secuenciales (AUTOINCREMENT), siempre < 1e12.
+// Tarea local con flag de sincronización
 type TareaLocal = TareaResponse & { synced?: boolean };
 
+// Umbral: IDs generados offline son >= 1e12, IDs reales de D1 son menores
 const UMBRAL_ID_REAL = 1_000_000_000_000;
 
-// Lee las tareas offline desde localStorage (con sus IDs inventados)
+// Lee tareas offline desde localStorage
 const cargarTareasLocales = (): TareaLocal[] => {
 	if (typeof localStorage === "undefined") return [];
 	try {
@@ -40,15 +32,14 @@ const cargarTareasLocales = (): TareaLocal[] => {
 	}
 };
 
-// Reescribe las tareas offline en localStorage con sus IDs reales
+// Guarda tareas offline en localStorage
 const persistirTareasLocales = (tareas: TareaLocal[]) => {
 	try {
 		localStorage.setItem(TAREAS_KEY, JSON.stringify(tareas));
 	} catch {}
 };
 
-// Marca como sincronizadas las tareas locales que ya tienen un ID real
-// (subidas por un sync anterior): evita re-subirlas en cada login.
+// Marca sincronizadas las tareas locales que ya tienen ID real
 const sanearTareasLocales = (locales: TareaLocal[]): TareaLocal[] => {
 	const saneadas = locales.map((t) =>
 		t.id >= UMBRAL_ID_REAL ? t : { ...t, synced: true },
@@ -57,57 +48,59 @@ const sanearTareasLocales = (locales: TareaLocal[]): TareaLocal[] => {
 	return saneadas;
 };
 
-// 1. Sube las tareas offline, construye el mapa y traduce todo lo que
-//    dependa de los IDs inventados (tareasPendientes, sesión activa).
+// Sincroniza tareas offline y traduce referencias locales
 const syncTareasLocales = async (): Promise<void> => {
 	const { tareas, setTareas } = useStore.getState();
 	const mapa = cargarMapaIds();
-	// Poda del mapa: las claves con ID real son residuo del bug de re-subida
+
+	// 1. Poda IDs reales residuales del mapa
 	for (const k of Object.keys(mapa).map(Number)) {
 		if (k < UMBRAL_ID_REAL) delete mapa[k];
 	}
 	guardarMapaIds(mapa);
 
+	// 2. Procesa y sube tareas locales pendientes
 	let locales = cargarTareasLocales();
-	if (locales.length === 0) return;
-	// Las tareas con ID real ya están en la nube: marcar sincronizadas
-	locales = sanearTareasLocales(locales);
+	if (locales.length > 0) {
+		locales = sanearTareasLocales(locales);
 
-	const porSubir = locales.filter(
-		(t) => !t.synced && mapa[t.id] === undefined && t.id >= UMBRAL_ID_REAL,
-	);
-	if (porSubir.length === 0) return;
+		const porSubir = locales.filter(
+			(t) => !t.synced && mapa[t.id] === undefined && t.id >= UMBRAL_ID_REAL,
+		);
 
-	const traducidas: TareaLocal[] = [];
-	for (const t of porSubir) {
-		const idReal = await traducirTareaId({
-			tareaId: t.id,
-			tareasNube: tareas.filter((x) => x.id < UMBRAL_ID_REAL),
-			getNombre: () => t.nombre,
-		});
-		if (idReal === null) {
-			traducidas.push(t); // fallo de red → se reintenta el próximo login
-			continue;
+		if (porSubir.length > 0) {
+			const traducidas: TareaLocal[] = [];
+			for (const t of porSubir) {
+				const idReal = await traducirTareaId({
+					tareaId: t.id,
+					tareasNube: tareas.filter((x) => x.id < UMBRAL_ID_REAL),
+					getNombre: () => t.nombre,
+				});
+				if (idReal === null) {
+					traducidas.push(t);
+					continue;
+				}
+				mapa[t.id] = idReal;
+				traducidas.push({ ...t, id: idReal, synced: true });
+			}
+			guardarMapaIds(mapa);
+			persistirTareasLocales(traducidas);
+
+			// 3. Integra tareas nuevas al store sustituyendo las locales
+			const nuevas = traducidas
+				.filter((t) => t.synced)
+				.map(({ synced: _synced, ...t }) => t);
+			if (nuevas.length > 0) {
+				const tareasReales = tareas.filter((x) => x.id < UMBRAL_ID_REAL);
+				setTareas([
+					...nuevas,
+					...tareasReales.filter((x) => !nuevas.some((n) => n.id === x.id)),
+				]);
+			}
 		}
-		mapa[t.id] = idReal;
-		traducidas.push({ ...t, id: idReal, synced: true });
-	}
-	guardarMapaIds(mapa);
-	persistirTareasLocales(traducidas);
-
-	// Las tareas recién creadas en la nube entran al store sustituyendo los IDs locales
-	const nuevas = traducidas
-		.filter((t) => t.synced)
-		.map(({ synced: _synced, ...t }) => t);
-	if (nuevas.length > 0) {
-		const tareasReales = tareas.filter((x) => x.id < UMBRAL_ID_REAL);
-		setTareas([
-			...nuevas,
-			...tareasReales.filter((x) => !nuevas.some((n) => n.id === x.id)),
-		]);
 	}
 
-	// Traduce las claves de tareasPendientes (tiempo restante por tarea)
+	// 4. Traduce claves locales en tareasPendientes (tiempo restante)
 	const { tareasPendientes, setTareasPendientes } = useStore.getState();
 	const claves = Object.keys(tareasPendientes).map(Number);
 	const tieneClavesLocales = claves.some(
@@ -123,16 +116,14 @@ const syncTareasLocales = async (): Promise<void> => {
 		guardarMapaIds(mapa);
 	}
 
-	// Traduce el ID de la sesión activa si está en curso
+	// 5. Traduce tareaId en la sesión activa si está en curso
 	const { pomodoroActivo } = useStore.getState();
 	if (pomodoroActivo && mapa[pomodoroActivo.tareaId] !== undefined) {
 		useStore.getState().traducirSesionActiva(mapa[pomodoroActivo.tareaId]);
 	}
 };
 
-// Lee el historial local de pomodoros desde localStorage. Es la fuente de
-// verdad para el sync: el store puede no estar hidratado aún cuando corre
-// el sync (SessionProvider lo dispara antes de que init() termine).
+// Lee historial de pomodoros desde localStorage
 const cargarHistorialPomodoro = (): LogEntry[] => {
 	if (typeof localStorage === "undefined") return [];
 	try {
@@ -143,6 +134,7 @@ const cargarHistorialPomodoro = (): LogEntry[] => {
 	}
 };
 
+// Guarda historial de pomodoros (máximo 200)
 const persistirHistorialPomodoro = (history: LogEntry[]) => {
 	try {
 		localStorage.setItem(
@@ -152,7 +144,7 @@ const persistirHistorialPomodoro = (history: LogEntry[]) => {
 	} catch {}
 };
 
-// Marca una entrada del historial como sincronizada (localStorage + store)
+// Marca un pomodoro como sincronizado en localStorage y store
 const marcarPomodoroSynced = (id: number) => {
 	const local = cargarHistorialPomodoro().map((e) =>
 		e.id === id ? { ...e, synced: true } : e,
@@ -162,7 +154,7 @@ const marcarPomodoroSynced = (id: number) => {
 	setHistory(history.map((e) => (e.id === id ? { ...e, synced: true } : e)));
 };
 
-// Lee el historial local de breaks desde localStorage
+// Lee historial de breaks desde localStorage
 const cargarHistorialBreak = (): BreakLogEntry[] => {
 	if (typeof localStorage === "undefined") return [];
 	try {
@@ -173,13 +165,14 @@ const cargarHistorialBreak = (): BreakLogEntry[] => {
 	}
 };
 
+// Guarda historial de breaks (máximo 200)
 const persistirHistorialBreak = (history: BreakLogEntry[]) => {
 	try {
 		localStorage.setItem("break_history", JSON.stringify(history.slice(-200)));
 	} catch {}
 };
 
-// Marca un break del historial como sincronizado (localStorage + store)
+// Marca un break como sincronizado en localStorage y store
 const marcarBreakSynced = (id: number) => {
 	const local = cargarHistorialBreak().map((b) =>
 		b.id === id ? { ...b, synced: true } : b,
@@ -191,17 +184,19 @@ const marcarBreakSynced = (id: number) => {
 	);
 };
 
-// 2. Sube los pomodoros locales no sincronizados
+// Sube pomodoros locales no sincronizados
 const syncPomodoros = async (): Promise<void> => {
 	const { tareas, isLoggedIn } = useStore.getState();
 	if (!isLoggedIn) return;
 
+	// 1. Filtra pomodoros de foco pendientes de sync
 	const local = cargarHistorialPomodoro();
 	const porSubir = local.filter(
 		(e: LogEntry) => e.type === "focus" && !e.synced,
 	);
 	if (porSubir.length === 0) return;
 
+	// 2. Traduce tareaId o crea tarea fallback si no existe
 	for (const e of porSubir) {
 		const tareaId = await traducirTareaId({
 			tareaId: e.tareaId ?? null,
@@ -210,11 +205,10 @@ const syncPomodoros = async (): Promise<void> => {
 				useStore.getState().tareas.find((t) => t.id === id)?.nombre ??
 				e.tareaNombre,
 		});
-		// Sin tarea no se puede registrar (regla de negocio 1): se crea con
-		// el nombre guardado, o se deja pendiente si la creación falla.
 		const idFinal = tareaId ?? (await crearTareaFallback(e));
 		if (idFinal === null) continue;
 
+		// 3. Registra en la API y marca como sincronizado
 		const ok = await subirPomodoro({
 			tareaId: idFinal,
 			status: e.status ?? "completed",
@@ -225,7 +219,7 @@ const syncPomodoros = async (): Promise<void> => {
 	}
 };
 
-// Crea una tarea de respaldo si la entrada no tiene tarea asociada
+// Crea tarea de respaldo si la sesión no tiene tarea asociada
 const crearTareaFallback = async (e: LogEntry): Promise<number | null> => {
 	const { createTarea } = useStore.getState();
 	const nombre = e.tareaNombre?.trim();
@@ -234,15 +228,17 @@ const crearTareaFallback = async (e: LogEntry): Promise<number | null> => {
 	return tarea?.id ?? null;
 };
 
-// 3. Sube los breaks locales no sincronizados
+// Sube descansos locales no sincronizados
 const syncBreaks = async (): Promise<void> => {
 	const { isLoggedIn } = useStore.getState();
 	if (!isLoggedIn) return;
 
+	// 1. Filtra breaks pendientes de sync
 	const local = cargarHistorialBreak();
 	const porSubir = local.filter((b: BreakLogEntry) => !b.synced);
 	if (porSubir.length === 0) return;
 
+	// 2. Registra en la API y marca como sincronizado
 	for (const b of porSubir) {
 		const ok = await subirBreak({
 			tipo: b.tipo,
@@ -254,8 +250,7 @@ const syncBreaks = async (): Promise<void> => {
 	}
 };
 
-// Helper para exponer estado del sync a E2E (Playwright waitForFunction)
-// Patrón estándar para tests de sync offline: exponer flag global + evento
+// Notifica estado de sincronización (flag global y evento para E2E)
 const setSyncFlag = (done: boolean) => {
 	if (typeof window === "undefined") return;
 	(window as unknown as Record<string, unknown>).__tempoSyncDone = done;
@@ -264,26 +259,35 @@ const setSyncFlag = (done: boolean) => {
 	);
 };
 
-// Orquesta el sync completo. Seguro de llamar en cada login/page load.
+// Orquesta la sincronización completa (tareas, pomodoros y descansos)
 export const syncLocalToCloud = async (): Promise<void> => {
 	const { isLoggedIn } = useStore.getState();
 	if (!isLoggedIn) return;
 
+	// 1. Inicia sincronización y notifica evento
 	setSyncFlag(false);
+
+	// 2. Sube tareas locales y traduce referencias
 	try {
 		await syncTareasLocales();
 	} catch (error) {
 		console.error("[Sync] syncTareasLocales error:", error);
 	}
+
+	// 3. Sube historial de pomodoros
 	try {
 		await syncPomodoros();
 	} catch (error) {
 		console.error("[Sync] syncPomodoros error:", error);
 	}
+
+	// 4. Sube historial de descansos
 	try {
 		await syncBreaks();
 	} catch (error) {
 		console.error("[Sync] syncBreaks error:", error);
 	}
+
+	// 5. Finaliza sincronización y notifica evento
 	setSyncFlag(true);
 };

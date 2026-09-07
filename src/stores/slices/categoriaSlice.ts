@@ -1,4 +1,4 @@
-import type { CategoriaResponse } from "../../lib/validations";
+import type { CategoriaResponse } from "../../lib/shared/validations";
 import type { AppState } from "../store";
 
 // Slice de gestión de categorías (CRUD contra API)

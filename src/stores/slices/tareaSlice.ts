@@ -1,4 +1,4 @@
-import type { TareaResponse } from "../../lib/validations";
+import type { TareaResponse } from "../../lib/shared/validations";
 import type { AppState } from "../store";
 
 // Clave para persistir tareas en localStorage (offline)
@@ -64,6 +64,9 @@ export const crearSliceTareas = (
 	},
 
 	createTarea: async (nombre, categoriaId) => {
+		const limpio = typeof nombre === "string" ? nombre.trim() : "";
+		if (!limpio || limpio.length > 100) return null;
+
 		const { isLoggedIn } = get();
 		// 1. Si está autenticado, crea en la API
 		if (isLoggedIn) {
@@ -71,7 +74,7 @@ export const crearSliceTareas = (
 				const res = await fetch("/api/tareas", {
 					method: "POST",
 					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify({ nombre, categoriaId }),
+					body: JSON.stringify({ nombre: limpio, categoriaId }),
 				});
 				if (!res.ok) return null;
 				const json = await res.json();
@@ -87,7 +90,7 @@ export const crearSliceTareas = (
 		// 2. Si no, crea localmente con ID generado
 		const tarea: TareaResponse = {
 			id: generarId(),
-			nombre,
+			nombre: limpio,
 			categoriaId: categoriaId ?? null,
 			estado: "pending",
 			createdAt: Date.now(),
@@ -104,6 +107,12 @@ export const crearSliceTareas = (
 	},
 
 	updateTarea: async (id, data) => {
+		let saneado = data;
+		if (data.nombre !== undefined) {
+			const limpio = data.nombre.trim();
+			if (!limpio || limpio.length > 100) return;
+			saneado = { ...data, nombre: limpio };
+		}
 		const { isLoggedIn } = get();
 		// 1. Si está autenticado, actualiza en la API
 		if (isLoggedIn) {
@@ -111,7 +120,7 @@ export const crearSliceTareas = (
 				await fetch(`/api/tareas/${id}`, {
 					method: "PATCH",
 					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify(data),
+					body: JSON.stringify(saneado),
 				});
 			} catch (error) {
 				console.error("[TareaStore] updateTarea error:", error);
@@ -120,7 +129,7 @@ export const crearSliceTareas = (
 		// 2. Actualiza en el store y persiste si es offline
 		set((state) => {
 			const tareas = state.tareas.map((t) =>
-				t.id === id ? { ...t, ...data } : t,
+				t.id === id ? { ...t, ...saneado } : t,
 			);
 			if (!isLoggedIn) {
 				localStorage.setItem(TAREAS_KEY, JSON.stringify(tareas));

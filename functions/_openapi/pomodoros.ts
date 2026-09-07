@@ -9,7 +9,7 @@ import {
 	pomodoroResponse as pomodoroResponseSchema,
 	statsQuery,
 	statsResponse as statsResponseSchema,
-} from "../../src/lib/validations";
+} from "../../src/lib/shared/validations";
 // Helpers
 import { dataResponse, errorSchema } from "../_shared/helpers";
 

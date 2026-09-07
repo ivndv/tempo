@@ -7,10 +7,10 @@ import { useEffect, useState } from "react";
 // i18n
 import { useTranslations } from "../../i18n/utils";
 // Autenticación
-import { authClient } from "../../lib/auth-client";
-import { cn } from "../../lib/utils";
+import { authClient } from "../../lib/client/auth-client";
 // Validaciones
-import { signupSchema } from "../../lib/validations";
+import { signupSchema } from "../../lib/shared/validations";
+import { cn } from "../../lib/utils";
 // Store
 import { useStore } from "../../stores/store";
 // Componentes

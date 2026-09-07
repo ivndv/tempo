@@ -1,6 +1,4 @@
-// Tipos de sesión
-
-import { traducirTareaId } from "../../lib/sync";
+import { traducirTareaId } from "../../lib/sync/sync";
 import type { AppState } from "../store";
 
 export type SessionType = "focus" | "short" | "long";

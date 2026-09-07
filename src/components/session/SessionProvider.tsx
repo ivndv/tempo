@@ -2,9 +2,9 @@
 // React
 import { useEffect, useRef } from "react";
 // Autenticación
-import { authClient } from "../../lib/auth-client";
+import { authClient } from "../../lib/client/auth-client";
 // Sync local → nube (ADR-001)
-import { syncLocalToCloud } from "../../lib/syncLocalToCloud";
+import { syncLocalToCloud } from "../../lib/sync/syncLocalToCloud";
 // Store
 import { useStore } from "../../stores/store";
 

@@ -2,7 +2,7 @@
 import { createRoute } from "@hono/zod-openapi";
 // Zod
 import { z } from "zod";
-import { categoriaResponse as categoriaResponseSchema } from "../../src/lib/validations";
+import { categoriaResponse as categoriaResponseSchema } from "../../src/lib/shared/validations";
 // Helpers
 import { dataResponse, errorSchema } from "../_shared/helpers";
 

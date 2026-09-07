@@ -5,16 +5,15 @@ import { Icon } from "@iconify/react";
 import { Turnstile, type TurnstileInstance } from "@marsidev/react-turnstile";
 // React
 import type React from "react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "../../i18n/utils";
 // Autenticación
-import { authClient, signIn, signUp } from "../../lib/auth-client";
+import { authClient, signIn, signUp } from "../../lib/client/auth-client";
 // Utilidades
-import { checkStrength } from "../../lib/password";
-import { useRedirectIfAuthed } from "../../lib/useRedirectIfAuthed";
-import { cn } from "../../lib/utils";
+import { checkStrength } from "../../lib/client/password";
 // Validaciones
-import { loginSchema, signupSchema } from "../../lib/validations";
+import { loginSchema, signupSchema } from "../../lib/shared/validations";
+import { cn } from "../../lib/utils";
 import { useStore } from "../../stores/store";
 import { Button, buttonVariants } from "../ui/button";
 
@@ -26,8 +25,14 @@ interface AuthFormProps {
 // Maneja login y registro con validación y Turnstile
 export default function AuthForm({ redirectPath }: AuthFormProps) {
 	const t = useTranslations(useStore((s) => s.lang));
+	const isLoggedIn = useStore((s) => s.isLoggedIn);
+	const sessionLoading = useStore((s) => s.sessionLoading);
+
 	// Redirige al home si ya hay sesión activa (evita re-login)
-	const redirecting = useRedirectIfAuthed(redirectPath);
+	useEffect(() => {
+		if (sessionLoading || !isLoggedIn) return;
+		window.location.replace(redirectPath);
+	}, [sessionLoading, isLoggedIn, redirectPath]);
 	// Estados del formulario
 	const [isLogin, setIsLogin] = useState(true);
 	const [loading, setLoading] = useState(false);
@@ -143,7 +148,7 @@ export default function AuthForm({ redirectPath }: AuthFormProps) {
 		}
 	};
 
-	if (redirecting) {
+	if (sessionLoading || isLoggedIn) {
 		return null;
 	}
 

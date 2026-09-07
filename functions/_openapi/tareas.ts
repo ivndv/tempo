@@ -10,7 +10,7 @@ import {
 	listarTareasQuery,
 	tareaDetalleResponse as tareaDetalleResponseSchema,
 	tareaResponse as tareaResponseSchema,
-} from "../../src/lib/validations";
+} from "../../src/lib/shared/validations";
 // Helpers
 import { dataResponse, errorSchema, successSchema } from "../_shared/helpers";
 

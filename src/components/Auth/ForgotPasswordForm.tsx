@@ -3,13 +3,11 @@
 
 // Iconos
 import { Icon } from "@iconify/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 // i18n
 import { useTranslations } from "../../i18n/utils";
 // Autenticación
-import { authClient } from "../../lib/auth-client";
-// Utilidades
-import { useRedirectIfAuthed } from "../../lib/useRedirectIfAuthed";
+import { authClient } from "../../lib/client/auth-client";
 import { cn } from "../../lib/utils";
 // Store
 import { useStore } from "../../stores/store";
@@ -27,8 +25,14 @@ export default function ForgotPasswordForm({
 	redirectPath,
 }: ForgotPasswordFormProps) {
 	const t = useTranslations(useStore((s) => s.lang));
+	const isLoggedIn = useStore((s) => s.isLoggedIn);
+	const sessionLoading = useStore((s) => s.sessionLoading);
+
 	// Redirige al home si ya hay sesión activa (evita re-solicitar reset)
-	const redirecting = useRedirectIfAuthed(redirectPath);
+	useEffect(() => {
+		if (sessionLoading || !isLoggedIn) return;
+		window.location.replace(redirectPath);
+	}, [sessionLoading, isLoggedIn, redirectPath]);
 	// Estados del formulario
 	const [email, setEmail] = useState("");
 	const [loading, setLoading] = useState(false);
@@ -57,7 +61,7 @@ export default function ForgotPasswordForm({
 	};
 
 	// Vista de confirmación de envío
-	if (redirecting) {
+	if (sessionLoading || isLoggedIn) {
 		return null;
 	}
 
