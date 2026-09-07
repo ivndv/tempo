@@ -1,3 +1,5 @@
+import { persistKeys, safeStorage } from "../storage";
+
 // Estado del tema e idioma de la app
 export interface SettingsSlice {
 	theme: string;
@@ -8,12 +10,7 @@ export interface SettingsSlice {
 
 // Obtiene el tema inicial desde localStorage o usa el valor por defecto
 const getInitialTheme = (): string => {
-	if (typeof localStorage === "undefined") return "business";
-	try {
-		const saved = localStorage.getItem("theme");
-		if (saved) return saved;
-	} catch {}
-	return "business";
+	return safeStorage.getString(persistKeys.THEME, "business") ?? "business";
 };
 
 // Crea el slice de configuración (tema e idioma)
@@ -30,7 +27,7 @@ export const crearSliceSettings = (
 	// Cambia el tema y lo persiste en localStorage
 	setTheme: (theme) => {
 		try {
-			localStorage.setItem("theme", theme);
+			safeStorage.setString(persistKeys.THEME, theme);
 			document.documentElement.setAttribute("data-theme", theme);
 			document.documentElement.classList.toggle("dark", theme === "business");
 		} catch {}

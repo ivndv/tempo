@@ -1,4 +1,5 @@
 import { traducirTareaId } from "../../lib/sync/sync";
+import { appendToPersistedHistory, persistKeys, safeStorage } from "../storage";
 import type { AppState } from "../store";
 
 export type SessionType = "focus" | "short" | "long";
@@ -37,29 +38,17 @@ interface PomodoroActivo {
 	startedAt: number;
 }
 
-const STORAGE_KEY = "pomodoro_active_session";
-const HISTORY_KEY = "pomodoro_history";
-const REMAINING_KEY = "pomodoro_remaining";
-
 // Carga el mapa de tiempo restante desde localStorage
 const cargarRemaining = (): Record<number, number> => {
-	if (typeof localStorage === "undefined") return {};
-	try {
-		const saved = localStorage.getItem(REMAINING_KEY);
-		return saved ? JSON.parse(saved) : {};
-	} catch {
-		localStorage.removeItem(REMAINING_KEY);
-		return {};
-	}
+	return safeStorage.get<Record<number, number>>(
+		persistKeys.POMODORO_REMAINING,
+		{},
+	);
 };
 
 // Guarda el mapa de tiempo restante en localStorage
 const guardarRemaining = (map: Record<number, number>) => {
-	try {
-		localStorage.setItem(REMAINING_KEY, JSON.stringify(map));
-	} catch (error) {
-		console.warn("[PomodoroStore] guardarRemaining error:", error);
-	}
+	safeStorage.set(persistKeys.POMODORO_REMAINING, map);
 };
 
 // Slice de gestión de pomodoros (sesiones, historial, estadísticas)
@@ -142,17 +131,11 @@ export const crearSlicePomodoros = (
 			}
 		}
 		// 2. Combina con historial local de localStorage
-		try {
-			const saved = localStorage.getItem(HISTORY_KEY);
-			if (saved) {
-				const local = JSON.parse(saved) as LogEntry[];
-				set((state) => ({
-					history: state.history.length > 0 ? state.history : local,
-				}));
-			}
-		} catch (error) {
-			console.error("[PomodoroStore] init localStorage error:", error);
-			localStorage.removeItem(HISTORY_KEY);
+		const local = safeStorage.get<LogEntry[]>(persistKeys.POMODORO_HISTORY);
+		if (local) {
+			set((state) => ({
+				history: state.history.length > 0 ? state.history : local,
+			}));
 		}
 		// 3. Restaura sesión activa si existe
 		get().restaurar();
@@ -168,7 +151,7 @@ export const crearSlicePomodoros = (
 			minutesPlanned,
 			startedAt: Date.now(),
 		};
-		localStorage.setItem(STORAGE_KEY, JSON.stringify(pomodoro));
+		safeStorage.set(persistKeys.POMODORO_ACTIVE, pomodoro);
 		set({ pomodoroActivo: pomodoro });
 	},
 
@@ -216,7 +199,7 @@ export const crearSlicePomodoros = (
 			status: "completed",
 			synced,
 		});
-		localStorage.removeItem(STORAGE_KEY);
+		safeStorage.remove(persistKeys.POMODORO_ACTIVE);
 		set({ pomodoroActivo: null });
 	},
 
@@ -273,7 +256,7 @@ export const crearSlicePomodoros = (
 			status: "interrupted",
 			synced,
 		});
-		localStorage.removeItem(STORAGE_KEY);
+		safeStorage.remove(persistKeys.POMODORO_ACTIVE);
 		set({ pomodoroActivo: null });
 	},
 
@@ -294,35 +277,22 @@ export const crearSlicePomodoros = (
 
 		set((state) => {
 			const allHistory = [entry, ...state.history].slice(0, 200);
-			try {
-				const existingRaw = localStorage.getItem(HISTORY_KEY);
-				const existing = existingRaw ? JSON.parse(existingRaw) : [];
-				localStorage.setItem(
-					HISTORY_KEY,
-					JSON.stringify([...existing, entry].slice(-200)),
-				);
-			} catch (error) {
-				console.warn("[PomodoroStore] guardarLocal error:", error);
-			}
+			appendToPersistedHistory(persistKeys.POMODORO_HISTORY, entry, 200);
 			return { history: allHistory };
 		});
 	},
 
 	restaurar: () => {
-		try {
-			const saved = localStorage.getItem(STORAGE_KEY);
-			if (!saved) return null;
-			const parsed: PomodoroActivo = JSON.parse(saved);
-			set({ pomodoroActivo: parsed });
-			return parsed;
-		} catch {
-			localStorage.removeItem(STORAGE_KEY);
-			return null;
+		const saved = safeStorage.get<PomodoroActivo>(persistKeys.POMODORO_ACTIVE);
+		if (saved) {
+			set({ pomodoroActivo: saved });
+			return saved;
 		}
+		return null;
 	},
 
 	reset: () => {
-		localStorage.removeItem(STORAGE_KEY);
+		safeStorage.remove(persistKeys.POMODORO_ACTIVE);
 		set({ pomodoroActivo: null });
 	},
 
@@ -352,9 +322,7 @@ export const crearSlicePomodoros = (
 		const { pomodoroActivo } = get();
 		if (!pomodoroActivo) return;
 		const traducido = { ...pomodoroActivo, tareaId: tareaIdReal };
-		try {
-			localStorage.setItem(STORAGE_KEY, JSON.stringify(traducido));
-		} catch {}
+		safeStorage.set(persistKeys.POMODORO_ACTIVE, traducido);
 		set({ pomodoroActivo: traducido });
 	},
 });

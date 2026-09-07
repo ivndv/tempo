@@ -3,6 +3,7 @@
 
 import type { BreakLogEntry } from "../../stores/slices/breakSlice";
 import type { LogEntry } from "../../stores/slices/pomodoroSlice";
+import { persistKeys, safeStorage } from "../../stores/storage";
 import { useStore } from "../../stores/store";
 import type { TareaResponse } from "../shared/validations";
 import {
@@ -13,8 +14,6 @@ import {
 	traducirTareaId,
 } from "./sync";
 
-const TAREAS_KEY = "tempo_tareas";
-
 // Tarea local con flag de sincronización
 type TareaLocal = TareaResponse & { synced?: boolean };
 
@@ -23,20 +22,12 @@ const UMBRAL_ID_REAL = 1_000_000_000_000;
 
 // Lee tareas offline desde localStorage
 const cargarTareasLocales = (): TareaLocal[] => {
-	if (typeof localStorage === "undefined") return [];
-	try {
-		const saved = localStorage.getItem(TAREAS_KEY);
-		return saved ? JSON.parse(saved) : [];
-	} catch {
-		return [];
-	}
+	return safeStorage.get<TareaLocal[]>(persistKeys.TAREAS, []);
 };
 
 // Guarda tareas offline en localStorage
 const persistirTareasLocales = (tareas: TareaLocal[]) => {
-	try {
-		localStorage.setItem(TAREAS_KEY, JSON.stringify(tareas));
-	} catch {}
+	safeStorage.set(persistKeys.TAREAS, tareas);
 };
 
 // Marca sincronizadas las tareas locales que ya tienen ID real
@@ -125,23 +116,12 @@ const syncTareasLocales = async (): Promise<void> => {
 
 // Lee historial de pomodoros desde localStorage
 const cargarHistorialPomodoro = (): LogEntry[] => {
-	if (typeof localStorage === "undefined") return [];
-	try {
-		const saved = localStorage.getItem("pomodoro_history");
-		return saved ? JSON.parse(saved) : [];
-	} catch {
-		return [];
-	}
+	return safeStorage.get<LogEntry[]>(persistKeys.POMODORO_HISTORY, []);
 };
 
 // Guarda historial de pomodoros (máximo 200)
 const persistirHistorialPomodoro = (history: LogEntry[]) => {
-	try {
-		localStorage.setItem(
-			"pomodoro_history",
-			JSON.stringify(history.slice(-200)),
-		);
-	} catch {}
+	safeStorage.set(persistKeys.POMODORO_HISTORY, history.slice(-200));
 };
 
 // Marca un pomodoro como sincronizado en localStorage y store
@@ -156,20 +136,12 @@ const marcarPomodoroSynced = (id: number) => {
 
 // Lee historial de breaks desde localStorage
 const cargarHistorialBreak = (): BreakLogEntry[] => {
-	if (typeof localStorage === "undefined") return [];
-	try {
-		const saved = localStorage.getItem("break_history");
-		return saved ? JSON.parse(saved) : [];
-	} catch {
-		return [];
-	}
+	return safeStorage.get<BreakLogEntry[]>(persistKeys.BREAK_HISTORY, []);
 };
 
 // Guarda historial de breaks (máximo 200)
 const persistirHistorialBreak = (history: BreakLogEntry[]) => {
-	try {
-		localStorage.setItem("break_history", JSON.stringify(history.slice(-200)));
-	} catch {}
+	safeStorage.set(persistKeys.BREAK_HISTORY, history.slice(-200));
 };
 
 // Marca un break como sincronizado en localStorage y store

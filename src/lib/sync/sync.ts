@@ -1,27 +1,17 @@
 // Primitivas de sincronización local a nube (sin dependencias del store)
 
-const MAP_KEY = "tempo_id_map";
+import { persistKeys, safeStorage } from "../../stores/storage";
+
 const FALLBACK_NOMBRE = "Tarea";
 
 // Carga el mapa de IDs locales a IDs de nube desde localStorage
 export const cargarMapaIds = (): Record<number, number> => {
-	if (typeof localStorage === "undefined") return {};
-	try {
-		const saved = localStorage.getItem(MAP_KEY);
-		return saved ? JSON.parse(saved) : {};
-	} catch {
-		localStorage.removeItem(MAP_KEY);
-		return {};
-	}
+	return safeStorage.get<Record<number, number>>(persistKeys.MAP_IDS, {});
 };
 
 // Guarda el mapa de IDs en localStorage
 export const guardarMapaIds = (map: Record<number, number>) => {
-	try {
-		localStorage.setItem(MAP_KEY, JSON.stringify(map));
-	} catch (error) {
-		console.warn("[Sync] guardarMapaIds error:", error);
-	}
+	safeStorage.set(persistKeys.MAP_IDS, map);
 };
 
 // Crea una tarea en la nube y devuelve su ID

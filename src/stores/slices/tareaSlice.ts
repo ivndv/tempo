@@ -1,8 +1,6 @@
 import type { TareaResponse } from "../../lib/shared/validations";
+import { persistKeys, safeStorage } from "../storage";
 import type { AppState } from "../store";
-
-// Clave para persistir tareas en localStorage (offline)
-const TAREAS_KEY = "tempo_tareas";
 
 // Genera IDs únicos para tareas offline
 const generarId = () => Date.now() + Math.floor(Math.random() * 1000);
@@ -52,13 +50,9 @@ export const crearSliceTareas = (
 			}
 		} else {
 			// 2. Si no, carga desde localStorage
-			try {
-				const saved = localStorage.getItem(TAREAS_KEY);
-				if (saved) {
-					set({ tareas: JSON.parse(saved) });
-				}
-			} catch {
-				localStorage.removeItem(TAREAS_KEY);
+			const saved = safeStorage.get<TareaResponse[]>(persistKeys.TAREAS);
+			if (saved) {
+				set({ tareas: saved });
 			}
 		}
 	},
@@ -99,7 +93,7 @@ export const crearSliceTareas = (
 
 		set((state) => {
 			const tareas = [tarea, ...state.tareas];
-			localStorage.setItem(TAREAS_KEY, JSON.stringify(tareas));
+			safeStorage.set(persistKeys.TAREAS, tareas);
 			return { tareas };
 		});
 
@@ -132,7 +126,7 @@ export const crearSliceTareas = (
 				t.id === id ? { ...t, ...saneado } : t,
 			);
 			if (!isLoggedIn) {
-				localStorage.setItem(TAREAS_KEY, JSON.stringify(tareas));
+				safeStorage.set(persistKeys.TAREAS, tareas);
 			}
 			return { tareas };
 		});
@@ -153,7 +147,7 @@ export const crearSliceTareas = (
 		set((state) => {
 			const tareas = state.tareas.filter((t) => t.id !== id);
 			if (!isLoggedIn) {
-				localStorage.setItem(TAREAS_KEY, JSON.stringify(tareas));
+				safeStorage.set(persistKeys.TAREAS, tareas);
 			}
 			return { tareas };
 		});

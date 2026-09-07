@@ -1,4 +1,4 @@
-// Tipos de descanso y sus estados
+import { appendToPersistedHistory, persistKeys, safeStorage } from "../storage";
 import type { AppState } from "../store";
 
 export type BreakType = "short" | "long";
@@ -23,10 +23,6 @@ interface BreakActivo {
 	minutesPlanned: number;
 	startedAt: number;
 }
-
-// Claves para persistir en localStorage
-const STORAGE_KEY = "break_active_session";
-const HISTORY_KEY = "break_history";
 
 // Slice de gestión de descansos (cortos y largos)
 export interface BreakSlice {
@@ -61,9 +57,7 @@ export const crearSliceBreaks = (
 			startedAt: Date.now(),
 		};
 		// 2. Persiste en localStorage y actualiza store
-		try {
-			localStorage.setItem(STORAGE_KEY, JSON.stringify(breakData));
-		} catch {}
+		safeStorage.set(persistKeys.BREAK_ACTIVE, breakData);
 		set({ breakActivo: breakData });
 	},
 
@@ -98,9 +92,7 @@ export const crearSliceBreaks = (
 			breakActivo.minutesPlanned,
 			synced,
 		);
-		try {
-			localStorage.removeItem(STORAGE_KEY);
-		} catch {}
+		safeStorage.remove(persistKeys.BREAK_ACTIVE);
 		set({ breakActivo: null });
 	},
 
@@ -138,17 +130,13 @@ export const crearSliceBreaks = (
 			Math.max(elapsed, 0),
 			synced,
 		);
-		try {
-			localStorage.removeItem(STORAGE_KEY);
-		} catch {}
+		safeStorage.remove(persistKeys.BREAK_ACTIVE);
 		set({ breakActivo: null });
 	},
 
 	resetBreak: () => {
 		// 1. Limpia localStorage y store
-		try {
-			localStorage.removeItem(STORAGE_KEY);
-		} catch {}
+		safeStorage.remove(persistKeys.BREAK_ACTIVE);
 		set({ breakActivo: null });
 	},
 
@@ -182,14 +170,7 @@ const guardarBreakLocal = (
 
 	set((state) => {
 		const allHistory = [entry, ...state.breakHistory].slice(0, 200);
-		try {
-			const existingRaw = localStorage.getItem(HISTORY_KEY);
-			const existing = existingRaw ? JSON.parse(existingRaw) : [];
-			localStorage.setItem(
-				HISTORY_KEY,
-				JSON.stringify([...existing, entry].slice(-200)),
-			);
-		} catch {}
+		appendToPersistedHistory(persistKeys.BREAK_HISTORY, entry, 200);
 		return { breakHistory: allHistory };
 	});
 };
