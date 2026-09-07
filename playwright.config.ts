@@ -56,7 +56,7 @@ export default defineConfig({
 	webServer: [
 		// Stub de hash Argon2id
 		{
-			command: "bun tests/e2e/hashy-stub.ts",
+			command: "bun tests/support/hashy-stub.ts",
 			url: `http://localhost:${TEST_CONFIG.PORTS.HASH_SERVICE}/health`,
 			timeout: 30_000,
 			reuseExistingServer: true,

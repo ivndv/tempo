@@ -1,5 +1,5 @@
 import { test as setup } from "@playwright/test";
-import { expectLoginExitoso, login } from "./helpers";
+import { expectLoginExitoso, login } from "../../support/helpers";
 
 // Guarda estado de sesión para reutilizar en suites E2E
 const AUTH_STATE = "tests/e2e/.state/storageState.json";

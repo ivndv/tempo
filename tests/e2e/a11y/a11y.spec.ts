@@ -1,7 +1,7 @@
 // Auditoría de accesibilidad WCAG 2.1 AA con axe-core en temas claro y oscuro
 import AxeBuilder from "@axe-core/playwright";
 import { expect, type Page, test } from "@playwright/test";
-import { mockTurnstile, prepararTema, setTema } from "./helpers";
+import { mockTurnstile, prepararTema, setTema } from "../../support/helpers";
 
 // Espera a que finalicen la red y las animaciones CSS (fadeInUp 0.6s)
 async function waitForStableA11y(page: Page) {

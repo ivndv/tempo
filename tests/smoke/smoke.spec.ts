@@ -2,7 +2,7 @@ import { execSync } from "node:child_process";
 import { createHmac } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { expect, test } from "@playwright/test";
-import { DUMMY_TOKEN, login, mockTurnstile } from "../e2e/helpers";
+import { DUMMY_TOKEN, login, mockTurnstile } from "../support/helpers";
 
 // Genera JWT de verificación firmado con BETTER_AUTH_SECRET local
 function firmarTokenVerificacion(email: string): string {

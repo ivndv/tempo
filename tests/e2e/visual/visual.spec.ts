@@ -1,6 +1,6 @@
 // Pruebas de regresión visual sobre vistas completas y componentes en modo claro y oscuro
 import { expect, type Page, test } from "@playwright/test";
-import { mockTurnstile, prepararTema, setTema } from "./helpers";
+import { mockTurnstile, prepararTema, setTema } from "../../support/helpers";
 
 // Espera a que carguen fuentes y finalice la red
 async function waitForStablePage(page: Page) {

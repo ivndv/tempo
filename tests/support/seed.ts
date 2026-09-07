@@ -24,7 +24,7 @@ run(
 
 console.log("Sembrando fixtures E2E...");
 run(
-	"bunx wrangler d1 execute pomodoro-db --local --file=tests/e2e/fixtures.sql",
+	"bunx wrangler d1 execute pomodoro-db --local --file=tests/support/fixtures.sql",
 );
 
 mkdirSync("tests/e2e/.state", { recursive: true });

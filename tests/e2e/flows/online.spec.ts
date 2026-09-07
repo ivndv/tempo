@@ -22,7 +22,9 @@ test("crear tarea online y registrarla en la nube", async ({ page }) => {
 	await page.clock.fastForward("26:00");
 
 	// 4. Confirma la finalización de la tarea en el diálogo de completado
-	await expect(page.getByRole("button", { name: "Sí, completada" })).toBeVisible();
+	await expect(
+		page.getByRole("button", { name: "Sí, completada" }),
+	).toBeVisible();
 	await page.getByRole("button", { name: "Sí, completada" }).click();
 
 	// 5. Confirma registro único de la tarea en la API

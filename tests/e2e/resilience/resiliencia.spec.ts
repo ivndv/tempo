@@ -1,6 +1,6 @@
 // Valida respuesta amigable cuando el microservicio de hashing está caído
 import { expect, test } from "@playwright/test";
-import { login } from "./helpers";
+import { login } from "../../support/helpers";
 
 test("el login falla limpio cuando el servicio de hash no responde", async ({
 	page,
