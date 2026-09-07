@@ -71,16 +71,7 @@ jobs:
             playwright-report/
           retention-days: 7
 
-      # Artifact dist para deploy (Opción A) — evita 2º astro build (1.4s + cache)
-      - name: Subir dist para deploy
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: dist-e2e
-          path: dist/
-          retention-days: 1
-
-  # deploy: solo push a main y con todo verde — build + pages deploy (usa artifact dist si viene de e2e)
+  # deploy: solo push a main y con todo verde — build limpio con Turnstile prod + pages deploy
   deploy:
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     needs: [lint, unit, e2e]
@@ -92,20 +83,8 @@ jobs:
       - name: Setup Bun env
         uses: ./.github/actions/setup
 
-      - name: Bajar dist desde e2e (artifact)
-        uses: actions/download-artifact@v4
-        with:
-          name: dist-e2e
-          path: dist/
-        continue-on-error: true
-
-      - name: Build (si no hay dist de artifact)
-        run: |
-          if [ -d dist ] && [ -f dist/index.html ]; then
-            echo "dist desde artifact e2e, skip build"
-          else
-            bun run build
-          fi
+      - name: Build para producción
+        run: bun run build
         env:
           PUBLIC_TURNSTILE_SITE_KEY: ${{ secrets.PUBLIC_TURNSTILE_SITE_KEY }}
 
