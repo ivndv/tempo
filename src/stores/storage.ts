@@ -1,8 +1,6 @@
-// Capa de persistencia en localStorage para slices de Zustand (offline-first)
+// Capa de persistencia en localStorage para slices de Zustand y sync (offline-first)
 
-/**
- * Claves canónicas para la persistencia local de Tempo.
- */
+// Claves canónicas para la persistencia local de Tempo
 export const persistKeys = {
 	TAREAS: "tempo_tareas",
 	POMODORO_ACTIVE: "pomodoro_active_session",
@@ -16,6 +14,7 @@ export const persistKeys = {
 
 export type PersistKey = (typeof persistKeys)[keyof typeof persistKeys];
 
+// Obtiene y parsea un elemento JSON (limpia si está corrupto y soporta SSR)
 function getItem<T>(key: string, fallback: T): T;
 function getItem<T>(key: string): T | null;
 function getItem<T>(key: string, fallback?: T): T | null {
@@ -30,6 +29,7 @@ function getItem<T>(key: string, fallback?: T): T | null {
 	}
 }
 
+// Guarda un valor serializado como JSON en localStorage
 function setItem<T>(key: string, value: T): void {
 	if (typeof localStorage === "undefined") return;
 	try {
@@ -39,6 +39,7 @@ function setItem<T>(key: string, value: T): void {
 	}
 }
 
+// Obtiene una cadena de texto sin procesar con JSON
 function getString(key: string, fallback?: string): string | null {
 	if (typeof localStorage === "undefined") return fallback ?? null;
 	try {
@@ -49,6 +50,7 @@ function getString(key: string, fallback?: string): string | null {
 	}
 }
 
+// Guarda una cadena de texto sin serializar a JSON
 function setString(key: string, value: string): void {
 	if (typeof localStorage === "undefined") return;
 	try {
@@ -61,6 +63,7 @@ function setString(key: string, value: string): void {
 	}
 }
 
+// Elimina una clave de localStorage de forma segura
 function removeItem(key: string): void {
 	if (typeof localStorage === "undefined") return;
 	try {
@@ -68,9 +71,7 @@ function removeItem(key: string): void {
 	} catch {}
 }
 
-/**
- * Cliente de storage seguro con manejo de excepciones y compatibilidad SSR.
- */
+// Cliente de almacenamiento seguro con manejo de excepciones y compatibilidad SSR
 export const safeStorage = {
 	get: getItem,
 	set: setItem,
@@ -79,9 +80,7 @@ export const safeStorage = {
 	remove: removeItem,
 };
 
-/**
- * Añade una entrada al historial persistido en localStorage limitando al máximo indicado.
- */
+// Añade una entrada al historial persistido limitando al máximo indicado (FIFO)
 export const appendToPersistedHistory = <T>(
 	key: string,
 	entry: T,
