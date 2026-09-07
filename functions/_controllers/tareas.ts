@@ -1,7 +1,7 @@
 // Hono
 import type { OpenAPIHono } from "@hono/zod-openapi";
 // Drizzle
-import { and, count, desc, eq, inArray, sql } from "drizzle-orm";
+import { and, count, desc, eq, inArray, lt, sql } from "drizzle-orm";
 // Schema
 import { pomodoro, tarea } from "../../src/db/schema";
 // Helpers & DB
@@ -19,16 +19,21 @@ import type { Bindings } from "../_shared/types";
 
 // Registra las rutas de tareas en la aplicación
 export function registerTareas(app: OpenAPIHono<{ Bindings: Bindings }>) {
-	// GET /api/tareas - Lista tareas con filtro opcional por estado
+	// GET /api/tareas - Lista tareas con filtro opcional por estado y paginación por cursor
 	app.openapi(listarTareasRoute, async (c) => {
 		// 1. Verifica que el usuario esté autenticado
 		const session = await getSession(c);
 		if (!session) return c.json({ error: "Unauthorized" }, 401);
 
-		// 2. Obtiene el filtro opcional de estado desde los query params
-		const { estado } = c.req.valid("query");
+		// 2. Obtiene filtros y parámetros de paginación desde query params
+		const { estado, limit = 50, cursor } = c.req.valid("query");
 
-		// 3. Construye la consulta con el filtro de usuario (y estado si aplica)
+		// 3. Construye condiciones dinámicas usando el índice usuario + fecha
+		const condiciones = [eq(tarea.userId, session.user.id)];
+		if (estado) condiciones.push(eq(tarea.estado, estado));
+		if (cursor) condiciones.push(lt(tarea.createdAt, new Date(cursor)));
+
+		// 4. Consulta limit + 1 registros para determinar si existen más páginas
 		const db = getDb(c.env);
 		const rows = await db
 			.select({
@@ -40,20 +45,34 @@ export function registerTareas(app: OpenAPIHono<{ Bindings: Bindings }>) {
 				completedAt: tarea.completedAt,
 			})
 			.from(tarea)
-			.where(
-				estado
-					? and(eq(tarea.userId, session.user.id), eq(tarea.estado, estado))
-					: eq(tarea.userId, session.user.id),
-			)
-			.orderBy(desc(tarea.createdAt));
+			.where(and(...condiciones))
+			.orderBy(desc(tarea.createdAt))
+			.limit(limit + 1);
 
-		// 4. Convierte las fechas a timestamps numéricos y responde
-		const results = rows.map((t) => ({
+		// 5. Determina si existen más páginas y recorta al límite solicitado
+		const hasMore = rows.length > limit;
+		const items = hasMore ? rows.slice(0, limit) : rows;
+
+		// 6. Convierte las fechas a timestamps numéricos y responde
+		const results = items.map((t) => ({
 			...t,
 			createdAt: dateToTimestampRequired(t.createdAt),
 			completedAt: dateToTimestamp(t.completedAt),
 		}));
-		return c.json({ data: results }, 200);
+
+		const lastItem = results[results.length - 1];
+		const nextCursor = hasMore && lastItem ? lastItem.createdAt : null;
+
+		return c.json(
+			{
+				data: results,
+				pagination: {
+					nextCursor,
+					hasMore,
+				},
+			},
+			200,
+		);
 	});
 
 	// GET /api/tareas/{id} - Obtiene detalle de tarea + pomodoros + estadísticas

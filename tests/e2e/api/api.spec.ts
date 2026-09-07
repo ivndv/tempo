@@ -36,11 +36,51 @@ test.describe("api — contrato HTTP (sin navegador)", () => {
 		expect(res.ok()).toBeTruthy();
 		const body = await res.json();
 		expect(Array.isArray(body.data)).toBe(true);
+		expect(typeof body.pagination).toBe("object");
+		expect(typeof body.pagination.hasMore).toBe("boolean");
+		expect(
+			body.pagination.nextCursor === null ||
+				typeof body.pagination.nextCursor === "number",
+		).toBe(true);
 		for (const t of body.data as Array<Record<string, unknown>>) {
 			expect(typeof t.id).toBe("number");
 			expect(typeof t.nombre).toBe("string");
 			expect(["pending", "active", "done"]).toContain(t.estado);
 			expect(typeof t.createdAt).toBe("number");
+		}
+	});
+
+	test("GET /api/tareas pagina correctamente con limit y cursor", async ({
+		request,
+	}) => {
+		const t1 = await crearTareaApi(request);
+		await new Promise((r) => setTimeout(r, 10));
+		const t2 = await crearTareaApi(request);
+		await new Promise((r) => setTimeout(r, 10));
+		const t3 = await crearTareaApi(request);
+		try {
+			const resPag1 = await request.get("/api/tareas?limit=2");
+			expect(resPag1.ok()).toBeTruthy();
+			const bodyPag1 = await resPag1.json();
+			expect(bodyPag1.data.length).toBeLessThanOrEqual(2);
+			expect(bodyPag1.pagination.hasMore).toBe(true);
+			expect(typeof bodyPag1.pagination.nextCursor).toBe("number");
+
+			const resPag2 = await request.get(
+				`/api/tareas?limit=2&cursor=${bodyPag1.pagination.nextCursor}`,
+			);
+			expect(resPag2.ok()).toBeTruthy();
+			const bodyPag2 = await resPag2.json();
+			expect(bodyPag2.data.length).toBeGreaterThan(0);
+
+			const idsPag1 = new Set(bodyPag1.data.map((t: { id: number }) => t.id));
+			for (const t of bodyPag2.data as Array<{ id: number }>) {
+				expect(idsPag1.has(t.id)).toBe(false);
+			}
+		} finally {
+			await request.delete(`/api/tareas/${t1}`);
+			await request.delete(`/api/tareas/${t2}`);
+			await request.delete(`/api/tareas/${t3}`);
 		}
 	});
 

@@ -133,6 +133,20 @@ export const listarTareasQuery = z.object({
 		.regex(FECHA_REGEX, "Fecha inválida. Formato: YYYY-MM-DD")
 		.openapi({ description: "Fecha en formato YYYY-MM-DD" })
 		.optional(),
+	limit: z.coerce
+		.number()
+		.int()
+		.min(1)
+		.max(100)
+		.default(50)
+		.openapi({ description: "Cantidad máxima de resultados (1-100)" })
+		.optional(),
+	cursor: z.coerce
+		.number()
+		.int()
+		.positive()
+		.openapi({ description: "Timestamp de cursor para paginación" })
+		.optional(),
 });
 
 export const listarPomodorosQuery = z.object({
@@ -178,6 +192,25 @@ export const tareaResponse = z
 			.nullable(),
 	})
 	.openapi("TareaResponse");
+
+export const paginationMetaSchema = z
+	.object({
+		nextCursor: z.number().nullable().openapi({
+			description:
+				"Timestamp de la última tarea para pedir la siguiente página",
+		}),
+		hasMore: z
+			.boolean()
+			.openapi({ description: "Indica si existen más resultados" }),
+	})
+	.openapi("PaginationMeta");
+
+export const tareasPaginadasResponse = z
+	.object({
+		data: z.array(tareaResponse),
+		pagination: paginationMetaSchema,
+	})
+	.openapi("TareasPaginadasResponse");
 
 export const tareaDetalleResponse = tareaResponse
 	.extend({
@@ -272,6 +305,8 @@ export type CrearBreakInput = z.infer<typeof crearBreakSchema>;
 
 export type CategoriaResponse = z.infer<typeof categoriaResponse>;
 export type TareaResponse = z.infer<typeof tareaResponse>;
+export type PaginationMeta = z.infer<typeof paginationMetaSchema>;
+export type TareasPaginadasResponse = z.infer<typeof tareasPaginadasResponse>;
 export type TareaDetalleResponse = z.infer<typeof tareaDetalleResponse>;
 export type PomodoroResponse = z.infer<typeof pomodoroResponse>;
 export type StatsResponse = z.infer<typeof statsResponse>;

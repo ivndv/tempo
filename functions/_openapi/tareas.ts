@@ -10,6 +10,7 @@ import {
 	listarTareasQuery,
 	tareaDetalleResponse as tareaDetalleResponseSchema,
 	tareaResponse as tareaResponseSchema,
+	tareasPaginadasResponse,
 } from "../../src/lib/shared/validations";
 // Helpers
 import { dataResponse, errorSchema, successSchema } from "../_shared/helpers";
@@ -19,16 +20,17 @@ export const listarTareasRoute = createRoute({
 	method: "get",
 	path: "/tareas",
 	tags: ["Tareas"],
-	description: "Listar tareas del usuario con filtro opcional por estado",
+	description:
+		"Listar tareas del usuario con paginación por cursor y filtro opcional",
 	request: { query: listarTareasQuery },
 	responses: {
 		200: {
 			content: {
 				"application/json": {
-					schema: dataResponse(z.array(tareaResponseSchema), "TareasResponse"),
+					schema: tareasPaginadasResponse,
 				},
 			},
-			description: "Lista de tareas del usuario",
+			description: "Lista paginada de tareas del usuario",
 		},
 		401: {
 			content: { "application/json": { schema: errorSchema } },
