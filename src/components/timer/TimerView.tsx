@@ -9,6 +9,7 @@ import { useShallow } from "zustand/react/shallow";
 import { useTranslations } from "../../i18n/utils";
 // Utilidades
 import { getTodaysStats, getWeeklyStats } from "../../lib/stats";
+import { cargarMapaIds } from "../../lib/sync/sync";
 import { useStore } from "../../stores/store";
 import DailySummary from "../stats/DailySummary";
 import WeeklySummary from "../stats/WeeklySummary";
@@ -95,7 +96,14 @@ export default function TimerView(_props: TimerViewProps) {
 	const startTimeRef = useRef(initialStartTime);
 
 	const tarea =
-		tareaActiva || tareas.find((t) => t.id === pomodoroActivo?.tareaId);
+		tareaActiva ||
+		tareas.find((t) => t.id === pomodoroActivo?.tareaId) ||
+		(() => {
+			if (!pomodoroActivo) return undefined;
+			const mapa = cargarMapaIds();
+			const idReal = mapa[pomodoroActivo.tareaId];
+			return idReal !== undefined ? tareas.find((t) => t.id === idReal) : undefined;
+		})();
 
 	// Effect del temporizador: wall-clock para evitar congelamiento en background
 	useEffect(() => {

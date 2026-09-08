@@ -2,7 +2,7 @@
 // Flujo: tareas offline → pomodoros → breaks (idempotente)
 
 import type { BreakLogEntry } from "../../stores/slices/breakSlice";
-import type { LogEntry } from "../../stores/slices/pomodoroSlice";
+import type { LogEntry, PomodoroActivo } from "../../stores/slices/pomodoroSlice";
 import { persistKeys, safeStorage } from "../../stores/storage";
 import { useStore } from "../../stores/store";
 import type { TareaResponse } from "../shared/validations";
@@ -111,6 +111,13 @@ const syncTareasLocales = async (): Promise<void> => {
 	const { pomodoroActivo } = useStore.getState();
 	if (pomodoroActivo && mapa[pomodoroActivo.tareaId] !== undefined) {
 		useStore.getState().traducirSesionActiva(mapa[pomodoroActivo.tareaId]);
+	} else {
+		// Traduce directamente en localStorage si la sesión no ha sido hidratada en el store aún
+		const saved = safeStorage.get<PomodoroActivo>(persistKeys.POMODORO_ACTIVE);
+		if (saved && mapa[saved.tareaId] !== undefined) {
+			const traducido = { ...saved, tareaId: mapa[saved.tareaId] };
+			safeStorage.set(persistKeys.POMODORO_ACTIVE, traducido);
+		}
 	}
 };
 

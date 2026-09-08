@@ -1,4 +1,4 @@
-import { traducirTareaId } from "../../lib/sync/sync";
+import { cargarMapaIds, traducirTareaId } from "../../lib/sync/sync";
 import { appendToPersistedHistory, persistKeys, safeStorage } from "../storage";
 import type { AppState } from "../store";
 
@@ -98,8 +98,11 @@ export const crearSlicePomodoros = (
 	tareasPendientes: cargarRemaining(),
 
 	init: async () => {
+		// 1. Restaura sesión activa inmediatamente desde localStorage
+		get().restaurar();
+
 		const { isLoggedIn } = get();
-		// 1. Si está autenticado, carga historial desde la API
+		// 2. Si está autenticado, carga historial desde la API
 		if (isLoggedIn) {
 			try {
 				const res = await fetch("/api/pomodoros");
@@ -130,15 +133,13 @@ export const crearSlicePomodoros = (
 				get().addToast("Error al cargar historial", "error");
 			}
 		}
-		// 2. Combina con historial local de localStorage
+		// 3. Combina con historial local de localStorage
 		const local = safeStorage.get<LogEntry[]>(persistKeys.POMODORO_HISTORY);
 		if (local) {
 			set((state) => ({
 				history: state.history.length > 0 ? state.history : local,
 			}));
 		}
-		// 3. Restaura sesión activa si existe
-		get().restaurar();
 	},
 
 	iniciar: (tareaId) => {
@@ -285,8 +286,14 @@ export const crearSlicePomodoros = (
 	restaurar: () => {
 		const saved = safeStorage.get<PomodoroActivo>(persistKeys.POMODORO_ACTIVE);
 		if (saved) {
-			set({ pomodoroActivo: saved });
-			return saved;
+			const mapa = cargarMapaIds();
+			const tareaId = mapa[saved.tareaId] ?? saved.tareaId;
+			const traducido = { ...saved, tareaId };
+			if (tareaId !== saved.tareaId) {
+				safeStorage.set(persistKeys.POMODORO_ACTIVE, traducido);
+			}
+			set({ pomodoroActivo: traducido });
+			return traducido;
 		}
 		return null;
 	},

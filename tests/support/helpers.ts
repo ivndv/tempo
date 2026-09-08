@@ -24,7 +24,7 @@ export async function mockTurnstile(page: Page) {
 // Flujo de login en la interfaz web
 export async function login(page: Page, email: string, password: string) {
 	await mockTurnstile(page);
-	await page.goto("/login");
+	await page.goto("/login/", { waitUntil: "domcontentloaded" });
 	await page.getByPlaceholder("ejemplo@correo.com").fill(email);
 	await page.getByPlaceholder("••••••••").fill(password);
 	await page.waitForTimeout(100);
