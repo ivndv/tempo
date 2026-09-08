@@ -19,11 +19,10 @@ test("tarea creada sin red se sincroniza al reconectar sin duplicarse", async ({
 	// reconectar: el sync sube la tarea y no debe duplicarla
 	await page.unroute("**/api/**");
 	await page.reload();
-	await expect(page.getByRole("heading", { name: NOMBRE })).toHaveCount(1);
 
 	// Sync determinista (solución estándar Playwright para offline):
 	// syncLocalToCloud expone window.__tempoSyncDone + evento tempo-sync-done
-	// Esto es más robusto que solo waitForResponse (puede perderse si el POST ya pasó)
+	// Espera a que termine la sincronización antes de validar la UI para evitar race conditions
 	await page
 		.waitForFunction(
 			() =>
@@ -34,7 +33,7 @@ test("tarea creada sin red se sincroniza al reconectar sin duplicarse", async ({
 			},
 		)
 		.catch(() => {});
-	// Fallback por si el flag no se seteó (navegador sin window): espera al POST
+	// Fallback por si el flag no se seteó: espera al POST
 	await page
 		.waitForResponse(
 			(r) => r.url().includes("/api/tareas") && r.request().method() === "POST",
@@ -42,6 +41,8 @@ test("tarea creada sin red se sincroniza al reconectar sin duplicarse", async ({
 		)
 		.catch(() => {});
 	await page.waitForLoadState("networkidle").catch(() => {});
+
+	await expect(page.getByRole("heading", { name: NOMBRE })).toHaveCount(1);
 
 	const listarTareas = async (): Promise<string[]> => {
 		const res = await page.request.get("/api/tareas");
