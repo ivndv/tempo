@@ -35,6 +35,12 @@
 			"quoteStyle": "double"
 		}
 	},
+	"json": {
+		"parser": {
+			"allowComments": true,
+			"allowTrailingCommas": true
+		}
+	},
 	"assist": {
 		"enabled": true,
 		"actions": {

@@ -3,6 +3,7 @@
 	"style": "base-nova",
 	"rsc": false,
 	"tsx": true,
+	// Estilos CSS-first integrados con Tailwind CSS v4
 	"tailwind": {
 		"config": "",
 		"css": "src/styles/global.css",
@@ -12,6 +13,7 @@
 	},
 	"iconLibrary": "lucide",
 	"rtl": false,
+	// Alias de rutas para componentes y utilidades generados por shadcn
 	"aliases": {
 		"components": "@/components",
 		"utils": "@/lib/utils",

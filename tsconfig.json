@@ -3,6 +3,7 @@
 	"include": [".astro/types.d.ts", "**/*"],
 	"exclude": ["dist"],
 	"compilerOptions": {
+		// Modo JSX para React 19 y alias de rutas para imports limpios desde src/
 		"jsx": "react-jsx",
 		"jsxImportSource": "react",
 		"baseUrl": ".",

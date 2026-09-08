@@ -1,5 +1,5 @@
 INSERT INTO user (id, name, email, emailVerified, createdAt, updatedAt) VALUES ('E2eTestUser0000000000000000000', 'E2E User', 'e2e@tempo.dev', 1, 1786811434051, 1786811434051);
-INSERT INTO account (id, accountId, providerId, userId, password, createdAt, updatedAt) VALUES ('E2eTestAccount00000000000000000', 'e2e@tempo.dev', 'credential', 'E2eTestUser0000000000000000000', '$argon2id$v=19$m=65536,t=1,p=12$JTNST8QtKyNMNko9d0TRIA$DXDyt2TcfR9RABK1JLFAmMRLBEJrLxydaPZ5vVR9sLY', 1786811434051, 1786811434051);
+INSERT INTO account (id, accountId, providerId, userId, password, createdAt, updatedAt) VALUES ('E2eTestAccount00000000000000000', 'E2eTestUser0000000000000000000', 'credential', 'E2eTestUser0000000000000000000', '$argon2id$v=19$m=65536,t=1,p=12$JTNST8QtKyNMNko9d0TRIA$DXDyt2TcfR9RABK1JLFAmMRLBEJrLxydaPZ5vVR9sLY', 1786811434051, 1786811434051);
 INSERT INTO categoria (nombre, user_id) VALUES ('E2E', 'E2eTestUser0000000000000000000');
 INSERT INTO tarea (nombre, categoria_id, user_id, estado, created_at) VALUES ('E2E pending A', 1, 'E2eTestUser0000000000000000000', 'pending', 1786811434051);
 INSERT INTO tarea (nombre, categoria_id, user_id, estado, created_at) VALUES ('E2E pending B', 1, 'E2eTestUser0000000000000000000', 'pending', 1786811434052);

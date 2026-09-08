@@ -2,8 +2,10 @@
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "tempo",
 	"pages_build_output_dir": "./dist",
-	"compatibility_date": "2026-04-30",
+	"compatibility_date": "2026-09-08",
+	// Permite usar Crypto, Buffer y utilidades estándar de Node en Cloudflare Pages
 	"compatibility_flags": ["nodejs_compat"],
+	// Base de datos D1 principal para persistencia de usuarios, tareas y pomodoros
 	"d1_databases": [
 		{
 			"binding": "DB",
@@ -11,6 +13,7 @@
 			"database_id": "896db0a5-ecfc-4f4d-92d2-302a54266f3d"
 		}
 	],
+	// Almacén KV para caché de sesiones activas de Better Auth y rate limiting
 	"kv_namespaces": [
 		{
 			"binding": "LUCIA_KV",
