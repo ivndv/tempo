@@ -6,7 +6,7 @@ import { useTranslations } from "../../i18n/utils";
 // Store
 import { useStore } from "../../stores/store";
 // Componentes
-import { Button } from "./button";
+import { Button } from "../ui/button";
 
 // Props del componente (interfaz local)
 interface Props {

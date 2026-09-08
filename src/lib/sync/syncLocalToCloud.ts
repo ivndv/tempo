@@ -2,7 +2,10 @@
 // Flujo: tareas offline → pomodoros → breaks (idempotente)
 
 import type { BreakLogEntry } from "../../stores/slices/breakSlice";
-import type { LogEntry, PomodoroActivo } from "../../stores/slices/pomodoroSlice";
+import type {
+	LogEntry,
+	PomodoroActivo,
+} from "../../stores/slices/pomodoroSlice";
 import { persistKeys, safeStorage } from "../../stores/storage";
 import { useStore } from "../../stores/store";
 import type { TareaResponse } from "../shared/validations";

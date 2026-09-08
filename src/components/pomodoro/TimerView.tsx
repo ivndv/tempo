@@ -15,9 +15,9 @@ import DailySummary from "../stats/DailySummary";
 import WeeklySummary from "../stats/WeeklySummary";
 import { Button } from "../ui/button";
 // Componentes
-import CancelConfirmDialog from "./CancelConfirmDialog";
-import CompleteDialog from "./CompleteDialog";
-import InterruptDialog from "./InterruptDialog";
+import CancelConfirmDialog from "./dialogs/CancelConfirmDialog";
+import CompleteDialog from "./dialogs/CompleteDialog";
+import InterruptDialog from "./dialogs/InterruptDialog";
 
 // Props del componente (interfaz local)
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -102,7 +102,9 @@ export default function TimerView(_props: TimerViewProps) {
 			if (!pomodoroActivo) return undefined;
 			const mapa = cargarMapaIds();
 			const idReal = mapa[pomodoroActivo.tareaId];
-			return idReal !== undefined ? tareas.find((t) => t.id === idReal) : undefined;
+			return idReal !== undefined
+				? tareas.find((t) => t.id === idReal)
+				: undefined;
 		})();
 
 	// Effect del temporizador: wall-clock para evitar congelamiento en background

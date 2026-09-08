@@ -71,14 +71,12 @@ tempo/
 │
 ├── src/                           → Frontend Astro + React 19
 │   ├── components/                → Componentes React y Astro modulares
-│   │   ├── app/                   → AppHome.astro y PomodoroManager.tsx
-│   │   ├── Auth/                  → AuthButton, AuthForm, ForgotPassword, ResetPassword
-│   │   ├── layout/                → Header, Footer, MobileMenu, HeroSection, LanguagePicker
-│   │   ├── session/               → SessionProvider (contexto de sesión React)
+│   │   ├── auth/                  → AuthButton, AuthForm, ForgotPassword, ResetPassword, SessionProvider, VerifiedHandler
+│   │   ├── common/                → ErrorBoundary (guard de errores React)
+│   │   ├── layout/                → Header, Footer, MobileMenu, LanguagePicker, ThemeToggle
+│   │   ├── pomodoro/              → AppHome, PomodoroManager, TimerView, BreakTimer, HeroSection, TaskSelector, dialogs/
 │   │   ├── stats/                 → DailySummary, WeeklySummary (gráficos y métricas)
-│   │   ├── tasks/                 → TaskSelector (creación, edición y filtrado de tareas)
-│   │   ├── timer/                 → TimerView, BreakTimer, diálogos de interrupción y confirmación
-│   │   └── ui/                    → Primitivos shadcn/ui, ThemeToggle, ErrorBoundary
+│   │   └── ui/                    → Primitivos shadcn/ui atómicos
 │   ├── db/                        → Esquemas Drizzle (schema.ts, migrations_better_auth.sql)
 │   ├── hooks/                     → Custom hooks de React (useTheme, useStats, etc.)
 │   ├── i18n/                      → Diccionarios y utilidades de traducción (ui.ts, utils.ts)

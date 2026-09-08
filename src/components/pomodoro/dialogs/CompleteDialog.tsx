@@ -1,16 +1,16 @@
 /** @jsxImportSource react */
 
 // i18n
-import { useTranslations } from "../../i18n/utils";
+import { useTranslations } from "../../../i18n/utils";
 // Store
-import { useStore } from "../../stores/store";
-import { Button } from "../ui/button";
+import { useStore } from "../../../stores/store";
+import { Button } from "../../ui/button";
 import {
 	Dialog,
 	DialogContent,
 	DialogDescription,
 	DialogTitle,
-} from "../ui/dialog";
+} from "../../ui/dialog";
 
 // Props del componente (interfaz local)
 interface CompleteDialogProps {

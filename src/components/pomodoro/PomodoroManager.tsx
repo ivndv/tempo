@@ -4,14 +4,14 @@ import { useEffect } from "react";
 // Store
 import { useShallow } from "zustand/react/shallow";
 import { useStore } from "../../stores/store";
-import VerifiedHandler from "../Auth/VerifiedHandler";
-import HeroSection from "../layout/HeroSection";
-import TaskSelector from "../tasks/TaskSelector";
-// Componentes
-import BreakTimer from "../timer/BreakTimer";
-import TimerView from "../timer/TimerView";
-import ErrorBoundary from "../ui/ErrorBoundary";
+import VerifiedHandler from "../auth/VerifiedHandler";
+import ErrorBoundary from "../common/ErrorBoundary";
 import { toast } from "../ui/toast";
+// Componentes
+import BreakTimer from "./BreakTimer";
+import HeroSection from "./HeroSection";
+import TaskSelector from "./TaskSelector";
+import TimerView from "./TimerView";
 
 // Props del componente (interfaz local)
 interface PomodoroManagerProps {
