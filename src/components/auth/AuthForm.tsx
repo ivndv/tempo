@@ -8,7 +8,7 @@ import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "../../i18n/utils";
 // Autenticación
-import { authClient, signIn, signUp } from "../../lib/client/auth-client";
+import { signIn, signUp } from "../../lib/client/auth-client";
 // Utilidades
 import { checkStrength } from "../../lib/client/password";
 // Validaciones
@@ -113,10 +113,14 @@ export default function AuthForm({ redirectPath }: AuthFormProps) {
 				if (error) throw new Error(error.message || t("auth.error.generic"));
 			} else {
 				// --- Proceso de Registro ---
+				const callbackURL = redirectPath.startsWith("/en")
+					? "/auth/verified?lang=en"
+					: "/auth/verified";
 				const { error } = await signUp.email({
 					email,
 					password,
 					name: email.split("@")[0] || "User",
+					callbackURL,
 					fetchOptions: {
 						headers: {
 							"x-captcha-response": turnstileToken,
@@ -125,11 +129,7 @@ export default function AuthForm({ redirectPath }: AuthFormProps) {
 				});
 				if (error) throw new Error(error.message || t("auth.error.generic"));
 
-				// autoSignIn: false → mostrar mensaje de verificación
-				authClient.sendVerificationEmail({
-					email,
-					callbackURL: "/?verified=true",
-				});
+				// Muestra mensaje informativo tras el registro
 				setSignupDone(true);
 				setLoading(false);
 				setTurnstileToken(null);

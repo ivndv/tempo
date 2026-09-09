@@ -223,7 +223,7 @@ export const auth = (
 		// 3f. Verificación de email con Resend
 		emailVerification: {
 			autoSignInAfterVerification: true,
-			sendOnSignUp: false,
+			sendOnSignUp: true,
 			sendOnSignIn: true,
 			sendVerificationEmail: async ({ user, url, token: _token }, _request) => {
 				console.log("[Auth] sendVerificationEmail CALLED for", user?.email);
@@ -239,7 +239,7 @@ export const auth = (
 						from: env.RESEND_FROM || "Tempo <noreply@mgdc.site>",
 						to: user.email,
 						subject: "Verifica tu correo / Verify your email",
-						text: `${url}`,
+						text: `Hola ${user.name || ""},\n\nPor favor verifica tu correo electrónico haciendo clic en el siguiente enlace:\n${url}\n\nSi no solicitaste esta cuenta, puedes ignorar este mensaje.\n\n---\n\nHello ${user.name || ""},\n\nPlease verify your email address by clicking the link below:\n${url}\n\nIf you did not create this account, you can safely ignore this email.`,
 					});
 					console.log("[Auth] Verification email sent to", user.email, result);
 				} catch (error) {

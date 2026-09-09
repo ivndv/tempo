@@ -4,11 +4,11 @@ import Layout from '../../layouts/Layout.astro';
 // i18n
 import { useTranslations } from '../../i18n/utils';
 
-const lang = (Astro.currentLocale || 'es') as 'es' | 'en';
+const lang = ((Astro.url.searchParams.get('lang') as 'es' | 'en') || Astro.currentLocale || 'es') as 'es' | 'en';
 const t = useTranslations(lang);
 ---
 
-<Layout title="Email verificado | Tempo">
+<Layout title={lang === 'en' ? 'Email verified | Tempo' : 'Email verificado | Tempo'} lang={lang}>
 	<div class="min-h-screen flex items-center justify-center py-8 px-4">
 		<div class="text-center space-y-6 animate-fade-in-up max-w-md">
 			<div class="text-7xl">✅</div>
