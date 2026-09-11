@@ -1,0 +1,26 @@
+---
+// Layout
+import Layout from '../../layouts/Layout.astro';
+// Componentes de contenido por idioma
+import AboutEs from '../../components/about/AboutEs.astro';
+import AboutEn from '../../components/about/AboutEn.astro';
+import { getLocale } from '@/paraglide/runtime';
+
+export function getStaticPaths() {
+	return [
+		{ params: { locale: undefined } },
+		{ params: { locale: 'en' } },
+	];
+}
+
+const lang = getLocale();
+const title = lang === 'en' ? 'About' : 'Acerca de';
+const description =
+	lang === 'en'
+		? 'Discover the Pomodoro technique and how our app helps you maximize productivity with deep focus sessions.'
+		: 'Descubre la técnica Pomodoro y cómo nuestra aplicación te ayuda a maximizar tu productividad con sesiones de enfoque profundo.';
+---
+
+<Layout title={title} description={description} lang={lang}>
+	{lang === 'en' ? <AboutEn /> : <AboutEs />}
+</Layout>
