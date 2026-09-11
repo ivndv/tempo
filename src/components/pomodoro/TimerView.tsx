@@ -24,7 +24,7 @@ import InterruptDialog from "./dialogs/InterruptDialog";
 type TimerViewProps = Record<string, never>;
 
 // Constantes del temporizador
-const ALARM_SOUND = "https://tempo-assets.mgdc.site/alarm.mp3";
+const ALARM_SOUND = "https://assets.mgdc.site/tempo/alarm.mp3";
 const RADIUS = 120;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
