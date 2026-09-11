@@ -72,6 +72,36 @@ test.describe("render de páginas", () => {
 		);
 		await expect(page).toHaveTitle(/404|no encontrado|not found/i);
 	});
+
+	test("enlace '¿Olvidaste tu contraseña?' en /login redirige a /forgot-password", async ({
+		page,
+	}) => {
+		await page.goto("/login");
+		const link = page.getByRole("link", { name: "¿Olvidaste tu contraseña?" });
+		await expect(link).toBeVisible();
+		await link.click();
+		await expect(page).toHaveURL(/\/forgot-password\/?$/);
+	});
+
+	test("enlace 'Forgot your password?' en /en/login redirige a /en/forgot-password", async ({
+		page,
+	}) => {
+		await page.goto("/en/login");
+		const link = page.getByRole("link", { name: "Forgot your password?" });
+		await expect(link).toBeVisible();
+		await link.click();
+		await expect(page).toHaveURL(/\/en\/forgot-password\/?$/);
+	});
+
+	test("enlace 'Volver al login' en /forgot-password redirige a /login", async ({
+		page,
+	}) => {
+		await page.goto("/forgot-password");
+		const link = page.getByRole("link", { name: "Volver al login" });
+		await expect(link).toBeVisible();
+		await link.click();
+		await expect(page).toHaveURL(/\/login\/?$/);
+	});
 });
 
 test.describe("flujo real de registro y verificación", () => {

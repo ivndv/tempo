@@ -4,11 +4,12 @@
 // Iconos
 import { Icon } from "@iconify/react";
 import { useEffect, useState } from "react";
-// i18n
-import { useTranslations } from "../../i18n/utils";
 // Autenticación
 import { authClient } from "../../lib/client/auth-client";
 import { cn } from "../../lib/utils";
+// Paraglide
+import * as m from "../../paraglide/messages";
+import { getLocale, localizeHref, setLocale } from "../../paraglide/runtime";
 // Store
 import { useStore } from "../../stores/store";
 // Componentes
@@ -18,13 +19,22 @@ import { Input } from "../ui/input";
 // Props del componente (interfaz local)
 interface ForgotPasswordFormProps {
 	redirectPath: string;
+	lang?: "es" | "en";
 }
 
 // Formulario para solicitar restablecimiento de contraseña
 export default function ForgotPasswordForm({
 	redirectPath,
+	lang: propLang,
 }: ForgotPasswordFormProps) {
-	const t = useTranslations(useStore((s) => s.lang));
+	const storeLang = useStore((s) => s.lang);
+	const lang =
+		propLang ??
+		(redirectPath.startsWith("/en") ? "en" : (getLocale() ?? storeLang));
+	if (typeof window !== "undefined" && getLocale() !== lang) {
+		setLocale(lang, { reload: false });
+	}
+	const opt = { locale: lang };
 	const isLoggedIn = useStore((s) => s.isLoggedIn);
 	const sessionLoading = useStore((s) => s.sessionLoading);
 
@@ -45,15 +55,18 @@ export default function ForgotPasswordForm({
 		setError(null);
 		setLoading(true);
 
+		const origin = typeof window !== "undefined" ? window.location.origin : "";
+		const resetPath = localizeHref("/reset-password", opt);
+
 		const { error: err } = await authClient.requestPasswordReset({
 			email,
-			redirectTo: redirectPath.replace("/login", "/reset-password"),
+			redirectTo: `${origin}${resetPath}`,
 		});
 
 		setLoading(false);
 
 		if (err) {
-			setError(err.message || t("auth.error.generic"));
+			setError(err.message || m.auth_error_generic(opt));
 			return;
 		}
 
@@ -71,14 +84,14 @@ export default function ForgotPasswordForm({
 				{/* Ícono de email enviado */}
 				<div className="text-6xl">📧</div>
 				{/* Título y mensaje */}
-				<h2 className="text-2xl font-bold">{t("auth.forgot.title")}</h2>
-				<p className="text-sm opacity-70">{t("auth.forgot.sent")}</p>
+				<h2 className="text-2xl font-bold">{m.auth_forgot_title(opt)}</h2>
+				<p className="text-sm opacity-70">{m.auth_forgot_sent(opt)}</p>
 				{/* Volver al inicio */}
 				<a
 					href={redirectPath}
 					className={cn(buttonVariants({ variant: "default" }))}
 				>
-					{t("auth.backHome")}
+					{m.auth_back_home(opt)}
 				</a>
 			</div>
 		);
@@ -90,8 +103,8 @@ export default function ForgotPasswordForm({
 				{/* Encabezado */}
 				<div className="text-center space-y-2 mb-8">
 					<div className="text-4xl">🔑</div>
-					<h2 className="text-2xl font-bold">{t("auth.forgot.title")}</h2>
-					<p className="text-sm opacity-70">{t("auth.forgot.subtitle")}</p>
+					<h2 className="text-2xl font-bold">{m.auth_forgot_title(opt)}</h2>
+					<p className="text-sm opacity-70">{m.auth_forgot_subtitle(opt)}</p>
 				</div>
 
 				{/* Formulario */}
@@ -102,7 +115,7 @@ export default function ForgotPasswordForm({
 							htmlFor="email"
 							className="block text-sm font-bold opacity-80 mb-2"
 						>
-							{t("auth.email.label")}
+							{m.auth_email_label(opt)}
 						</label>
 						<Input
 							id="email"
@@ -110,7 +123,7 @@ export default function ForgotPasswordForm({
 							required
 							value={email}
 							onChange={(e) => setEmail(e.target.value)}
-							placeholder={t("auth.email.placeholder")}
+							placeholder={m.auth_email_placeholder(opt)}
 							className="h-12 rounded-xl"
 						/>
 					</div>
@@ -131,9 +144,20 @@ export default function ForgotPasswordForm({
 						{loading ? (
 							<Icon icon="lucide:loader-circle" className="animate-spin" />
 						) : (
-							t("auth.forgot.btn")
+							m.auth_forgot_btn(opt)
 						)}
 					</Button>
+
+					{/* Volver al login */}
+					<div className="text-center pt-2">
+						<a
+							href={localizeHref("/login", opt)}
+							data-astro-reload
+							className="text-xs font-medium text-muted-foreground hover:text-foreground underline underline-offset-4 transition-colors"
+						>
+							{m.auth_back_login(opt)}
+						</a>
+					</div>
 				</form>
 			</div>
 		</div>

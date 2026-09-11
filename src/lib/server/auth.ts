@@ -248,7 +248,7 @@ export const auth = (
 			},
 		},
 
-		trustedOrigins: ["http://localhost:4321", "https://tempo.mgdc.site"],
+		trustedOrigins: ["http://localhost:*", "https://tempo.mgdc.site"],
 
 		// 3g. Captcha con Cloudflare Turnstile
 		plugins: [

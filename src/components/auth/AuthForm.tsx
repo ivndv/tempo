@@ -6,7 +6,6 @@ import { Turnstile, type TurnstileInstance } from "@marsidev/react-turnstile";
 // React
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
-import { useTranslations } from "../../i18n/utils";
 // Autenticación
 import { signIn, signUp } from "../../lib/client/auth-client";
 // Utilidades
@@ -14,17 +13,31 @@ import { checkStrength } from "../../lib/client/password";
 // Validaciones
 import { loginSchema, signupSchema } from "../../lib/shared/validations";
 import { cn } from "../../lib/utils";
+// Paraglide
+import * as m from "../../paraglide/messages";
+import { getLocale, localizeHref, setLocale } from "../../paraglide/runtime";
 import { useStore } from "../../stores/store";
 import { Button, buttonVariants } from "../ui/button";
 
 // Props del componente (interfaz local)
 interface AuthFormProps {
 	redirectPath: string;
+	lang?: "es" | "en";
 }
 
 // Maneja login y registro con validación y Turnstile
-export default function AuthForm({ redirectPath }: AuthFormProps) {
-	const t = useTranslations(useStore((s) => s.lang));
+export default function AuthForm({
+	redirectPath,
+	lang: propLang,
+}: AuthFormProps) {
+	const storeLang = useStore((s) => s.lang);
+	const lang =
+		propLang ??
+		(redirectPath.startsWith("/en") ? "en" : (getLocale() ?? storeLang));
+	if (typeof window !== "undefined" && getLocale() !== lang) {
+		setLocale(lang, { reload: false });
+	}
+	const opt = { locale: lang };
 	const isLoggedIn = useStore((s) => s.isLoggedIn);
 	const sessionLoading = useStore((s) => s.sessionLoading);
 
@@ -69,7 +82,7 @@ export default function AuthForm({ redirectPath }: AuthFormProps) {
 		setError(null);
 
 		if (!turnstileToken) {
-			setError(t("auth.captcha.required"));
+			setError(m.auth_captcha_required(opt));
 			return;
 		}
 
@@ -81,7 +94,7 @@ export default function AuthForm({ redirectPath }: AuthFormProps) {
 		if (isLogin) {
 			const result = loginSchema.safeParse({ email, password });
 			if (!result.success) {
-				setError(result.error.issues[0]?.message || t("auth.error.generic"));
+				setError(result.error.issues[0]?.message || m.auth_error_generic(opt));
 				return;
 			}
 		} else {
@@ -91,7 +104,7 @@ export default function AuthForm({ redirectPath }: AuthFormProps) {
 				confirmPassword,
 			});
 			if (!result.success) {
-				setError(result.error.issues[0]?.message || t("auth.password.weak"));
+				setError(result.error.issues[0]?.message || m.auth_password_weak(opt));
 				return;
 			}
 		}
@@ -110,7 +123,7 @@ export default function AuthForm({ redirectPath }: AuthFormProps) {
 						},
 					},
 				});
-				if (error) throw new Error(error.message || t("auth.error.generic"));
+				if (error) throw new Error(error.message || m.auth_error_generic(opt));
 			} else {
 				// --- Proceso de Registro ---
 				const callbackURL = redirectPath.startsWith("/en")
@@ -127,7 +140,7 @@ export default function AuthForm({ redirectPath }: AuthFormProps) {
 						},
 					},
 				});
-				if (error) throw new Error(error.message || t("auth.error.generic"));
+				if (error) throw new Error(error.message || m.auth_error_generic(opt));
 
 				// Muestra mensaje informativo tras el registro
 				setSignupDone(true);
@@ -157,17 +170,17 @@ export default function AuthForm({ redirectPath }: AuthFormProps) {
 			<div className="max-w-md w-full mx-4 text-center space-y-6 animate-fade-in-up">
 				<div className="text-6xl">📧</div>
 				<h2 className="text-2xl font-bold">
-					{t("auth.emailVerificationSent")}
+					{m.auth_email_verification_sent(opt)}
 				</h2>
 				<p className="text-sm opacity-70">
-					{t("auth.signupSuccess") ||
+					{m.auth_signup_success(opt) ||
 						"Te enviamos un link de verificación. Revisa tu bandeja de entrada."}
 				</p>
 				<a
 					href={redirectPath}
 					className={cn(buttonVariants({ variant: "default" }))}
 				>
-					{t("auth.backHome")}
+					{m.auth_back_home(opt)}
 				</a>
 			</div>
 		);
@@ -181,19 +194,21 @@ export default function AuthForm({ redirectPath }: AuthFormProps) {
 					key={isLogin ? "login-title" : "signup-title"}
 					className="text-4xl font-black bg-linear-to-r from-(--auth-title-from) to-(--auth-title-to) bg-clip-text text-transparent font-[Outfit] tracking-tight py-1 animate-fade-in-up"
 				>
-					{isLogin ? t("auth.login.title") : t("auth.signup.title")}
+					{isLogin ? m.auth_login_title(opt) : m.auth_signup_title(opt)}
 				</h1>
 				<p
 					key={isLogin ? "login-sub" : "signup-sub"}
 					className="text-sm text-(--auth-text-secondary) font-medium"
 				>
-					{isLogin ? t("auth.login.subtitle") : t("auth.signup.subtitle")}{" "}
+					{isLogin ? m.auth_login_subtitle(opt) : m.auth_signup_subtitle(opt)}{" "}
 					<button
 						onClick={toggleMode}
 						type="button"
 						className="text-[var(--auth-accent)] hover:text-[var(--auth-accent-hover)] underline underline-offset-4 transition-all cursor-pointer font-bold"
 					>
-						{isLogin ? t("auth.btn.toggle.signup") : t("auth.btn.toggle.login")}
+						{isLogin
+							? m.auth_btn_toggle_signup(opt)
+							: m.auth_btn_toggle_login(opt)}
 					</button>
 				</p>
 			</div>
@@ -210,7 +225,7 @@ export default function AuthForm({ redirectPath }: AuthFormProps) {
 							htmlFor="email-address"
 							className="block text-xs font-bold text-(--auth-label) uppercase tracking-widest mb-1.5 ml-1"
 						>
-							{t("auth.email.label")}
+							{m.auth_email_label(opt)}
 						</label>
 						<div className="relative group-focus-within:scale-[1.01] transition-transform">
 							<input
@@ -220,7 +235,7 @@ export default function AuthForm({ redirectPath }: AuthFormProps) {
 								autoComplete="email"
 								required
 								className="appearance-none rounded-2xl relative block w-full px-12 py-4 border border-(--auth-border) bg-(--auth-input-bg) text-(--auth-text) placeholder-(--auth-placeholder) focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/60 focus:z-10 sm:text-sm transition-all duration-300"
-								placeholder={t("auth.email.placeholder")}
+								placeholder={m.auth_email_placeholder(opt)}
 							/>
 							<span className="absolute left-0 inset-y-0 flex items-center pl-4 pointer-events-none text-(--auth-label) group-focus-within:text-(--auth-accent) transition-colors">
 								<svg
@@ -249,7 +264,7 @@ export default function AuthForm({ redirectPath }: AuthFormProps) {
 							ext-id="password-label"
 							className="block text-xs font-bold text-(--auth-label) uppercase tracking-widest mb-1.5 ml-1"
 						>
-							{t("auth.password.label")}
+							{m.auth_password_label(opt)}
 						</label>
 						<div className="relative group-focus-within:scale-[1.01] transition-transform">
 							<input
@@ -261,7 +276,7 @@ export default function AuthForm({ redirectPath }: AuthFormProps) {
 								value={password}
 								onChange={handlePasswordChange}
 								className="appearance-none rounded-2xl relative block w-full px-12 py-4 border border-(--auth-border) bg-(--auth-input-bg) text-(--auth-text) placeholder-(--auth-placeholder) focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/60 focus:z-10 sm:text-sm transition-all duration-300"
-								placeholder={t("auth.password.placeholder")}
+								placeholder={m.auth_password_placeholder(opt)}
 							/>
 							<span className="absolute left-0 inset-y-0 flex items-center pl-4 pointer-events-none text-(--auth-label) group-focus-within:text-(--auth-accent) transition-colors">
 								<svg
@@ -341,10 +356,10 @@ export default function AuthForm({ redirectPath }: AuthFormProps) {
 										{strength === 0
 											? ""
 											: strength === 1
-												? t("auth.password.weak")
+												? m.auth_password_weak(opt)
 												: strength === 2
-													? t("auth.password.medium")
-													: t("auth.password.strong")}
+													? m.auth_password_medium(opt)
+													: m.auth_password_strong(opt)}
 									</span>
 									<span className="text-[10px] font-mono text-(--auth-placeholder)">
 										{password.length}/8
@@ -368,11 +383,11 @@ export default function AuthForm({ redirectPath }: AuthFormProps) {
 						{isLogin && (
 							<div className="mt-2 text-right">
 								<a
-									href={t("auth.forgot.link")}
+									href={localizeHref("/forgot-password", opt)}
 									data-astro-reload
 									className="text-xs font-medium text-(--auth-accent) hover:text-(--auth-accent-hover) underline underline-offset-4 transition-colors"
 								>
-									{t("auth.forgot.link")}
+									{m.auth_forgot_link(opt)}
 								</a>
 							</div>
 						)}
@@ -383,7 +398,7 @@ export default function AuthForm({ redirectPath }: AuthFormProps) {
 								htmlFor="confirm-password"
 								className="block text-xs font-bold text-(--auth-label) uppercase tracking-widest mb-1.5 ml-1"
 							>
-								{t("auth.confirmPassword.label")}
+								{m.auth_confirm_password_label(opt)}
 							</label>
 							<div className="relative group-focus-within:scale-[1.01] transition-transform">
 								<input
@@ -395,7 +410,7 @@ export default function AuthForm({ redirectPath }: AuthFormProps) {
 									value={confirmPassword}
 									onChange={(e) => setConfirmPassword(e.target.value)}
 									className="appearance-none rounded-2xl relative block w-full px-12 py-4 border border-(--auth-border) bg-(--auth-input-bg) text-(--auth-text) placeholder-(--auth-placeholder) focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/60 focus:z-10 sm:text-sm transition-all duration-300"
-									placeholder={t("auth.confirmPassword.placeholder")}
+									placeholder={m.auth_confirm_password_placeholder(opt)}
 								/>
 								<span className="absolute left-0 inset-y-0 flex items-center pl-4 pointer-events-none text-(--auth-label) group-focus-within:text-(--auth-accent) transition-colors">
 									<svg
@@ -455,11 +470,11 @@ export default function AuthForm({ redirectPath }: AuthFormProps) {
 						onSuccess={(token) => setTurnstileToken(token)}
 						onError={() => {
 							setTurnstileToken(null);
-							setError(t("auth.captcha.error"));
+							setError(m.auth_captcha_error(opt));
 						}}
 						onExpire={() => {
 							setTurnstileToken(null);
-							setError(t("auth.captcha.expired"));
+							setError(m.auth_captcha_expired(opt));
 						}}
 					/>
 				</div>
@@ -478,7 +493,7 @@ export default function AuthForm({ redirectPath }: AuthFormProps) {
 									className="animate-spin"
 									aria-hidden="true"
 								/>
-								<span>{t("auth.loading")}</span>
+								<span>{m.auth_loading(opt)}</span>
 							</>
 						) : (
 							<>
@@ -488,7 +503,7 @@ export default function AuthForm({ redirectPath }: AuthFormProps) {
 									aria-hidden="true"
 								/>
 								<span>
-									{isLogin ? t("auth.btn.login") : t("auth.btn.signup")}
+									{isLogin ? m.auth_btn_login(opt) : m.auth_btn_signup(opt)}
 								</span>
 							</>
 						)}

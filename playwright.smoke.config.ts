@@ -2,7 +2,7 @@ import { defineConfig } from "@playwright/test";
 
 // Configuración de puertos y claves para pruebas de humo
 const SMOKE_CONFIG = {
-	PORT: 4321,
+	PORT: Number(process.env.TEST_PORT || 4321),
 	CLOUDFLARE_COMPAT_DATE: "2026-04-30",
 	TURNSTILE_TEST_KEY: "1x0000000000000000000000000000000AA",
 } as const;
