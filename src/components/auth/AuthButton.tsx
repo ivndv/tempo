@@ -50,6 +50,7 @@ export default function AuthButton({ loginText, logoutText, loginUrl }: Props) {
 	return (
 		<a
 			href={loginUrl}
+			data-astro-reload
 			className={cn(
 				buttonVariants({ variant: "ghost", size: "sm" }),
 				"gap-2 px-3 group",

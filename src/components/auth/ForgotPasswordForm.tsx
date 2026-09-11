@@ -3,7 +3,9 @@
 
 // Iconos
 import { Icon } from "@iconify/react";
-import { useEffect, useState } from "react";
+// Turnstile
+import { Turnstile, type TurnstileInstance } from "@marsidev/react-turnstile";
+import { useEffect, useRef, useState } from "react";
 // Autenticación
 import { authClient } from "../../lib/client/auth-client";
 import { cn } from "../../lib/utils";
@@ -48,11 +50,19 @@ export default function ForgotPasswordForm({
 	const [loading, setLoading] = useState(false);
 	const [sent, setSent] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+	const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+	const turnstileRef = useRef<TurnstileInstance>(null);
 
 	// Envía la solicitud de restablecimiento
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		setError(null);
+
+		if (!turnstileToken) {
+			setError(m.auth_captcha_required(opt));
+			return;
+		}
+
 		setLoading(true);
 
 		const origin = typeof window !== "undefined" ? window.location.origin : "";
@@ -61,12 +71,19 @@ export default function ForgotPasswordForm({
 		const { error: err } = await authClient.requestPasswordReset({
 			email,
 			redirectTo: `${origin}${resetPath}`,
+			fetchOptions: {
+				headers: {
+					"x-captcha-response": turnstileToken,
+				},
+			},
 		});
 
 		setLoading(false);
 
 		if (err) {
 			setError(err.message || m.auth_error_generic(opt));
+			setTurnstileToken(null);
+			turnstileRef.current?.reset();
 			return;
 		}
 
@@ -134,6 +151,27 @@ export default function ForgotPasswordForm({
 							{error}
 						</div>
 					)}
+
+					{/* Widget de Verificación Turnstile */}
+					<div className="w-full py-2">
+						<Turnstile
+							ref={turnstileRef}
+							siteKey={import.meta.env.PUBLIC_TURNSTILE_SITE_KEY}
+							options={{
+								theme: "auto",
+								size: "flexible",
+							}}
+							onSuccess={(token) => setTurnstileToken(token)}
+							onError={() => {
+								setTurnstileToken(null);
+								setError(m.auth_captcha_error(opt));
+							}}
+							onExpire={() => {
+								setTurnstileToken(null);
+								setError(m.auth_captcha_expired(opt));
+							}}
+						/>
+					</div>
 
 					{/* Botón de enviar */}
 					<Button

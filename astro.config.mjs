@@ -10,6 +10,7 @@ export default defineConfig({
 	// Modo estático (sin servidor)
 	output: "static",
 	site: "https://tempo.mgdc.site",
+	trailingSlash: "always",
 	// Preserva el whitespace del output de Astro 6 (default de v7 es 'jsx')
 	compressHTML: true,
 	prefetch: true,
@@ -24,6 +25,7 @@ export default defineConfig({
 				outdir: "./src/paraglide",
 				emitTsDeclarations: true,
 				strategy: ["url", "globalVariable", "baseLocale"],
+				trailingSlash: "always",
 				urlPatterns: [
 					{
 						pattern: "/:path(.*)?",

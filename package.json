@@ -10,7 +10,7 @@
 		"build": "astro build",
 		"preview": "astro preview",
 		"astro": "astro",
-		"sync:db": "wrangler d1 export pomodoro-db --remote --output=.wrangler/pomodoro-db.sql && wrangler d1 execute pomodoro-db --local --file=.wrangler/pomodoro-db.sql",
+		"sync:db": "wrangler d1 export pomodoro-db --remote --output=.wrangler/pomodoro-db.sql -y && rm -rf .wrangler/state/v3/d1 && wrangler d1 execute pomodoro-db --local --file=.wrangler/pomodoro-db.sql",
 		"db:gen": "drizzle-kit generate",
 		"db:check": "drizzle-kit check",
 		"db:pull": "drizzle-kit pull --config=drizzle.pull.config.ts",
