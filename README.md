@@ -6,37 +6,42 @@ Aplicación web moderna diseñada para ayudarte a gestionar tu tiempo de estudio
 
 ## Características
 
-- **Técnica Pomodoro basada en tareas**: Selecciona una tarea antes de empezar. Cada pomodoro de 25 minutos está vinculado a una tarea específica.
-- **Datos de sesión guardados**: Si interrumpes un pomodoro, el tiempo restante se guarda. Puedes retomarlo después desde donde lo dejaste.
-- **Estadísticas semanales y diarias**: Visualiza tu progreso con gráficos de barras y líneas de promedio.
-- **Soporte para usuarios invitados y registrados**: Los invitados guardan datos en localStorage; los usuarios registrados persisten en D1 via API.
-- **Modo oscuro/claro**: Soporte para temas claro y oscuro con transiciones fluidas.
-- **Internacionalización**: Español e inglés completos impulsados por Paraglide JS 2.0 y rutas dinámicas.
+- **Técnica Pomodoro basada en tareas**: Vincula cada bloque de enfoque de 25 minutos a una tarea específica para medir tu rendimiento real.
+- **Pausa y reanudación flexible**: Si interrumpes una sesión, tu tiempo restante queda guardado para retomarlo cuando estés listo.
+- **Estadísticas y progreso**: Consulta métricas diarias y semanales con gráficos de actividad y promedios de tiempo enfocado.
+- **Modo offline y sincronización**: Úsala al instante sin registrarte o inicia sesión para sincronizar tus tareas y sesiones en la nube.
+- **Modo oscuro y claro**: Interfaz adaptable a tus preferencias visuales con transiciones fluidas.
+- **Soporte multi-idioma**: Interfaz completamente disponible en español e inglés.
 
 ## Secciones
 
-1. **Selector de Tareas**: Crea tareas con categorías (Trabajo, Estudio, Personal) y selecciona una para empezar un pomodoro.
-2. **Temporizador**: Cuenta regresiva de 25 minutos con círculo SVG de progreso. Botones de pausa, continuar y cancelar con confirmación.
-3. **Estadísticas**: Resumen diario con timeline de actividad y gráfico semanal de barras con promedio.
+1. **Selector de Tareas**: Crea, organiza por categorías (Trabajo, Estudio, Personal) y selecciona tareas antes de arrancar tus sesiones.
+2. **Temporizador Pomodoro**: Cuenta regresiva interactiva con indicador visual de avance y pausas/descansos automáticos (cortos y largos).
+3. **Estadísticas y Rendimiento**: Resumen diario y gráficos semanales para monitorear tu avance y horas de enfoque.
+4. **Autenticación**: Registro e inicio de sesión seguro, verificación por correo y recuperación de contraseña olvidada.
+5. **Acerca de**: Guía explicativa sobre los principios, reglas y beneficios de la técnica Pomodoro.
+6. **Blog**: Artículos de divulgación y consejos prácticos para optimizar tu productividad y concentración.
 
 ## Uso
 
-- **Visualizar Contenido**: La aplicación ya está activa y puedes usarla para concentrarte aquí: [Tempo](https://tempo.mgdc.site/).
-- **Configurar y Arrancar**: Elige cuánto tiempo vas a trabajar y dale al botón de inicio; la app se encarga de organizar los descansos automáticamente.
-- **Alternar Idiomas**: Puedes cambiar entre español e inglés de forma sencilla para que la interfaz se adapte a tu preferencia.
+- **Acceder a la Aplicación**: Entra directamente desde cualquier navegador aquí: [Tempo](https://tempo.mgdc.site/).
+- **Modo Libre o Cuenta Personal**: Usa el temporizador al instante sin registrarte, o crea tu cuenta para sincronizar tus tareas e historial en la nube.
+- **Recuperar Contraseña**: Si pierdes tu acceso, solicita un enlace de restablecimiento desde la pantalla de inicio de sesión para recibirlo en tu correo.
+- **Configurar y Concentrarte**: Elige o crea una tarea, presiona iniciar y deja que la app organice tus bloques de enfoque y descansos.
+- **Explorar Recursos**: Aprende las bases de la metodología en la sección *Acerca de* o lee guías de productividad en el *Blog*.
+- **Alternar Idioma y Tema**: Cambia entre español e inglés y alterna entre modo claro y oscuro con un solo clic desde la barra superior.
 
 ## Tecnologías Utilizadas
 
 - **Frontend**: Astro 7, React 19, Tailwind CSS 4, shadcn/ui
-- **Internacionalización**: Paraglide JS 2.0 con compilación a TypeScript
-- **Backend**: Cloudflare Pages Functions (Hono 4), D1 (SQLite via Drizzle ORM), KV (Better Auth sessions)
-- **Auth**: Better Auth, Cloudflare Turnstile CAPTCHA, microservicio externo Argon2id
-- **State**: Zustand 5 (stores duales: API para usuarios logueados, localStorage para invitados)
+- **Backend**: Cloudflare Pages Functions (Hono 4), Cloudflare D1 (SQLite via Drizzle ORM), Workers KV
+- **Autenticación**: Better Auth, Cloudflare Turnstile
+- **Estado**: Zustand 5
 - **Validación**: Zod 4
-- **Iconos**: Lucide (via @iconify/react)
-- **Testing**: Vitest 5 (96 tests unitarios), Playwright (45 E2E + 12 Smoke tests)
-- **Herramientas**: Bun, Biome 2, TypeScript 7
-- **Infra & CI/CD**: Cloudflare Pages, D1, KV, R2, GitHub Actions
+- **Internacionalización**: Paraglide JS 2.0
+- **Testing**: Vitest, Playwright
+- **Herramientas**: Bun, Biome, TypeScript
+- **Infra & CI/CD**: Cloudflare Pages, GitHub Actions
 
 ## Instalación
 
