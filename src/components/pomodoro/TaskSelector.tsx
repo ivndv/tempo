@@ -5,10 +5,10 @@ import { Icon } from "@iconify/react";
 import { useState } from "react";
 // Store
 import { useShallow } from "zustand/react/shallow";
-// i18n
-import { useTranslations } from "../../i18n/utils";
 // Utilidades
 import { getTodaysStats, getWeeklyStats } from "../../lib/stats";
+// Paraglide
+import * as m from "../../paraglide/messages";
 import { useStore } from "../../stores/store";
 // Componentes
 import DailySummary from "../stats/DailySummary";
@@ -73,7 +73,6 @@ export default function TaskSelector({
 			tareasPendientes: s.tareasPendientes,
 		})),
 	);
-	const t = useTranslations(useStore((s) => s.lang));
 	const [nombre, setNombre] = useState("");
 	const [categoriaId, setCategoriaId] = useState<number | undefined>();
 
@@ -100,10 +99,10 @@ export default function TaskSelector({
 			<div className="bg-card/40 backdrop-blur-md p-6 md:p-8 rounded-3xl border border-border/60 shadow-xl space-y-6 transition-all duration-300">
 				<div className="space-y-1">
 					<h2 className="text-2xl font-bold tracking-tight text-foreground">
-						{t("task.selector.title")}
+						{m.task_selector_title()}
 					</h2>
 					<p className="text-xs text-muted-foreground">
-						{t("task.selector.subtitle")}
+						{m.task_selector_subtitle()}
 					</p>
 				</div>
 
@@ -117,7 +116,7 @@ export default function TaskSelector({
 							type="text"
 							value={nombre}
 							onChange={(e) => setNombre(e.target.value)}
-							placeholder={t("task.selector.placeholder")}
+							placeholder={m.task_selector_placeholder()}
 							className="h-12 rounded-xl pl-12 pr-4 text-base"
 							onKeyDown={(e) => {
 								if (e.key === "Enter") handleCreate();
@@ -131,7 +130,7 @@ export default function TaskSelector({
 						className="h-12 rounded-xl px-6 font-bold gap-2 transition-transform duration-300 hover:scale-[1.02] shadow-md hover:shadow-lg disabled:opacity-50"
 					>
 						<Icon icon="lucide:plus" className="w-5 h-5" />
-						<span>{t("task.selector.create")}</span>
+						<span>{m.task_selector_create()}</span>
 					</Button>
 				</div>
 
@@ -140,7 +139,7 @@ export default function TaskSelector({
 					<div className="space-y-2.5 pt-2">
 						<span className="text-xs font-bold uppercase tracking-wider opacity-60 flex items-center gap-1.5">
 							<Icon icon="lucide:tag" className="w-3.5 h-3.5" />
-							{t("task.selector.category")}
+							{m.task_selector_category()}
 						</span>
 						<div className="flex gap-2 flex-wrap">
 							{categorias.map((cat) => {
@@ -173,7 +172,7 @@ export default function TaskSelector({
 					<div className="flex items-center justify-between px-1">
 						<h3 className="text-lg font-bold flex items-center gap-2 text-foreground/80">
 							<Icon icon="lucide:list-todo" className="w-5 h-5 text-primary" />
-							{t("task.selector.pending")}
+							{m.task_selector_pending()}
 						</h3>
 						{/* Badge de cantidad */}
 						<Badge
@@ -206,8 +205,10 @@ export default function TaskSelector({
 									{tareasPendientes[tarea.id] !== undefined && (
 										<span className="inline-flex items-center gap-1 text-[10px] font-bold text-warning bg-warning/10 px-2 py-0.5 rounded-md mt-1 ml-1.5">
 											<Icon icon="lucide:clock" className="w-3 h-3" />
-											{t("task.remaining", {
-												minutes: Math.ceil(tareasPendientes[tarea.id] / 60),
+											{m.task_remaining({
+												minutes: String(
+													Math.ceil(tareasPendientes[tarea.id] / 60),
+												),
 											})}
 										</span>
 									)}
@@ -225,7 +226,7 @@ export default function TaskSelector({
 														onClick={() => onSelectTask(tarea.id)}
 														size="icon-sm"
 														className="hover:scale-110 transition-transform"
-														aria-label={t("task.tooltip.start")}
+														aria-label={m.task_tooltip_start()}
 													>
 														<Icon
 															icon="lucide:play"
@@ -234,7 +235,7 @@ export default function TaskSelector({
 													</Button>
 												}
 											/>
-											<TooltipContent>{t("task.tooltip.start")}</TooltipContent>
+											<TooltipContent>{m.task_tooltip_start()}</TooltipContent>
 										</Tooltip>
 
 										<Tooltip>
@@ -248,14 +249,14 @@ export default function TaskSelector({
 														variant="outline"
 														size="icon-sm"
 														className="text-success hover:scale-110 hover:text-white hover:bg-success transition-transform"
-														aria-label={t("task.tooltip.complete")}
+														aria-label={m.task_tooltip_complete()}
 													>
 														<Icon icon="lucide:check" className="w-4 h-4" />
 													</Button>
 												}
 											/>
 											<TooltipContent>
-												{t("task.tooltip.complete")}
+												{m.task_tooltip_complete()}
 											</TooltipContent>
 										</Tooltip>
 
@@ -268,15 +269,13 @@ export default function TaskSelector({
 														variant="outline"
 														size="icon-sm"
 														className="text-destructive hover:scale-110 hover:text-white hover:bg-destructive transition-transform"
-														aria-label={t("task.tooltip.delete")}
+														aria-label={m.task_tooltip_delete()}
 													>
 														<Icon icon="lucide:trash-2" className="w-4 h-4" />
 													</Button>
 												}
 											/>
-											<TooltipContent>
-												{t("task.tooltip.delete")}
-											</TooltipContent>
+											<TooltipContent>{m.task_tooltip_delete()}</TooltipContent>
 										</Tooltip>
 									</TooltipProvider>
 								</div>
@@ -292,7 +291,7 @@ export default function TaskSelector({
 					{/* Separador */}
 					<div className="flex items-center gap-3 text-xs font-bold uppercase tracking-widest opacity-30">
 						<span className="h-px flex-1 bg-foreground/20"></span>
-						{t("stats.progress.title")}
+						{m.stats_progress_title()}
 						<span className="h-px flex-1 bg-foreground/20"></span>
 					</div>
 

@@ -1,17 +1,15 @@
 /** @jsxImportSource react */
 // React
 import { useEffect, useState } from "react";
-// i18n
-import { useTranslations } from "../../i18n/utils";
-// Store
-import { useStore } from "../../stores/store";
+// Paraglide
+import * as m from "../../paraglide/messages";
+import { getLocale } from "../../paraglide/runtime";
 // Tipos locales
 import type { WeeklySummaryProps } from "./types";
 
 // Muestra el gráfico de barras semanal con estadísticas
 export default function WeeklySummary({ weeklyStats }: WeeklySummaryProps) {
-	const lang = useStore((s) => s.lang);
-	const t = useTranslations(lang);
+	const locale = getLocale();
 	// Estado para activar la animación después del montaje
 	const [animate, setAnimate] = useState(false);
 
@@ -24,7 +22,7 @@ export default function WeeklySummary({ weeklyStats }: WeeklySummaryProps) {
 	// Etiquetas de días según el idioma
 	const daysEs = ["L", "M", "M", "J", "V", "S", "D"];
 	const daysEn = ["M", "T", "W", "T", "F", "S", "S"];
-	const daysLabels = lang === "es" ? daysEs : daysEn;
+	const daysLabels = locale === "es" ? daysEs : daysEn;
 
 	// Calcula el total y el promedio semanal
 	const totalMinutes = weeklyStats.reduce((acc, curr) => acc + curr.minutes, 0);
@@ -43,7 +41,7 @@ export default function WeeklySummary({ weeklyStats }: WeeklySummaryProps) {
 			<div className="flex justify-between items-center mb-6">
 				{/* Título */}
 				<h4 className="text-xs font-bold uppercase opacity-50 z-10">
-					{t("stats.weekly.title")}
+					{m.stats_weekly_title()}
 				</h4>
 				{/* Total semanal */}
 				<div className="text-[10px] font-mono opacity-50 bg-muted border border-border/20 px-2.5 py-1 rounded-md z-10">
@@ -86,7 +84,7 @@ export default function WeeklySummary({ weeklyStats }: WeeklySummaryProps) {
 					>
 						{/* Etiqueta del promedio */}
 						<span className="bg-muted/90 text-secondary text-[8px] font-extrabold uppercase px-1.5 py-0.5 rounded border border-secondary/20 -mt-2 shadow-xs select-none">
-							{t("stats.weekly.average", { minutes: averageMinutes })}
+							{m.stats_weekly_average({ minutes: String(averageMinutes) })}
 						</span>
 					</div>
 				)}
@@ -117,8 +115,8 @@ export default function WeeklySummary({ weeklyStats }: WeeklySummaryProps) {
 										<span className="text-[8px] opacity-60 font-semibold">
 											{stat.count}{" "}
 											{stat.count === 1
-												? t("stats.session.singular")
-												: t("stats.session.plural")}
+												? m.stats_session_singular()
+												: m.stats_session_plural()}
 										</span>
 									</div>
 									{/* Flechita del tooltip */}

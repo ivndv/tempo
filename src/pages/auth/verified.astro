@@ -1,11 +1,11 @@
 ---
 // Layout
 import Layout from '../../layouts/Layout.astro';
-// i18n
-import { useTranslations } from '../../i18n/utils';
+// Paraglide
+import * as m from '@/paraglide/messages';
+import { localizeHref } from '@/paraglide/runtime';
 
 const lang = ((Astro.url.searchParams.get('lang') as 'es' | 'en') || Astro.currentLocale || 'es') as 'es' | 'en';
-const t = useTranslations(lang);
 ---
 
 <Layout title={lang === 'en' ? 'Email verified | Tempo' : 'Email verificado | Tempo'} lang={lang}>
@@ -13,13 +13,13 @@ const t = useTranslations(lang);
 		<div class="text-center space-y-6 animate-fade-in-up max-w-md">
 			<div class="text-7xl">✅</div>
 			<h1 class="text-3xl font-black">
-				{t("auth.verified.title")}
+				{m.auth_verified_title({}, { locale: lang })}
 			</h1>
 			<p class="text-muted-foreground text-lg">
-				{t("auth.verified.message")}
+				{m.auth_verified_message({}, { locale: lang })}
 			</p>
-			<a href={lang === 'en' ? '/en/login' : '/login'} data-astro-reload class="inline-flex h-9 items-center justify-center rounded-lg bg-primary px-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/80 transition-all mt-4">
-				{t("auth.verified.cta")}
+			<a href={localizeHref("/login", { locale: lang })} data-astro-reload class="inline-flex h-9 items-center justify-center rounded-lg bg-primary px-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/80 transition-all mt-4">
+				{m.auth_verified_cta({}, { locale: lang })}
 			</a>
 		</div>
 	</div>

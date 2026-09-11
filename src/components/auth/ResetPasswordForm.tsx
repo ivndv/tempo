@@ -3,14 +3,16 @@
 
 // Iconos
 import { Icon } from "@iconify/react";
+// React
 import { useEffect, useState } from "react";
-// i18n
-import { useTranslations } from "../../i18n/utils";
 // Autenticación
 import { authClient } from "../../lib/client/auth-client";
 // Validaciones
 import { signupSchema } from "../../lib/shared/validations";
 import { cn } from "../../lib/utils";
+// Paraglide
+import * as m from "../../paraglide/messages";
+import { getLocale, localizeHref, setLocale } from "../../paraglide/runtime";
 // Store
 import { useStore } from "../../stores/store";
 // Componentes
@@ -19,6 +21,7 @@ import { Button, buttonVariants } from "../ui/button";
 // Props del componente (interfaz local)
 interface ResetPasswordFormProps {
 	redirectPath: string;
+	lang?: "es" | "en";
 }
 
 // Evalúa la fortaleza de la contraseña (0-3)
@@ -34,8 +37,16 @@ const checkStrength = (pass: string) => {
 // Formulario para restablecer la contraseña con token
 export default function ResetPasswordForm({
 	redirectPath,
+	lang: propLang,
 }: ResetPasswordFormProps) {
-	const t = useTranslations(useStore((s) => s.lang));
+	const storeLang = useStore((s) => s.lang);
+	const lang =
+		propLang ??
+		(redirectPath.startsWith("/en") ? "en" : (getLocale() ?? storeLang));
+	if (typeof window !== "undefined" && getLocale() !== lang) {
+		setLocale(lang, { reload: false });
+	}
+	const opt = { locale: lang };
 	// Estados del formulario
 	const [token, setToken] = useState("");
 	const [password, setPassword] = useState("");
@@ -53,19 +64,15 @@ export default function ResetPasswordForm({
 		const errorParam = params.get("error");
 
 		if (errorParam) {
-			setError(
-				errorParam === "INVALID_TOKEN"
-					? t("auth.error.generic")
-					: t("auth.error.generic"),
-			);
+			setError(m.auth_error_generic({ locale: lang }));
 		}
 
 		if (tokenParam) {
 			setToken(tokenParam);
 		} else {
-			setError(t("auth.error.generic"));
+			setError(m.auth_error_generic({ locale: lang }));
 		}
-	}, [t]);
+	}, [lang]);
 
 	// Envía la nueva contraseña
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -78,7 +85,7 @@ export default function ResetPasswordForm({
 			confirmPassword,
 		});
 		if (!result.success) {
-			setError(result.error.issues[0]?.message || t("auth.password.weak"));
+			setError(result.error.issues[0]?.message || m.auth_password_weak(opt));
 			return;
 		}
 
@@ -92,7 +99,7 @@ export default function ResetPasswordForm({
 		setLoading(false);
 
 		if (err) {
-			setError(err.message || t("auth.error.generic"));
+			setError(err.message || m.auth_error_generic(opt));
 			return;
 		}
 
@@ -106,14 +113,15 @@ export default function ResetPasswordForm({
 				{/* Ícono de éxito */}
 				<div className="text-6xl">✅</div>
 				{/* Título y mensaje */}
-				<h2 className="text-2xl font-bold">{t("auth.reset.title")}</h2>
-				<p className="text-sm opacity-70">{t("auth.reset.success")}</p>
-				{/* Volver al inicio */}
+				<h2 className="text-2xl font-bold">{m.auth_reset_title(opt)}</h2>
+				<p className="text-sm opacity-70">{m.auth_reset_success(opt)}</p>
+				{/* Volver al login */}
 				<a
-					href={redirectPath}
+					href={localizeHref("/login", opt)}
+					data-astro-reload
 					className={cn(buttonVariants({ variant: "default" }))}
 				>
-					{t("auth.backHome")}
+					{m.auth_back_login(opt)}
 				</a>
 			</div>
 		);
@@ -125,8 +133,8 @@ export default function ResetPasswordForm({
 				{/* Encabezado */}
 				<div className="text-center space-y-2 mb-8">
 					<div className="text-4xl">🔐</div>
-					<h2 className="text-2xl font-bold">{t("auth.reset.title")}</h2>
-					<p className="text-sm opacity-70">{t("auth.reset.subtitle")}</p>
+					<h2 className="text-2xl font-bold">{m.auth_reset_title(opt)}</h2>
+					<p className="text-sm opacity-70">{m.auth_reset_subtitle(opt)}</p>
 				</div>
 
 				{/* Formulario */}
@@ -137,7 +145,7 @@ export default function ResetPasswordForm({
 							htmlFor="password"
 							className="block text-xs font-bold text-(--auth-label) uppercase tracking-widest mb-1.5 ml-1"
 						>
-							{t("auth.password.label")}
+							{m.auth_password_label(opt)}
 						</label>
 						{/* Input con icono y toggle de visibilidad */}
 						<div className="relative group-focus-within:scale-[1.01] transition-transform">
@@ -152,7 +160,7 @@ export default function ResetPasswordForm({
 									setStrength(checkStrength(e.target.value));
 								}}
 								className="appearance-none rounded-2xl relative block w-full px-12 py-4 border border-(--auth-border) bg-(--auth-input-bg) text-(--auth-text) placeholder-(--auth-placeholder) focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/60 focus:z-10 sm:text-sm transition-all duration-300"
-								placeholder={t("auth.password.placeholder")}
+								placeholder={m.auth_password_placeholder(opt)}
 							/>
 							{/* Icono de candado */}
 							<span className="absolute left-0 inset-y-0 flex items-center pl-4 pointer-events-none text-(--auth-label) group-focus-within:text-(--auth-accent) transition-colors">
@@ -233,10 +241,10 @@ export default function ResetPasswordForm({
 										{strength === 0
 											? ""
 											: strength === 1
-												? t("auth.password.weak")
+												? m.auth_password_weak(opt)
 												: strength === 2
-													? t("auth.password.medium")
-													: t("auth.password.strong")}
+													? m.auth_password_medium(opt)
+													: m.auth_password_strong(opt)}
 									</span>
 									<span className="text-[10px] font-mono text-(--auth-placeholder)">
 										{password.length}/8
@@ -266,7 +274,7 @@ export default function ResetPasswordForm({
 							htmlFor="confirm-password"
 							className="block text-xs font-bold text-(--auth-label) uppercase tracking-widest mb-1.5 ml-1"
 						>
-							{t("auth.confirmPassword.label")}
+							{m.auth_confirm_password_label(opt)}
 						</label>
 						<div className="relative group-focus-within:scale-[1.01] transition-transform">
 							<input
@@ -277,7 +285,7 @@ export default function ResetPasswordForm({
 								value={confirmPassword}
 								onChange={(e) => setConfirmPassword(e.target.value)}
 								className="appearance-none rounded-2xl relative block w-full px-12 py-4 border border-(--auth-border) bg-(--auth-input-bg) text-(--auth-text) placeholder-(--auth-placeholder) focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/60 focus:z-10 sm:text-sm transition-all duration-300"
-								placeholder={t("auth.confirmPassword.placeholder")}
+								placeholder={m.auth_confirm_password_placeholder(opt)}
 							/>
 							{/* Icono de candado */}
 							<span className="absolute left-0 inset-y-0 flex items-center pl-4 pointer-events-none text-(--auth-label) group-focus-within:text-(--auth-accent) transition-colors">
@@ -316,9 +324,20 @@ export default function ResetPasswordForm({
 						{loading ? (
 							<Icon icon="lucide:loader-circle" className="animate-spin" />
 						) : (
-							t("auth.reset.btn")
+							m.auth_reset_btn(opt)
 						)}
 					</Button>
+
+					{/* Volver al login */}
+					<div className="text-center pt-2">
+						<a
+							href={localizeHref("/login", opt)}
+							data-astro-reload
+							className="text-xs font-medium text-muted-foreground hover:text-foreground underline underline-offset-4 transition-colors"
+						>
+							{m.auth_back_login(opt)}
+						</a>
+					</div>
 				</form>
 			</div>
 		</div>

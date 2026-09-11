@@ -1,6 +1,7 @@
 // Integraciones
 import react from "@astrojs/react";
 import sitemap from "@astrojs/sitemap";
+import { paraglideVitePlugin } from "@inlang/paraglide-js";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "astro/config";
 
@@ -16,7 +17,24 @@ export default defineConfig({
 
 	// Vite + Tailwind CSS
 	vite: {
-		plugins: [tailwindcss()],
+		plugins: [
+			tailwindcss(),
+			paraglideVitePlugin({
+				project: "./project.inlang",
+				outdir: "./src/paraglide",
+				emitTsDeclarations: true,
+				strategy: ["url", "globalVariable", "baseLocale"],
+				urlPatterns: [
+					{
+						pattern: "/:path(.*)?",
+						localized: [
+							["en", "/en/:path(.*)?"],
+							["es", "/:path(.*)?"],
+						],
+					},
+				],
+			}),
+		],
 		ssr: { external: [] },
 		server: {
 			watch: { ignored: ["**/.wrangler/**"] },

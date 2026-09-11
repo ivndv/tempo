@@ -1,8 +1,7 @@
 /** @jsxImportSource react */
-// i18n
-import { useTranslations } from "../../i18n/utils";
-// Store
-import { useStore } from "../../stores/store";
+// Paraglide
+import * as m from "../../paraglide/messages";
+import { getLocale } from "../../paraglide/runtime";
 // Tipos locales
 import type { DailySummaryProps } from "./types";
 
@@ -13,12 +12,11 @@ export default function DailySummary({
 	minutes,
 	count,
 }: DailySummaryProps) {
-	const lang = useStore((s) => s.lang);
-	const t = useTranslations(lang);
+	const locale = getLocale();
 
 	// Formatea la fecha actual según el idioma
 	const todayDateLabel = new Intl.DateTimeFormat(
-		lang === "es" ? "es-ES" : "en-US",
+		locale === "es" ? "es-ES" : "en-US",
 		{ dateStyle: "full" },
 	).format(new Date());
 
@@ -39,7 +37,7 @@ export default function DailySummary({
 				</span>
 				{/* Tiempo real acumulado */}
 				<span className="text-xs font-bold uppercase opacity-50 mb-1">
-					{t("stats.realTime")}
+					{m.stats_real_time()}
 				</span>
 				{/* Horas y minutos */}
 				<div className="text-5xl font-black text-primary">
@@ -49,20 +47,20 @@ export default function DailySummary({
 				</div>
 				{/* Sesiones completadas */}
 				<div className="text-sm mt-2 opacity-60">
-					{count} {t("stats.completedSessions")}
+					{count} {m.stats_completed_sessions()}
 				</div>
 			</div>
 
 			{/* Tarjeta Derecha: Timeline Vertical */}
 			<div className="bg-card/40 backdrop-blur-md p-6 md:p-8 rounded-3xl border border-border/60 shadow-xl max-h-60 overflow-y-auto relative">
 				<h4 className="text-xs font-bold uppercase opacity-50 mb-6 sticky top-0 bg-card/60 backdrop-blur-md pb-2 z-20 text-center">
-					{t("stats.log.title")}
+					{m.stats_log_title()}
 				</h4>
 
 				{/* Lista de entradas del historial */}
 				{history.length === 0 ? (
 					<div className="text-center opacity-30 py-4 italic">
-						{t("stats.log.empty")}
+						{m.stats_log_empty()}
 					</div>
 				) : (
 					<div className="ml-2 border-l-2 border-foreground/10 space-y-6">
@@ -87,10 +85,10 @@ export default function DailySummary({
 										<div className="flex justify-between items-start">
 											<span className="font-bold text-sm">
 												{entry.type === "focus"
-													? t("timer.focus")
+													? m.timer_focus()
 													: entry.type === "short"
-														? t("timer.short")
-														: t("timer.long")}
+														? m.timer_short()
+														: m.timer_long()}
 											</span>
 											<span className="text-xs font-mono opacity-50 bg-muted px-2 py-0.5 rounded">
 												{entry.minutes} min

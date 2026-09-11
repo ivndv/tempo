@@ -3,6 +3,8 @@
 import { useEffect } from "react";
 // Store
 import { useShallow } from "zustand/react/shallow";
+// Paraglide
+import { setLocale } from "../../paraglide/runtime";
 import { useStore } from "../../stores/store";
 import VerifiedHandler from "../auth/VerifiedHandler";
 import ErrorBoundary from "../common/ErrorBoundary";
@@ -48,9 +50,10 @@ export default function PomodoroManager({ lang = "es" }: PomodoroManagerProps) {
 		})),
 	);
 
-	// Sincroniza el idioma del store con el de la página
+	// Sincroniza el idioma del store y de Paraglide con el de la página
 	useEffect(() => {
 		setLang(lang);
+		setLocale(lang);
 	}, [lang, setLang]);
 
 	// Puente store → toasts Base UI (el Toaster vive en el Layout)

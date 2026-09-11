@@ -1,9 +1,7 @@
 /** @jsxImportSource react */
 
-// i18n
-import { useTranslations } from "../../../i18n/utils";
-// Store
-import { useStore } from "../../../stores/store";
+// Paraglide
+import * as m from "../../../paraglide/messages";
 import { Button } from "../../ui/button";
 import {
 	Dialog,
@@ -23,8 +21,6 @@ export default function InterruptDialog({
 	onContinue,
 	onAbandon,
 }: InterruptDialogProps) {
-	const t = useTranslations(useStore((s) => s.lang));
-
 	return (
 		<Dialog
 			open
@@ -42,10 +38,10 @@ export default function InterruptDialog({
 				</div>
 				<div className="space-y-2">
 					<DialogTitle className="text-xl font-black">
-						{t("task.interrupt.title")}
+						{m.task_interrupt_title()}
 					</DialogTitle>
 					<DialogDescription className="sr-only">
-						{t("task.interrupt.title")}
+						{m.task_interrupt_title()}
 					</DialogDescription>
 				</div>
 				{/* Botones de acción */}
@@ -57,7 +53,7 @@ export default function InterruptDialog({
 						className="px-6"
 						onClick={onAbandon}
 					>
-						{t("task.interrupt.abandon")}
+						{m.task_interrupt_abandon()}
 					</Button>
 					<Button
 						type="button"
@@ -66,7 +62,7 @@ export default function InterruptDialog({
 						onClick={onContinue}
 						autoFocus
 					>
-						{t("task.interrupt.continue")}
+						{m.task_interrupt_continue()}
 					</Button>
 				</div>
 			</DialogContent>

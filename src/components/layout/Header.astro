@@ -1,8 +1,7 @@
 ---
-// Astro
-import { getRelativeLocaleUrl } from "astro:i18n";
-// i18n
-import { useTranslations } from "../../i18n/utils";
+// Paraglide
+import * as m from "@/paraglide/messages";
+import { localizeHref } from "@/paraglide/runtime";
 // Componentes
 import LanguagePicker from "./LanguagePicker";
 import AuthButton from "../auth/AuthButton";
@@ -11,11 +10,11 @@ import MobileMenu from "./MobileMenu.astro";
 
 // 1. Obtiene el idioma actual de la URL
 const currentLang: 'es' | 'en' = (Astro.currentLocale === 'en' ? 'en' : 'es');
-// 2. Inicializa las traducciones
-const t = useTranslations(currentLang);
-// 3. Verifica si la ruta actual coincide con la del link de navegación
+
+// 2. Verifica si la ruta actual coincide con la del link de navegación
 const isActive = (path: string) => {
-  return Astro.url.pathname === getRelativeLocaleUrl(currentLang, path);
+  const target = localizeHref(path, { locale: currentLang });
+  return Astro.url.pathname === target || Astro.url.pathname === `${target}/`;
 };
 ---
 
@@ -24,7 +23,7 @@ const isActive = (path: string) => {
     <!-- Logo -->
     <div class="flex items-center gap-2">
       <a
-        href={getRelativeLocaleUrl(currentLang, "/")}
+        href={localizeHref("/", { locale: currentLang })}
         class="flex items-center gap-2 group transition-transform hover:scale-105"
       >
         <span class="text-2xl">🍅</span>
@@ -39,26 +38,26 @@ const isActive = (path: string) => {
     <!-- Desktop Nav Links -->
     <div class="hidden lg:flex items-center gap-8">
       <a
-        href={getRelativeLocaleUrl(currentLang, "about")}
+        href={localizeHref("/about", { locale: currentLang })}
         class={`
           text-sm font-medium tracking-normal transition-all duration-200 border-b-2 pb-1
-          ${isActive('about')
+          ${isActive('/about')
             ? 'opacity-100 border-primary text-primary'
             : 'opacity-60 hover:opacity-100 border-transparent'}
         `}
       >
-        {t("nav.about")}
+        {m.nav_about({}, { locale: currentLang })}
       </a>
       <a
-        href={getRelativeLocaleUrl(currentLang, "blog")}
+        href={localizeHref("/blog", { locale: currentLang })}
         class={`
           text-sm font-medium tracking-normal transition-all duration-200 border-b-2 pb-1
-          ${isActive('blog')
+          ${isActive('/blog')
             ? 'opacity-100 border-primary text-primary'
             : 'opacity-60 hover:opacity-100 border-transparent'}
         `}
       >
-        {t("nav.blog")}
+        {m.nav_blog({}, { locale: currentLang })}
       </a>
     </div>
 
@@ -68,9 +67,9 @@ const isActive = (path: string) => {
       <LanguagePicker lang={currentLang} client:load />
       <AuthButton
         client:only="react"
-        loginUrl={getRelativeLocaleUrl(currentLang, "login")}
-        loginText={t("nav.login")}
-        logoutText={t("nav.logout")}
+        loginUrl={localizeHref("/login", { locale: currentLang })}
+        loginText={m.nav_login({}, { locale: currentLang })}
+        logoutText={m.nav_logout({}, { locale: currentLang })}
       />
     </div>
 
@@ -78,9 +77,9 @@ const isActive = (path: string) => {
     <div class="flex lg:hidden items-center gap-2">
       <AuthButton
         client:only="react"
-        loginUrl={getRelativeLocaleUrl(currentLang, "login")}
-        loginText={t("nav.login")}
-        logoutText={t("nav.logout")}
+        loginUrl={localizeHref("/login", { locale: currentLang })}
+        loginText={m.nav_login({}, { locale: currentLang })}
+        logoutText={m.nav_logout({}, { locale: currentLang })}
       />
       <MobileMenu lang={currentLang} />
     </div>

@@ -1,9 +1,7 @@
 /** @jsxImportSource react */
 
-// i18n
-import { useTranslations } from "../../../i18n/utils";
-// Store
-import { useStore } from "../../../stores/store";
+// Paraglide
+import * as m from "../../../paraglide/messages";
 import { Button } from "../../ui/button";
 import {
 	Dialog,
@@ -25,8 +23,6 @@ export default function CompleteDialog({
 	onComplete,
 	onNotYet,
 }: CompleteDialogProps) {
-	const t = useTranslations(useStore((s) => s.lang));
-
 	return (
 		<Dialog
 			open
@@ -45,7 +41,7 @@ export default function CompleteDialog({
 				<div className="space-y-2">
 					{/* Título y nombre de la tarea */}
 					<DialogTitle className="text-xl font-black">
-						{t("task.complete.prompt")}
+						{m.task_complete_prompt()}
 					</DialogTitle>
 					<DialogDescription className="text-sm leading-relaxed text-muted-foreground">
 						“{tareaNombre}”
@@ -60,10 +56,10 @@ export default function CompleteDialog({
 						className="px-6"
 						onClick={onNotYet}
 					>
-						{t("task.complete.no")}
+						{m.task_complete_no()}
 					</Button>
 					<Button type="button" size="sm" className="px-6" onClick={onComplete}>
-						{t("task.complete.yes")}
+						{m.task_complete_yes()}
 					</Button>
 				</div>
 			</DialogContent>

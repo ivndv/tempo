@@ -3,8 +3,8 @@
 import { Icon } from "@iconify/react";
 // React
 import { useEffect, useRef, useState } from "react";
-// i18n
-import { useTranslations } from "../../i18n/utils";
+// Paraglide
+import * as m from "../../paraglide/messages";
 // Store
 import { useStore } from "../../stores/store";
 // Componentes
@@ -21,7 +21,6 @@ const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
 // Renderiza el temporizador de descanso
 export default function BreakTimer(_props: BreakTimerProps) {
-	const t = useTranslations(useStore((s) => s.lang));
 	const breakActivo = useStore((s) => s.breakActivo);
 	const completarBreak = useStore((s) => s.completarBreak);
 	const saltarBreak = useStore((s) => s.saltarBreak);
@@ -74,16 +73,14 @@ export default function BreakTimer(_props: BreakTimerProps) {
 					<div className="w-20 h-20 rounded-full flex items-center justify-center text-5xl mx-auto bg-success/15 text-success animate-bounce">
 						✓
 					</div>
-					<h2 className="text-3xl font-black">{t("break.done_title")}</h2>
-					<p className="text-muted-foreground text-sm">
-						{t("break.done_desc")}
-					</p>
+					<h2 className="text-3xl font-black">{m.break_done_title()}</h2>
+					<p className="text-muted-foreground text-sm">{m.break_done_desc()}</p>
 					<Button
 						type="button"
 						onClick={handleContinue}
 						className="h-12 rounded-xl px-10 font-bold shadow-lg hover:scale-[1.02] transition-transform"
 					>
-						{t("break.continue")}
+						{m.break_continue()}
 					</Button>
 				</div>
 			</div>
@@ -97,11 +94,11 @@ export default function BreakTimer(_props: BreakTimerProps) {
 				<span className="inline-flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-widest text-success bg-success/10 px-3 py-1 rounded-full">
 					<Icon icon="lucide:coffee" className="w-3.5 h-3.5" />
 					{breakActivo?.tipo === "long"
-						? t("break.long_label")
-						: t("break.short_label")}
+						? m.break_long_label()
+						: m.break_short_label()}
 				</span>
 				<h2 className="text-2xl md:text-3xl font-black text-foreground tracking-tight mt-1">
-					{t("break.title")}
+					{m.break_title()}
 				</h2>
 			</div>
 
@@ -173,7 +170,7 @@ export default function BreakTimer(_props: BreakTimerProps) {
 						{String(seconds).padStart(2, "0")}
 					</span>
 					<span className="text-[10px] uppercase tracking-widest font-extrabold opacity-40 mt-1 select-none">
-						{t("break.resting")}
+						{m.break_resting()}
 					</span>
 				</div>
 			</div>
@@ -186,7 +183,7 @@ export default function BreakTimer(_props: BreakTimerProps) {
 				className="h-12 rounded-xl px-8 font-bold gap-2"
 			>
 				<Icon icon="lucide:skip-forward" className="w-5 h-5" />
-				<span>{t("break.skip")}</span>
+				<span>{m.break_skip()}</span>
 			</Button>
 		</div>
 	);

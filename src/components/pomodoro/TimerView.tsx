@@ -5,11 +5,11 @@ import { Icon } from "@iconify/react";
 import { useEffect, useRef, useState } from "react";
 // Store
 import { useShallow } from "zustand/react/shallow";
-// i18n
-import { useTranslations } from "../../i18n/utils";
 // Utilidades
 import { getTodaysStats, getWeeklyStats } from "../../lib/stats";
 import { cargarMapaIds } from "../../lib/sync/sync";
+// Paraglide
+import * as m from "../../paraglide/messages";
 import { useStore } from "../../stores/store";
 import DailySummary from "../stats/DailySummary";
 import WeeklySummary from "../stats/WeeklySummary";
@@ -30,7 +30,6 @@ const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
 // Renderiza el temporizador pomodoro con control de sesión
 export default function TimerView(_props: TimerViewProps) {
-	const t = useTranslations(useStore((s) => s.lang));
 	const {
 		tareas,
 		updateTarea,
@@ -230,7 +229,7 @@ export default function TimerView(_props: TimerViewProps) {
 				<div className="text-center space-y-2">
 					<span className="inline-flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-widest text-primary bg-primary/10 px-3 py-1 rounded-full">
 						<Icon icon="lucide:flame" className="w-3.5 h-3.5 animate-pulse" />
-						{t("timer.active_focus")}
+						{m.timer_active_focus()}
 					</span>
 					<h2 className="text-2xl md:text-3xl font-black text-foreground tracking-tight mt-1">
 						{tarea.nombre}
@@ -306,7 +305,7 @@ export default function TimerView(_props: TimerViewProps) {
 						{String(seconds).padStart(2, "0")}
 					</span>
 					<span className="text-[10px] uppercase tracking-widest font-extrabold opacity-40 mt-1 select-none">
-						{isActive ? t("timer.focusing") : t("timer.paused")}
+						{isActive ? m.timer_focusing() : m.timer_paused()}
 					</span>
 				</div>
 			</div>
@@ -320,13 +319,13 @@ export default function TimerView(_props: TimerViewProps) {
 					className={`h-12 flex-1 rounded-xl font-bold gap-2 ${
 						isActive ? "bg-card/50" : "shadow-sm hover:scale-[1.01]"
 					}`}
-					aria-label={isActive ? t("timer.run.pause") : t("timer.run.resume")}
+					aria-label={isActive ? m.timer_run_pause() : m.timer_run_resume()}
 				>
 					<Icon
 						icon={isActive ? "lucide:pause" : "lucide:play"}
 						className="w-5 h-5"
 					/>
-					<span>{isActive ? t("timer.run.pause") : t("timer.run.resume")}</span>
+					<span>{isActive ? m.timer_run_pause() : m.timer_run_resume()}</span>
 				</Button>
 
 				<Button
@@ -334,10 +333,10 @@ export default function TimerView(_props: TimerViewProps) {
 					onClick={handleCancel}
 					variant="destructive"
 					className="h-12 rounded-xl px-6 font-bold gap-2 hover:scale-[1.01] transition-transform"
-					aria-label={t("timer.run.cancel")}
+					aria-label={m.timer_run_cancel()}
 				>
 					<Icon icon="lucide:x" className="w-5 h-5" />
-					<span className="hidden sm:inline">{t("timer.run.cancel")}</span>
+					<span className="hidden sm:inline">{m.timer_run_cancel()}</span>
 				</Button>
 			</div>
 
@@ -345,7 +344,7 @@ export default function TimerView(_props: TimerViewProps) {
 				<div className="space-y-8 pt-6 w-full">
 					<div className="flex items-center gap-3 text-xs font-bold uppercase tracking-widest opacity-30">
 						<span className="h-px flex-1 bg-foreground/20"></span>
-						{t("stats.progress.title")}
+						{m.stats_progress_title()}
 						<span className="h-px flex-1 bg-foreground/20"></span>
 					</div>
 

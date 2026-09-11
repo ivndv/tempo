@@ -1,14 +1,14 @@
 ---
 // Layout
 import Layout from "../layouts/Layout.astro";
-// i18n
-import { useTranslations } from "../i18n/utils";
+// Paraglide
+import * as m from "@/paraglide/messages";
+import { localizeHref } from "@/paraglide/runtime";
 
 const lang = (Astro.currentLocale ?? "es") as "es" | "en";
-const t = useTranslations(lang);
 ---
 
-<Layout title={t("404.title")}>
+<Layout title={m.page_404_title({}, { locale: lang })}>
   <div
     class="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-6 animate-fade-in"
   >
@@ -18,17 +18,17 @@ const t = useTranslations(lang);
       404
     </div>
     <h1 class="text-3xl md:text-4xl font-black text-foreground dark:text-white tracking-tight">
-      {t("404.heading")}
+      {m.page_404_heading({}, { locale: lang })}
     </h1>
     <p class="text-base md:text-lg text-muted-foreground max-w-md">
-      {t("404.description")}
+      {m.page_404_description({}, { locale: lang })}
     </p>
     <div class="pt-2">
       <a
-        href="/"
+        href={localizeHref("/", { locale: lang })}
         class="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-primary px-6 text-sm font-semibold text-primary-foreground shadow-md hover:bg-primary/90 hover:scale-[1.02] transition-all"
       >
-        {t("404.back")}
+        {m.page_404_back({}, { locale: lang })}
       </a>
     </div>
   </div>

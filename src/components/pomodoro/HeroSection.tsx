@@ -1,8 +1,6 @@
 /** @jsxImportSource react */
-// i18n
-import { useTranslations } from "../../i18n/utils";
-// Store
-import { useStore } from "../../stores/store";
+// Paraglide
+import * as m from "../../paraglide/messages";
 
 // Define las props del componente (interfaz local)
 interface HeroSectionProps {
@@ -11,19 +9,17 @@ interface HeroSectionProps {
 
 // Renderiza la sección hero según el modo (focus o default)
 export default function HeroSection({ mode }: HeroSectionProps) {
-	const t = useTranslations(useStore((s) => s.lang));
-
 	// Modo focus: muestra título corto para la vista de temporizador
 	if (mode === "focus") {
 		return (
 			<div className="text-center space-y-4 mb-10 animate-fade-in-up">
 				{/* Título del modo focus */}
 				<h1 className="text-5xl font-extrabold text-primary">
-					{t("hero.focus.title")}
+					{m.hero_focus_title()}
 				</h1>
 				{/* Subtítulo del modo focus */}
 				<p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-					{t("hero.focus.subtitle")}
+					{m.hero_focus_subtitle()}
 				</p>
 			</div>
 		);
@@ -37,27 +33,27 @@ export default function HeroSection({ mode }: HeroSectionProps) {
 		>
 			{/* Título principal de la landing */}
 			<h1 className="text-5xl md:text-6xl font-black bg-linear-to-r from-(--hero-title-from) to-(--hero-title-to) bg-clip-text text-transparent pb-3 tracking-tighter">
-				{t("hero.title")}
+				{m.hero_title()}
 			</h1>
 
 			<div className="text-xl text-muted-foreground max-w-2xl mx-auto font-medium leading-relaxed">
 				<p>
 					{/* Primera parte del subtítulo */}
-					{t("hero.subtitle").split(",")[0]} {/* Palabra "coding" coloreada */}
+					{m.hero_subtitle().split(",")[0]} {/* Palabra "coding" coloreada */}
 					<span className="text-(--hero-coding) font-extrabold">
-						{t("hero.span.coding")}
+						{m.hero_span_coding()}
 					</span>
 					, {/* Palabra "studying" coloreada */}
 					<span className="text-(--hero-studying) font-extrabold">
-						{t("hero.span.studying")}
+						{m.hero_span_studying()}
 					</span>{" "}
-					{t("hero.or")} {/* Palabra "creating" coloreada */}
+					{m.hero_or()} {/* Palabra "creating" coloreada */}
 					<span className="text-(--hero-creating) font-extrabold">
-						{t("hero.span.creating")}
+						{m.hero_span_creating()}
 					</span>
 				</p>
 				{/* Segunda parte del subtítulo */}
-				<p>{t("hero.subtitle.part2")}</p>
+				<p>{m.hero_subtitle_part2()}</p>
 			</div>
 		</div>
 	);

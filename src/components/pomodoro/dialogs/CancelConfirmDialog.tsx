@@ -1,9 +1,7 @@
 /** @jsxImportSource react */
 
-// i18n
-import { useTranslations } from "../../../i18n/utils";
-// Store
-import { useStore } from "../../../stores/store";
+// Paraglide
+import * as m from "../../../paraglide/messages";
 import { Button } from "../../ui/button";
 import {
 	Dialog,
@@ -23,8 +21,6 @@ export default function CancelConfirmDialog({
 	onCancel,
 	onBack,
 }: CancelConfirmDialogProps) {
-	const t = useTranslations(useStore((s) => s.lang));
-
 	return (
 		<Dialog
 			open
@@ -43,10 +39,10 @@ export default function CancelConfirmDialog({
 				<div className="space-y-2">
 					{/* Título y cuerpo */}
 					<DialogTitle className="text-xl font-black">
-						{t("timer.cancel.confirm.title")}
+						{m.timer_cancel_confirm_title()}
 					</DialogTitle>
 					<DialogDescription className="text-sm leading-relaxed text-muted-foreground">
-						{t("timer.cancel.confirm.body")}
+						{m.timer_cancel_confirm_body()}
 					</DialogDescription>
 				</div>
 				{/* Botones de acción */}
@@ -58,7 +54,7 @@ export default function CancelConfirmDialog({
 						className="px-6"
 						onClick={onBack}
 					>
-						{t("timer.cancel.confirm.no")}
+						{m.timer_cancel_confirm_no()}
 					</Button>
 					<Button
 						type="button"
@@ -67,7 +63,7 @@ export default function CancelConfirmDialog({
 						className="px-6"
 						onClick={onCancel}
 					>
-						{t("timer.cancel.confirm.yes")}
+						{m.timer_cancel_confirm_yes()}
 					</Button>
 				</div>
 			</DialogContent>

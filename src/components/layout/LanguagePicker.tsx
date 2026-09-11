@@ -1,9 +1,8 @@
 /** @jsxImportSource react */
 // Iconos
 import { Icon } from "@iconify/react";
-// i18n
-import { languages } from "../../i18n/ui";
-// Componentes
+import { localizeHref } from "../../paraglide/runtime";
+
 import { Button } from "../ui/button";
 import {
 	DropdownMenu,
@@ -12,16 +11,13 @@ import {
 	DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 
-// Props del componente (interfaz local)
 interface LanguagePickerProps {
 	lang: "es" | "en";
 }
 
-// Genera la URL del idioma destino conservando la ruta actual
-const getLangPath = (target: string, current: string) => {
-	const clean = current.replace(/^\/(es|en)(\/|$)/, "/").replace(/^\/+/, "");
-	if (target === "es") return clean ? `/${clean}` : "/";
-	return clean ? `/en/${clean}` : "/en";
+const languages: Record<"es" | "en", string> = {
+	es: "Español",
+	en: "English",
 };
 
 // Selector de idioma (desplegable)
@@ -66,7 +62,9 @@ export default function LanguagePicker({ lang }: LanguagePickerProps) {
 							} catch {
 								/* storage bloqueado: ignorar */
 							}
-							window.location.href = getLangPath(labelLang, currentPath);
+							window.location.href = localizeHref(currentPath, {
+								locale: labelLang as "es" | "en",
+							});
 						}}
 					>
 						<span

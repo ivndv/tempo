@@ -1,9 +1,7 @@
 ---
-// Astro
-import { getRelativeLocaleUrl } from "astro:i18n";
-// i18n
-import { useTranslations } from "../../i18n/utils";
-import { languages } from "../../i18n/ui";
+// Paraglide
+import * as m from "@/paraglide/messages";
+import { localizeHref } from "@/paraglide/runtime";
 // Componentes
 import ThemeToggle from "./ThemeToggle";
 import AuthButton from "../auth/AuthButton";
@@ -14,15 +12,16 @@ interface Props {
 }
 
 const { lang } = Astro.props;
-// 2. Inicializa las traducciones
-const t = useTranslations(lang);
-// 3. Obtiene la ruta actual sin prefijo de idioma
-const currentPath = Astro.url.pathname
-  .replace(/^\/(en|es)\//, "/")
-  .replace(/^\//, "");
-// 4. Verifica si la ruta actual coincide con la del link de navegación
+
+const languages: Record<"es" | "en", string> = {
+  es: "Español",
+  en: "English",
+};
+
+// 2. Verifica si la ruta actual coincide con la del link de navegación
 const isActive = (path: string) => {
-  return Astro.url.pathname === getRelativeLocaleUrl(lang, path);
+  const target = localizeHref(path, { locale: lang });
+  return Astro.url.pathname === target || Astro.url.pathname === `${target}/`;
 };
 ---
 
@@ -60,26 +59,26 @@ const isActive = (path: string) => {
   <!-- Enlaces de navegación -->
   <div class="p-4 space-y-1 flex-1">
     <a
-      href={getRelativeLocaleUrl(lang, "about")}
+      href={localizeHref("/about", { locale: lang })}
       class={`
         block px-4 py-3 rounded-lg font-medium transition-all duration-200
-        ${isActive('about')
+        ${isActive('/about')
           ? 'bg-primary/10 text-primary border-l-2 border-primary'
           : 'text-muted-foreground hover:bg-muted hover:text-foreground border-l-2 border-transparent'}
       `}
     >
-      {t('nav.about')}
+      {m.nav_about({}, { locale: lang })}
     </a>
     <a
-      href={getRelativeLocaleUrl(lang, "blog")}
+      href={localizeHref("/blog", { locale: lang })}
       class={`
         block px-4 py-3 rounded-lg font-medium transition-all duration-200
-        ${isActive('blog')
+        ${isActive('/blog')
           ? 'bg-primary/10 text-primary border-l-2 border-primary'
           : 'text-muted-foreground hover:bg-muted hover:text-foreground border-l-2 border-transparent'}
       `}
     >
-      {t('nav.blog')}
+      {m.nav_blog({}, { locale: lang })}
     </a>
   </div>
 
@@ -87,11 +86,11 @@ const isActive = (path: string) => {
   <div class="p-4 border-t border-border space-y-4">
     <!-- Idioma -->
     <div class="flex items-center justify-between">
-      <span class="text-sm opacity-60">{t("nav.language")}</span>
+      <span class="text-sm opacity-60">{m.nav_language({}, { locale: lang })}</span>
       <div class="flex gap-1">
         {Object.entries(languages).map(([labelLang, label]) => (
           <a
-            href={getRelativeLocaleUrl(labelLang, currentPath)}
+            href={localizeHref(Astro.url.pathname, { locale: labelLang as 'es' | 'en' })}
             class={`
               px-3 py-1.5 rounded-lg text-sm font-medium transition-all
               ${lang === labelLang
@@ -107,16 +106,16 @@ const isActive = (path: string) => {
 
     <!-- Tema -->
     <div class="flex items-center justify-between">
-      <span class="text-sm opacity-60">{t("nav.theme")}</span>
+      <span class="text-sm opacity-60">{m.nav_theme({}, { locale: lang })}</span>
       <ThemeToggle client:load />
     </div>
 
     <!-- Autenticación -->
     <AuthButton
       client:only="react"
-      loginUrl={getRelativeLocaleUrl(lang, "login")}
-      loginText={t("nav.login")}
-      logoutText={t("nav.logout")}
+      loginUrl={localizeHref("/login", { locale: lang })}
+      loginText={m.nav_login({}, { locale: lang })}
+      logoutText={m.nav_logout({}, { locale: lang })}
     />
   </div>
 </div>
