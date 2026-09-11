@@ -46,9 +46,10 @@ Guía operativa y técnica para agentes de Inteligencia Artificial que colaboren
 | **Sesiones & Rate Limit** | **Cloudflare Workers KV** | Persistencia de sesiones Better Auth y control de tráfico |
 | **Validación** | **Zod 4** | `zod ^4.5.4` |
 | **Servicio de Email** | **Resend** | `resend ^6.26.0` |
+| **Internacionalización (i18n)** | **Paraglide JS 2.0** | `@inlang/paraglide-js ^2.1.1` (compilación a funciones TS puras, mensajes en `messages/`) |
 | **Linter & Formatter** | **Biome 2** | `@biomejs/biome ^2.5.12` (`biome.json`) |
 | **Pruebas Unitarias** | **Vitest 5** | `vitest ^5.0.0` (96 tests de slices, sync y storage) |
-| **Pruebas E2E & Smoke** | **Playwright** | `@playwright/test ^1.62.1` (45 E2E + 9 Smoke tests) |
+| **Pruebas E2E & Smoke** | **Playwright** | `@playwright/test ^1.62.1` (45 E2E + 12 Smoke tests) |
 | **Accesibilidad (A11y)** | **@axe-core/playwright** | `@axe-core/playwright ^4.13.0` (WCAG 2.1 AA) |
 | **Regresión Visual** | **Playwright Visual Snapshots** | Comparación de snapshots en Chromium Linux |
 | **Infraestructura & Edge** | **Cloudflare Pages, D1, KV & R2** | `wrangler ^4.129.0` |
@@ -69,8 +70,11 @@ tempo/
 │   └── api/
 │       └── [[route]].ts           → Entry point Hono con OpenAPI y Better Auth
 │
+├── messages/                      → Diccionarios JSON de internacionalización (es.json, en.json)
+│
 ├── src/                           → Frontend Astro + React 19
 │   ├── components/                → Componentes React y Astro modulares
+│   │   ├── about/                 → AboutEs, AboutEn (contenido editorial localizado)
 │   │   ├── auth/                  → AuthButton, AuthForm, ForgotPassword, ResetPassword, SessionProvider, VerifiedHandler
 │   │   ├── common/                → ErrorBoundary (guard de errores React)
 │   │   ├── layout/                → Header, Footer, MobileMenu, LanguagePicker, ThemeToggle
@@ -79,14 +83,14 @@ tempo/
 │   │   └── ui/                    → Primitivos shadcn/ui atómicos
 │   ├── db/                        → Esquemas Drizzle (schema.ts, migrations_better_auth.sql)
 │   ├── hooks/                     → Custom hooks de React (useTheme, useStats, etc.)
-│   ├── i18n/                      → Diccionarios y utilidades de traducción (ui.ts, utils.ts)
 │   ├── layouts/                   → Layout.astro principal
 │   ├── lib/                       → Lógica modular por entorno y responsabilidad
 │   │   ├── client/                → auth-client.ts (Better Auth cliente)
 │   │   ├── server/                → auth.ts (Better Auth backend + D1 + Hashy)
 │   │   ├── shared/                → validaciones (Zod/OpenAPI), constantes y helpers
 │   │   └── sync/                  → sync.ts, syncLocalToCloud.ts
-│   ├── pages/                     → Rutas Astro (index, about, blog, login, forgot-password, en/)
+│   ├── pages/                     → Rutas Astro dinámicas [...locale] (index, login, forgot-password, reset-password, about, blog, 404)
+│   ├── paraglide/                 → Runtime y funciones generadas por Paraglide JS (messages.js, runtime.js)
 │   └── stores/                    → Store Zustand 5 y persistencia centralizada
 │       ├── storage.ts             → Persistencia segura (safeStorage, persistKeys)
 │       ├── store.ts               → Store compuesto unificado
@@ -102,7 +106,7 @@ tempo/
 │   │   ├── visual/                → visual.spec.ts y snapshots Chromium Linux
 │   │   ├── a11y/                  → a11y.spec.ts (WCAG 2.1 AA con Axe-core)
 │   │   └── resilience/            → resiliencia.spec.ts (fallos de red y hash)
-│   └── smoke/                     → Pruebas de humo críticas en entorno completo (9 tests)
+│   └── smoke/                     → Pruebas de humo críticas en entorno completo (12 tests)
 │
 ├── public/                        → Assets estáticos públicos
 ├── docs/                          → Documentación técnica interna (ignorado en Git)
@@ -139,7 +143,7 @@ bun run format
 # Pruebas Unitarias (Vitest - 96 tests)
 bun run test:unit
 
-# Pruebas de Humo (Playwright - 9 tests críticos)
+# Pruebas de Humo (Playwright - 12 tests críticos)
 bun run test:smoke
 
 # Pruebas End-to-End completas (Playwright - 45 tests)
@@ -175,5 +179,5 @@ bun run db:check           # Verificar integridad del esquema Drizzle
 ### 6.5 Flujo de Git y Despliegues
 * **PROHIBIDO realizar commits o push sin la aprobación explícita del usuario.**
 * **Flujo de ramas:** Todo desarrollo se realiza en la rama `develop` y se mergea hacia `main` mediante fast-forward una vez validado.
-* **Mensajes de commit:** Seguir *Conventional Commits* en minúsculas y español (`feat: ...`, `fix: ...`, `chore: ...`, `docs: ...`).
+* **Mensajes de commit:** Seguir *Conventional Commits* en minúsculas y español (`feat: ...`, `fix: ...`, `chore: ...`, `docs: ...`). **Estrictamente una sola línea de título sin cuerpo, saltos de línea ni viñetas adicionales**.
 * **Documentación:** El directorio `docs/` se mantiene estrictamente en `.gitignore`; la documentación técnica local no se sube al repositorio Git.

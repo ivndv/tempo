@@ -11,7 +11,7 @@ Aplicación web moderna diseñada para ayudarte a gestionar tu tiempo de estudio
 - **Estadísticas semanales y diarias**: Visualiza tu progreso con gráficos de barras y líneas de promedio.
 - **Soporte para usuarios invitados y registrados**: Los invitados guardan datos en localStorage; los usuarios registrados persisten en D1 via API.
 - **Modo oscuro/claro**: Soporte para temas claro y oscuro con transiciones fluidas.
-- **Internacionalización**: Español e inglés completos.
+- **Internacionalización**: Español e inglés completos impulsados por Paraglide JS 2.0 y rutas dinámicas.
 
 ## Secciones
 
@@ -28,12 +28,13 @@ Aplicación web moderna diseñada para ayudarte a gestionar tu tiempo de estudio
 ## Tecnologías Utilizadas
 
 - **Frontend**: Astro 7, React 19, Tailwind CSS 4, shadcn/ui
+- **Internacionalización**: Paraglide JS 2.0 con compilación a TypeScript
 - **Backend**: Cloudflare Pages Functions (Hono 4), D1 (SQLite via Drizzle ORM), KV (Better Auth sessions)
 - **Auth**: Better Auth, Cloudflare Turnstile CAPTCHA, microservicio externo Argon2id
 - **State**: Zustand 5 (stores duales: API para usuarios logueados, localStorage para invitados)
 - **Validación**: Zod 4
 - **Iconos**: Lucide (via @iconify/react)
-- **Testing**: Vitest 5, Playwright
+- **Testing**: Vitest 5 (96 tests unitarios), Playwright (45 E2E + 12 Smoke tests)
 - **Herramientas**: Bun, Biome 2, TypeScript 7
 - **Infra & CI/CD**: Cloudflare Pages, D1, KV, R2, GitHub Actions
 
