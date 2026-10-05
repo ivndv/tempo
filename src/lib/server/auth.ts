@@ -91,6 +91,7 @@ export const auth = (
 				session: schema.session,
 				account: schema.account,
 				verification: schema.verification,
+				rateLimit: schema.rateLimit,
 			},
 		}),
 		secret: env?.BETTER_AUTH_SECRET,
@@ -113,6 +114,24 @@ export const auth = (
 		//      coordina entre procesos. Las sesiones siguen en el KV.
 		verification: {
 			storeInDatabase: true,
+		},
+
+		// 3b2. Rate limiting nativo sobre D1 (incremento condicional atómico).
+		//      Storage "database" es obligatorio: con secondaryStorage presente
+		//      el default sería "secondary-storage" y el KV no es atómico.
+		rateLimit: {
+			enabled: true,
+			storage: "database",
+			modelName: "rateLimit",
+			window: 60,
+			max: 100,
+		},
+
+		// 3b3. Resolución de IP de cliente detrás de Cloudflare
+		advanced: {
+			ipAddress: {
+				ipAddressHeaders: ["cf-connecting-ip"],
+			},
 		},
 
 		// 3c. Almacenamiento secundario en KV para sesiones
