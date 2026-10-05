@@ -4,6 +4,7 @@ import { handle } from "hono/cloudflare-pages";
 // Controladores de la API
 import { registerBreaks } from "../_controllers/breaks";
 import { registerCategorias } from "../_controllers/categorias";
+import { registerHealth } from "../_controllers/health";
 import { registerPomodoros } from "../_controllers/pomodoros";
 import { registerTareas } from "../_controllers/tareas";
 // Middleware, Documentación y Autenticación
@@ -21,6 +22,9 @@ registerCategorias(app);
 registerTareas(app);
 registerPomodoros(app);
 registerBreaks(app);
+
+// Registra el health check antes del catch-all de auth para que no lo capture
+registerHealth(app);
 
 // Registra la documentación OpenAPI (Swagger UI en /api/docs) y el handler de Better Auth
 registerDocs(app);

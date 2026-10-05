@@ -27,6 +27,22 @@ test.describe("api — contrato HTTP (sin navegador)", () => {
 			});
 			expect(crear.status()).toBe(401);
 		});
+
+		test("GET /api/health responde 200 con el estado del servicio", async ({
+			request,
+		}) => {
+			const res = await request.get("/api/health");
+			expect(res.status()).toBe(200);
+			const body = await res.json();
+			expect(body.status).toBe("ok");
+			expect(typeof body.version).toBe("string");
+			expect(typeof body.timestamp).toBe("string");
+		});
+
+		test("GET /api/health no requiere autenticación", async ({ request }) => {
+			const res = await request.get("/api/health");
+			expect(res.status()).not.toBe(401);
+		});
 	});
 
 	test("GET /api/tareas devuelve la lista con el shape esperado", async ({
