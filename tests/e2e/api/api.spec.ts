@@ -43,6 +43,90 @@ test.describe("api — contrato HTTP (sin navegador)", () => {
 			const res = await request.get("/api/health");
 			expect(res.status()).not.toBe(401);
 		});
+
+		test("GET /api/health está exento del rate limiter", async ({
+			request,
+		}) => {
+			const res = await request.get("/api/health");
+			expect(res.status()).toBe(200);
+			expect(res.headers()["ratelimit-limit"]).toBeUndefined();
+		});
+
+		test("un endpoint interno expone headers de rate limiting", async ({
+			request,
+		}) => {
+			const res = await request.get("/api/categorias");
+			expect(res.headers()["ratelimit-limit"]).toBeDefined();
+			expect(res.headers()["ratelimit-remaining"]).toBeDefined();
+		});
+
+		test("exceder el límite interno responde 429 con Retry-After", async ({
+			request,
+		}) => {
+			let ultimo: Awaited<ReturnType<typeof request.get>> | null = null;
+			for (let i = 0; i < 101; i++) {
+				ultimo = await request.get("/api/openapi");
+				if (ultimo.status() === 429) break;
+			}
+			expect(ultimo?.status()).toBe(429);
+			expect(ultimo?.headers()["retry-after"]).toBeDefined();
+		});
+
+		test("exceder el límite nativo de auth responde 429", async ({
+			request,
+		}) => {
+			let vio429 = false;
+			for (let i = 0; i < 6; i++) {
+				const res = await request.post("/api/auth/sign-in/email", {
+					data: { email: "nadie@tempo.dev", password: "WrongPass1" },
+				});
+				if (res.status() === 429) {
+					vio429 = true;
+					break;
+				}
+			}
+			expect(vio429).toBe(true);
+		});
+	});
+
+	// Con sesión: la rama "usuario" del limiter interno (clave api:<userId>:<ruta>)
+	test("con sesión, un endpoint interno usa la cuota por usuario", async ({
+		request,
+	}) => {
+		const res = await request.get("/api/categorias");
+		expect(res.headers()["ratelimit-limit"]).toBeDefined();
+		expect(res.headers()["ratelimit-remaining"]).toBeDefined();
+	});
+
+	// Aislamiento: la cuota por usuario y la de IP son contadores separados en el mismo path
+	test("aislamiento: usuario e IP no comparten contador en el mismo path", async ({
+		request,
+		playwright,
+	}) => {
+		const path = "/api/docs";
+		const baseURL =
+			(test.info().project.use as { baseURL?: string }).baseURL ??
+			"http://localhost:4321";
+
+		// 1. Sin sesión (clave por IP): agota el límite en el path dedicado
+		const sinSesion = await playwright.request.newContext({
+			baseURL,
+			storageState: { cookies: [], origins: [] },
+		});
+		try {
+			let ultimo: Awaited<ReturnType<typeof sinSesion.get>> | null = null;
+			for (let i = 0; i < 101; i++) {
+				ultimo = await sinSesion.get(path);
+				if (ultimo.status() === 429) break;
+			}
+			expect(ultimo?.status()).toBe(429);
+
+			// 2. Con sesión (clave por usuario): el mismo path sigue permitido
+			const conSesion = await request.get(path);
+			expect(conSesion.status()).not.toBe(429);
+		} finally {
+			await sinSesion.dispose();
+		}
 	});
 
 	test("GET /api/tareas devuelve la lista con el shape esperado", async ({
