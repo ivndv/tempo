@@ -80,6 +80,14 @@ export const verification = sqliteTable("verification", {
 	updatedAt: integer("updatedAt", { mode: "timestamp" }),
 });
 
+// Contadores de rate limiting (modelo nativo de Better Auth + middleware propio)
+export const rateLimit = sqliteTable("rate_limit", {
+	id: text("id").primaryKey(),
+	key: text("key").notNull().unique(),
+	count: integer("count").notNull(),
+	lastRequest: integer("lastRequest").notNull(),
+});
+
 // ─── App ─────────────────────────────────────────────────────
 
 // Categorías para clasificar tareas (Trabajo, Estudio, Personal)
