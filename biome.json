@@ -14,7 +14,8 @@
 			"**/*.jsx",
 			"**/*.mjs",
 			"**/*.json",
-			"**/*.toml"
+			"**/*.toml",
+			"!drizzle/meta"
 		]
 	},
 	"formatter": {

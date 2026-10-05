@@ -1,8 +1,7 @@
-# Tempo CI/CD — lint -> unit -> e2e -> deploy (solo main push)
-# Flujo: push/PR a main/develop dispara lint+unit en paralelo, e2e espera ambos, deploy solo en main
-
+# Tempo CI/CD: lint y tests en paralelo, e2e tras lint+unit, deploy solo en push a main
 name: Tempo CI/CD
 
+# Disparadores: pushes y pull requests a las ramas principales
 on:
   push:
     branches:
@@ -13,55 +12,72 @@ on:
       - main
       - develop
 
+# Cancela ejecuciones previas del mismo ref para no gastar minutos de CI
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# Permisos mínimos: solo lectura del repositorio
+permissions:
+  contents: read
+
 jobs:
-  # lint: Biome lint + format — fail fast, bloquea e2e
+  # Job 1: lint y verificación de formato con Biome (read-only, falla si hay problemas)
   lint:
+    name: Lint & Format Check
     runs-on: ubuntu-latest
     steps:
+      # 1. Clona el repositorio
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
+      # 2. Configura Node, Bun y dependencias con caché
       - name: Setup Bun env
         uses: ./.github/actions/setup
 
-      - name: Lint
-        run: bun run lint
-
-      - name: Format check
+      # 3. Verifica formato y lint con Biome (sin escribir archivos)
+      - name: Format & lint check
         run: bun run check
 
-  # unit: Vitest 58 tests (slices) — paralelo a lint
+  # Job 2: pruebas unitarias con Vitest (slice, sync y storage) — paralelo a lint
   unit:
+    name: Unit tests
     runs-on: ubuntu-latest
     steps:
+      # 1. Clona el repositorio
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
+      # 2. Configura Node, Bun y dependencias con caché
       - name: Setup Bun env
         uses: ./.github/actions/setup
 
-      - name: Tests unitarios
+      # 3. Ejecuta la suite de pruebas unitarias
+      - name: Run unit tests
         run: bun run test:unit
 
-  # e2e: Playwright 24 tests (hashy-stub + wrangler :4321/:4322) — needs lint+unit
+  # Job 3: pruebas E2E con Playwright (hashy-stub + wrangler :4321/:4322) — necesita lint y unit
   e2e:
+    name: E2E (Playwright)
     needs: [lint, unit]
     runs-on: ubuntu-latest
     steps:
+      # 1. Clona el repositorio
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
-      # setup-e2e: reutiliza setup + Playwright browsers + .dev.vars
+      # 2. Configura Node/Bun + Playwright browsers + .dev.vars
       - name: Setup E2E
         uses: ./.github/actions/setup-e2e
         with:
           better-auth-secret: ${{ secrets.BETTER_AUTH_SECRET }}
 
-      - name: Suite E2E (Playwright)
+      # 3. Ejecuta la suite E2E completa
+      - name: Run E2E suite
         run: bun run test:e2e
 
-      # Subir traces/screenshots solo si falla — fuera del composite para visibilidad y if: failure()
-      - name: Subir resultados E2E si falla
+      # 4. Sube traces/screenshots solo si falla
+      - name: Upload results on failure
         if: failure()
         uses: actions/upload-artifact@v4
         with:
@@ -71,23 +87,28 @@ jobs:
             playwright-report/
           retention-days: 7
 
-  # deploy: solo push a main y con todo verde — build limpio con Turnstile prod + pages deploy
+  # Job 4: despliegue a Cloudflare Pages (solo push a main y con todo verde)
   deploy:
+    name: Deploy to Cloudflare Pages
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     needs: [lint, unit, e2e]
     runs-on: ubuntu-latest
     steps:
+      # 1. Clona el repositorio
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
+      # 2. Configura Node, Bun y dependencias con caché
       - name: Setup Bun env
         uses: ./.github/actions/setup
 
-      - name: Build para producción
+      # 3. Compila con Turnstile de producción
+      - name: Build for production
         run: bun run build
         env:
           PUBLIC_TURNSTILE_SITE_KEY: ${{ secrets.PUBLIC_TURNSTILE_SITE_KEY }}
 
+      # 4. Despliega el build a Cloudflare Pages
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
         with:
