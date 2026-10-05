@@ -13,4 +13,6 @@ export type Bindings = {
 	HASH_SERVICE_API_KEY: string;
 	RESEND_API_KEY: string;
 	RESEND_FROM?: string;
+	// Override del máximo de peticiones del rate limiter interno (solo pruebas)
+	RATE_LIMIT_MAX_INTERNAL?: string;
 };

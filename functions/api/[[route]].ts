@@ -11,11 +11,15 @@ import { registerTareas } from "../_controllers/tareas";
 import { registerAuth } from "../_middleware/auth";
 import { registerDocs } from "../_middleware/docs";
 import { registerErrors } from "../_middleware/errors";
+import { registerRateLimit } from "../_middleware/rate-limit";
 // Tipos
 import type { Bindings } from "../_shared/types";
 
 // Crea la app Hono con OpenAPI para documentación automática de endpoints
 const app = new OpenAPIHono<{ Bindings: Bindings }>().basePath("/api");
+
+// Rate limiting propio (usuario autenticado o IP) antes de los controladores y del catch-all
+registerRateLimit(app);
 
 // Registra los controladores de cada recurso de la API
 registerCategorias(app);

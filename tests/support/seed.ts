@@ -1,6 +1,6 @@
 // Resetea D1/KV local, aplica migraciones y compila para pruebas E2E
 import { execSync } from "node:child_process";
-import { mkdirSync, rmSync } from "node:fs";
+import { mkdirSync, readdirSync, rmSync } from "node:fs";
 import { join } from "node:path";
 
 const ROOT = process.cwd();
@@ -18,9 +18,14 @@ rmSync(KV_DIR, { recursive: true, force: true });
 
 // 2. Migraciones y fixtures
 console.log("Aplicando migraciones...");
-run(
-	"bunx wrangler d1 execute pomodoro-db --local --file=drizzle/0000_baseline.sql",
-);
+const migraciones = readdirSync(join(ROOT, "drizzle"))
+	.filter((archivo) => archivo.endsWith(".sql"))
+	.sort();
+for (const migracion of migraciones) {
+	run(
+		`bunx wrangler d1 execute pomodoro-db --local --file=drizzle/${migracion}`,
+	);
+}
 
 console.log("Sembrando fixtures E2E...");
 run(
