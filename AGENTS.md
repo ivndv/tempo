@@ -39,17 +39,17 @@ Guía operativa y técnica para agentes de Inteligencia Artificial que colaboren
 | **Estilos & UI** | **Tailwind CSS 4** + **shadcn/ui** | `@tailwindcss/vite ^4.3.3`, `shadcn ^4.21.0` |
 | **Estado Global** | **Zustand 5** | `zustand ^5.0.15` (7 slices modulares combinados en `store.ts`) |
 | **Backend / Edge API** | **Hono 4** en Cloudflare Pages Functions | `hono ^4.13.5`, `@hono/zod-openapi ^1.6.3` |
-| **Base de Datos & ORM** | **Cloudflare D1 (SQLite)** + **Drizzle ORM** | `drizzle-orm ^0.45.2`, `drizzle-kit ^0.31.10` (8 tablas) |
+| **Base de Datos & ORM** | **Cloudflare D1 (SQLite)** + **Drizzle ORM** | `drizzle-orm ^0.45.2`, `drizzle-kit ^0.31.10` (9 tablas) |
 | **Autenticación** | **Better Auth** | `1.6.27` (fijado por compatibilidad de esquema D1) |
 | **Seguridad de Passwords** | **Hashy** (microservicio Docker/Go) | Hashing seguro con Argon2id |
 | **Anti-Bot / Captcha** | **Cloudflare Turnstile** | `@marsidev/react-turnstile ^1.6.1` |
-| **Sesiones & Rate Limit** | **Cloudflare Workers KV** | Persistencia de sesiones Better Auth y control de tráfico |
+| **Sesiones & Rate Limit** | **KV (sesiones) + D1 (rate limit)** | Sesiones Better Auth en KV; rate limiting en D1 (tabla `rate_limit`) |
 | **Validación** | **Zod 4** | `zod ^4.5.4` |
 | **Servicio de Email** | **Resend** | `resend ^6.26.0` |
 | **Internacionalización (i18n)** | **Paraglide JS 2.0** | `@inlang/paraglide-js ^2.1.1` (compilación a funciones TS puras, mensajes en `messages/`) |
 | **Linter & Formatter** | **Biome 2** | `@biomejs/biome ^2.5.12` (`biome.json`) |
-| **Pruebas Unitarias** | **Vitest 5** | `vitest ^5.0.0` (96 tests de slices, sync y storage) |
-| **Pruebas E2E & Smoke** | **Playwright** | `@playwright/test ^1.62.1` (45 E2E + 12 Smoke tests) |
+| **Pruebas Unitarias** | **Vitest 5** | `vitest ^5.0.0` (106 tests de slices, sync, storage y rate limit) |
+| **Pruebas E2E & Smoke** | **Playwright** | `@playwright/test ^1.62.1` (51 E2E + 12 Smoke tests) |
 | **Accesibilidad (A11y)** | **@axe-core/playwright** | `@axe-core/playwright ^4.13.0` (WCAG 2.1 AA) |
 | **Regresión Visual** | **Playwright Visual Snapshots** | Comparación de snapshots en Chromium Linux |
 | **Infraestructura & Edge** | **Cloudflare Pages, D1, KV & R2** | `wrangler ^4.129.0` |
@@ -62,11 +62,11 @@ Guía operativa y técnica para agentes de Inteligencia Artificial que colaboren
 ```
 tempo/
 ├── functions/                     → Backend Edge (Cloudflare Pages Functions)
-│   ├── _controllers/              → Controladores de negocio (breaks, categorias, pomodoros, tareas)
+│   ├── _controllers/              → Controladores de negocio (breaks, categorias, health, pomodoros, tareas)
 │   ├── _db/                       → Cliente y conexión a D1 (db.ts)
-│   ├── _middleware/               → Middlewares de autenticación, errores y documentación
+│   ├── _middleware/               → Middlewares de autenticación, errores, rate limiting y documentación
 │   ├── _openapi/                  → Contratos de ruta y esquemas Zod OpenAPI
-│   ├── _shared/                   → Helpers de validación y tipos comunes
+│   ├── _shared/                   → Helpers de validación, tipos comunes y rate limiting (rate-limit/)
 │   └── api/
 │       └── [[route]].ts           → Entry point Hono con OpenAPI y Better Auth
 │
@@ -98,8 +98,8 @@ tempo/
 │
 ├── tests/                         → Suites de Pruebas Automatizadas
 │   ├── support/                   → Infraestructura compartida (fixtures.sql, hashy-stub, seed, helpers)
-│   ├── unit/                      → Pruebas unitarias de slices, sync y storage (96 tests Vitest)
-│   ├── e2e/                       → Pruebas E2E organizadas por dominio (45 tests Playwright)
+│   ├── unit/                      → Pruebas unitarias de slices, sync, storage y rate limit (106 tests Vitest)
+│   ├── e2e/                       → Pruebas E2E organizadas por dominio (51 tests Playwright)
 │   │   ├── setup/                 → auth.setup.ts (estado de autenticación)
 │   │   ├── flows/                 → 00-warmup, online, offline, idempotencia, i18n
 │   │   ├── api/                   → api.spec.ts (contratos HTTP y paginación por cursor)
@@ -113,7 +113,7 @@ tempo/
 ├── drizzle/                       → Migraciones SQL generadas por Drizzle
 ├── playwright.config.ts           → Configuración de pruebas E2E
 ├── playwright.smoke.config.ts     → Configuración de pruebas Smoke
-└── wrangler.jsonc                 → Configuración de bindings D1, KV y Pages
+└── wrangler.json                  → Configuración de bindings D1, KV y Pages
 ```
 
 ---
@@ -140,13 +140,13 @@ bun run check
 bun run lint
 bun run format
 
-# Pruebas Unitarias (Vitest - 96 tests)
+# Pruebas Unitarias (Vitest - 106 tests)
 bun run test:unit
 
 # Pruebas de Humo (Playwright - 12 tests críticos)
 bun run test:smoke
 
-# Pruebas End-to-End completas (Playwright - 45 tests)
+# Pruebas End-to-End completas (Playwright - 51 tests)
 bun run test:e2e
 
 # Operaciones de Base de Datos (D1 / Drizzle)
