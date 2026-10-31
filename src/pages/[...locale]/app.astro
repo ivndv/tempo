@@ -1,0 +1,18 @@
+---
+// Layout
+import Layout from '../../layouts/Layout.astro';
+// Componentes
+import AppHome from '../../components/pomodoro/AppHome.astro';
+import { getLocale } from '@/paraglide/runtime';
+
+// La app vive en /app; la raíz queda para la landing pública
+export function getStaticPaths() {
+	return [{ params: { locale: undefined } }, { params: { locale: 'en' } }];
+}
+
+const lang = getLocale();
+---
+
+<Layout title="Tempo — Temporizador" lang={lang}>
+	<AppHome />
+</Layout>

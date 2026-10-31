@@ -146,5 +146,21 @@
 	"page_404_title": "404 - Not Found",
 	"page_404_heading": "You got distracted!",
 	"page_404_description": "This page doesn't exist or has been lost in time. Go back to keep your focus streak.",
-	"page_404_back": "Back to Focus"
+	"page_404_back": "Back to Focus",
+	"landing_eyebrow": "Pomodoro method",
+	"landing_cta_start": "Start focusing",
+	"landing_cta_more": "How it works",
+	"landing_cta_final": "Start now",
+	"landing_preview_task": "Task: write the next article",
+	"landing_features_title": "Everything you need to focus",
+	"landing_features_subtitle": "A timer, your tasks and your history. Nothing else.",
+	"landing_feature_pomodoro_title": "Pomodoro cycles",
+	"landing_feature_pomodoro_desc": "25-minute focus blocks with automatic short and long breaks.",
+	"landing_feature_tasks_title": "Frictionless tasks",
+	"landing_feature_tasks_desc": "Write down what you will work on before starting and track real time per task.",
+	"landing_feature_stats_title": "Visible progress",
+	"landing_feature_stats_desc": "Completed sessions, real focus time and today's activity.",
+	"nav_app": "Timer",
+	"app_title": "Pick your time",
+	"app_subtitle": "Set your cycle and start focusing."
 }

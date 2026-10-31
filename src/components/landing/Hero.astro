@@ -1,0 +1,77 @@
+---
+// Paraglide
+import * as m from "@/paraglide/messages";
+import { localizeHref } from "@/paraglide/runtime";
+
+// 1. Idioma actual
+const lang: "es" | "en" = Astro.currentLocale === "en" ? "en" : "es";
+
+// 2. Destinos de los CTAs
+const appUrl = localizeHref("/app", { locale: lang });
+const aboutUrl = localizeHref("/about", { locale: lang });
+
+// 3. Subtítulo con palabras destacadas
+const primeraParte = m.hero_subtitle({}, { locale: lang }).split(",")[0];
+const coding = m.hero_span_coding({}, { locale: lang });
+const studying = m.hero_span_studying({}, { locale: lang });
+const creating = m.hero_span_creating({}, { locale: lang });
+const conjuncion = m.hero_or({}, { locale: lang });
+const segundaParte = m.hero_subtitle_part2({}, { locale: lang });
+---
+
+<!-- Hero principal: pantalla completa, centrado -->
+<section
+	class="relative isolate flex min-h-dvh items-center justify-center overflow-hidden bg-background px-6"
+>
+	<!-- Blob difuminado superior -->
+	<div
+		class="absolute -top-40 left-[calc(50%-10rem)] -z-10 h-160 w-160 transform-gpu rounded-full bg-primary/25 blur-3xl sm:left-[calc(50%-20rem)]"
+		aria-hidden="true"
+	>
+	</div>
+
+	<!-- Contenido -->
+	<div class="mx-auto max-w-2xl py-24 text-center">
+		<h1
+			class="text-4xl font-bold tracking-tight text-foreground sm:text-6xl"
+		>
+			{m.hero_title({}, { locale: lang })}
+		</h1>
+
+		<div
+			class="mt-6 text-lg font-medium leading-relaxed text-muted-foreground sm:text-xl"
+		>
+			<p class="m-0">
+				{primeraParte}{" "}
+				<span class="font-extrabold text-(--hero-coding)">{coding}</span>,{" "}
+				<span class="font-extrabold text-(--hero-studying)">{studying}</span>
+				{" "}{conjuncion}{" "}
+				<span class="font-extrabold text-(--hero-creating)">{creating}</span>
+			</p>
+			<p class="m-0">{segundaParte}</p>
+		</div>
+
+		<div class="mt-10 flex items-center justify-center gap-x-6">
+			<a
+				href={appUrl}
+				class="rounded-md bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground no-underline shadow-sm transition-colors duration-200 hover:opacity-90"
+			>
+				{m.landing_cta_start({}, { locale: lang })}
+			</a>
+			<a
+				href={aboutUrl}
+				class="flex items-center gap-1 text-sm font-semibold leading-6 text-foreground no-underline transition-colors duration-200 hover:text-primary"
+			>
+				{m.nav_about({}, { locale: lang })}
+				<span aria-hidden="true">→</span>
+			</a>
+		</div>
+	</div>
+
+	<!-- Blob difuminado inferior -->
+	<div
+		class="absolute top-[calc(100%-20rem)] left-[calc(50%+3rem)] -z-10 h-160 w-160 transform-gpu rounded-full bg-primary/20 blur-3xl sm:left-[calc(50%+10rem)]"
+		aria-hidden="true"
+	>
+	</div>
+</section>

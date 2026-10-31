@@ -2,19 +2,17 @@
 // Layout
 import Layout from '../../layouts/Layout.astro';
 // Componentes
-import AppHome from '../../components/pomodoro/AppHome.astro';
+import Hero from '../../components/landing/Hero.astro';
 import { getLocale } from '@/paraglide/runtime';
 
+// Landing pública en la raíz; el temporizador vive en /app
 export function getStaticPaths() {
-	return [
-		{ params: { locale: undefined } },
-		{ params: { locale: 'en' } },
-	];
+	return [{ params: { locale: undefined } }, { params: { locale: 'en' } }];
 }
 
 const lang = getLocale();
 ---
 
-<Layout title="Tempo" lang={lang}>
-	<AppHome />
+<Layout title="Tempo — Domina tu tiempo" lang={lang} wide>
+	<Hero />
 </Layout>

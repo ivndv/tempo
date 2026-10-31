@@ -146,5 +146,21 @@
 	"page_404_title": "404 - No encontrado",
 	"page_404_heading": "¡Te has distraído!",
 	"page_404_description": "Esta página no existe o se ha perdido en el tiempo. Regresa para mantener tu racha de concentración.",
-	"page_404_back": "Volver al Foco"
+	"page_404_back": "Volver al Foco",
+	"landing_eyebrow": "Método Pomodoro",
+	"landing_cta_start": "Empezar a enfocar",
+	"landing_cta_more": "Cómo funciona",
+	"landing_cta_final": "Empezar ahora",
+	"landing_preview_task": "Tarea: escribir el próximo artículo",
+	"landing_features_title": "Todo lo que necesitas para concentrarte",
+	"landing_features_subtitle": "Un temporizador, tus tareas y tu historial. Nada más.",
+	"landing_feature_pomodoro_title": "Ciclos Pomodoro",
+	"landing_feature_pomodoro_desc": "Bloques de enfoque de 25 minutos con descansos cortos y largos automáticos.",
+	"landing_feature_tasks_title": "Tareas sin fricción",
+	"landing_feature_tasks_desc": "Anota en qué vas a trabajar antes de empezar y mide el tiempo real por tarea.",
+	"landing_feature_stats_title": "Progreso visible",
+	"landing_feature_stats_desc": "Sesiones completadas, tiempo real de enfoque y actividad del día.",
+	"nav_app": "Temporizador",
+	"app_title": "Elige tu tiempo",
+	"app_subtitle": "Configura tu ciclo y empieza a enfocar."
 }
