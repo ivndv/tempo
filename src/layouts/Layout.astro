@@ -16,7 +16,8 @@ interface Props {
 	title: string;
 	description?: string;
 	image?: string;
-    lang?: string;
+	lang?: string;
+	wide?: boolean;
 }
 
 // 2. Valores por defecto de props
@@ -24,7 +25,8 @@ const {
 	title = "Tempo",
 	description = "Maximiza tu productividad y concentración. La herramienta ideal para estudiantes, profesionales y creativos que buscan enfoque total.",
 	image = "https://assets.mgdc.site/tempo/og-image.png",
-    lang = "es"
+	lang = "es",
+	wide = false
 } = Astro.props;
 
 // 3. Descripción JSON-LD según el idioma
@@ -146,7 +148,11 @@ const jsonLdDescription = lang === 'en'
 	<body class="min-h-screen flex flex-col antialiased">
 		<SessionProvider client:only="react" />
 		<Header />
-		<main class="grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+		<main
+			class={wide
+				? "grow w-full"
+				: "grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-8"}
+		>
 			<slot />
 		</main>
 		<Footer />

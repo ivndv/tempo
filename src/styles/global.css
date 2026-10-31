@@ -248,8 +248,6 @@
 
 /* ─── HEADER ─────────────────────────── */
 header {
-  position: sticky;
-  top: 0;
   z-index: var(--z-header);
   padding-top: 0.75rem;
   padding-bottom: 0.75rem;
