@@ -25,36 +25,18 @@ export default function HeroSection({ mode }: HeroSectionProps) {
 		);
 	}
 
-	// Modo default: muestra título completo con spans coloreados
+	// Modo default: texto breve, la presentación larga vive en la landing
 	return (
 		<div
 			data-testid="hero"
-			className="text-center space-y-4 mb-10 animate-fade-in-up"
+			className="text-center space-y-3 mb-10 animate-fade-in-up"
 		>
-			{/* Título principal de la landing */}
-			<h1 className="text-5xl md:text-6xl font-black bg-linear-to-r from-(--hero-title-from) to-(--hero-title-to) bg-clip-text text-transparent pb-3 tracking-tighter">
-				{m.hero_title()}
+			<h1 className="text-4xl md:text-5xl font-black tracking-tighter text-foreground">
+				{m.app_title()}
 			</h1>
-
-			<div className="text-xl text-muted-foreground max-w-2xl mx-auto font-medium leading-relaxed">
-				<p>
-					{/* Primera parte del subtítulo */}
-					{m.hero_subtitle().split(",")[0]} {/* Palabra "coding" coloreada */}
-					<span className="text-(--hero-coding) font-extrabold">
-						{m.hero_span_coding()}
-					</span>
-					, {/* Palabra "studying" coloreada */}
-					<span className="text-(--hero-studying) font-extrabold">
-						{m.hero_span_studying()}
-					</span>{" "}
-					{m.hero_or()} {/* Palabra "creating" coloreada */}
-					<span className="text-(--hero-creating) font-extrabold">
-						{m.hero_span_creating()}
-					</span>
-				</p>
-				{/* Segunda parte del subtítulo */}
-				<p>{m.hero_subtitle_part2()}</p>
-			</div>
+			<p className="text-lg text-muted-foreground max-w-xl mx-auto font-medium leading-relaxed">
+				{m.app_subtitle()}
+			</p>
 		</div>
 	);
 }
