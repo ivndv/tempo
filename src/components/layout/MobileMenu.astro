@@ -59,6 +59,28 @@ const isActive = (path: string) => {
   <!-- Enlaces de navegación -->
   <div class="p-4 space-y-1 flex-1">
     <a
+      href={localizeHref("/", { locale: lang })}
+      class={`
+        block px-4 py-3 rounded-lg font-medium transition-all duration-200
+        ${isActive('/')
+          ? 'bg-primary/10 text-primary border-l-2 border-primary'
+          : 'text-muted-foreground hover:bg-muted hover:text-foreground border-l-2 border-transparent'}
+      `}
+    >
+      {m.nav_home({}, { locale: lang })}
+    </a>
+    <a
+      href={localizeHref("/app", { locale: lang })}
+      class={`
+        block px-4 py-3 rounded-lg font-medium transition-all duration-200
+        ${isActive('/app')
+          ? 'bg-primary/10 text-primary border-l-2 border-primary'
+          : 'text-muted-foreground hover:bg-muted hover:text-foreground border-l-2 border-transparent'}
+      `}
+    >
+      {m.nav_app({}, { locale: lang })}
+    </a>
+    <a
       href={localizeHref("/about", { locale: lang })}
       class={`
         block px-4 py-3 rounded-lg font-medium transition-all duration-200

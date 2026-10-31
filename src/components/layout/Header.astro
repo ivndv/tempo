@@ -18,8 +18,8 @@ const isActive = (path: string) => {
 };
 ---
 
-<header class="w-full border-b border-border/50">
-  <nav aria-label="Navegación principal" class="max-w-7xl mx-auto px-6 flex items-center justify-between">
+<header class="fixed inset-x-0 top-0 z-50 h-16 border-b border-border/30 bg-background/30 backdrop-blur-md">
+  <nav aria-label="Navegación principal" class="max-w-7xl mx-auto px-6 h-full flex items-center justify-between">
     <!-- Logo -->
     <div class="flex items-center gap-2">
       <a
@@ -37,6 +37,28 @@ const isActive = (path: string) => {
 
     <!-- Desktop Nav Links -->
     <div class="hidden lg:flex items-center gap-8">
+      <a
+        href={localizeHref("/", { locale: currentLang })}
+        class={`
+          text-sm font-medium tracking-normal transition-all duration-200 border-b-2 pb-1
+          ${isActive('/')
+            ? 'opacity-100 border-primary text-primary'
+            : 'opacity-60 hover:opacity-100 border-transparent'}
+        `}
+      >
+        {m.nav_home({}, { locale: currentLang })}
+      </a>
+      <a
+        href={localizeHref("/app", { locale: currentLang })}
+        class={`
+          text-sm font-medium tracking-normal transition-all duration-200 border-b-2 pb-1
+          ${isActive('/app')
+            ? 'opacity-100 border-primary text-primary'
+            : 'opacity-60 hover:opacity-100 border-transparent'}
+        `}
+      >
+        {m.nav_app({}, { locale: currentLang })}
+      </a>
       <a
         href={localizeHref("/about", { locale: currentLang })}
         class={`
