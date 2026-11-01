@@ -43,49 +43,11 @@ Aplicación web moderna diseñada para ayudarte a gestionar tu tiempo de estudio
 - **Herramientas**: Bun, Biome, TypeScript
 - **Infra & CI/CD**: Cloudflare Pages, GitHub Actions
 
-## Instalación
-
-1. **Clonar el Repositorio**: Descarga el código de este proyecto en tu máquina usando Git.
-
-```bash
-git clone https://github.com/ivndv/tempo.git
-```
-
-2. **Instalar Dependencias**: Abre una terminal en la carpeta del proyecto y ejecuta:
-
-```bash
-bun install
-```
-
-3. **Variables de Entorno**: Crea un archivo `.env` o `.dev.vars` en la raíz con las siguientes variables:
-
-```env
-BETTER_AUTH_URL=http://localhost:4321
-BETTER_AUTH_SECRET=tu_secreto_aqui
-PUBLIC_TURNSTILE_SITE_KEY=tu_site_key
-TURNSTILE_SECRET_KEY=tu_secret_key
-HASH_SERVICE_URL=http://localhost:3010
-HASH_SERVICE_API_KEY=tu_api_key
-```
-
-4. **Iniciar el Proyecto**:
-
-```bash
-# Solo frontend (sin API):
-bun run dev
-
-# Full stack con API (Cloudflare Functions):
-bun run dev:full
-```
 
 ## Despliegue
 
-La aplicación está construida para ser sumamente ligera y se encuentra desplegada de forma global a través de Cloudflare Pages. Puedes usarla directamente aquí: [tempo.mgdc.site](https://tempo.mgdc.site/)
+La aplicación está construida para ser sumamente ligera y se encuentra desplegada de forma global a través de Cloudflare Pages. Puedes usarla directamente aquí: [Tempo](https://tempo.mgdc.site/)
 
 ## Licencia
 
-Licencia de Uso Personal:
-
-Este software es propiedad de **Ivan Cruz**. Se permite el uso de este software solo para fines personales y no comerciales. No se permite la distribución, modificación ni uso comercial de este software sin el consentimiento expreso de **Ivan Cruz**.
-
-Cualquier uso no autorizado puede resultar en acciones legales.
+[MIT](LICENSE) © 2026 Ivan Cruz
