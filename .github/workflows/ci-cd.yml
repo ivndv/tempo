@@ -24,7 +24,7 @@ permissions:
 jobs:
   # Job 1: lint y verificación de formato con Biome (read-only, falla si hay problemas)
   lint:
-    name: Lint & Format Check
+    name: Biome
     runs-on: ubuntu-latest
     steps:
       # 1. Clona el repositorio
@@ -35,9 +35,9 @@ jobs:
       - name: Setup Bun env
         uses: ./.github/actions/setup
 
-      # 3. Verifica formato y lint con Biome (sin escribir archivos)
-      - name: Format & lint check
-        run: bun run check
+      # 3. Lint y formato en una sola pasada, sin escribir archivos
+      - name: Biome CI
+        run: bunx biome ci .
 
   # Job 2: pruebas unitarias con Vitest (slice, sync y storage) — paralelo a lint
   unit:
@@ -112,8 +112,7 @@ jobs:
 
       # 4. Despliega el build a Cloudflare Pages
       - name: Deploy to Cloudflare Pages
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy dist/ --project-name=tempo
+        run: bunx wrangler pages deploy dist/ --project-name=tempo --branch=main
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
