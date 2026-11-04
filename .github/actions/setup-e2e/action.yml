@@ -21,7 +21,7 @@ runs:
 
     - name: Install Playwright chromium
       shell: bash
-      run: bunx playwright install --with-deps chromium
+      run: bunx playwright install chromium
 
     - name: Crear .dev.vars para E2E
       shell: bash
