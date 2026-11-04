@@ -25,7 +25,7 @@ jobs:
   # Job 1: lint y verificación de formato con Biome (read-only, falla si hay problemas)
   lint:
     name: Biome
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, arm64]
     steps:
       # 1. Clona el repositorio
       - name: Checkout code
@@ -42,7 +42,7 @@ jobs:
   # Job 2: pruebas unitarias con Vitest (slice, sync y storage) — paralelo a lint
   unit:
     name: Unit tests
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, arm64]
     steps:
       # 1. Clona el repositorio
       - name: Checkout code
@@ -62,7 +62,7 @@ jobs:
     # Deshabilitado: los specs apuntan a la app en "/", que ahora es la landing
     if: false
     needs: [lint, unit]
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, arm64]
     steps:
       # 1. Clona el repositorio
       - name: Checkout code
@@ -94,7 +94,7 @@ jobs:
     name: Deploy to Cloudflare Pages
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     needs: [lint, unit] # E2E desactivado temporalmente
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, arm64]
     steps:
       # 1. Clona el repositorio
       - name: Checkout code
