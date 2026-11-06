@@ -177,7 +177,7 @@ export const auth = (
 					// 3d2. Envía el email de restablecimiento
 					const resend = new Resend(env.RESEND_API_KEY);
 					const result = await resend.emails.send({
-						from: env.RESEND_FROM || "Tempo <noreply@mgdc.site>",
+						from: env.RESEND_FROM || "Tempo <noreply@liuma.app>",
 						to: user.email,
 						subject: "Restablece tu contraseña / Reset your password",
 						text: `${url}`,
@@ -255,7 +255,7 @@ export const auth = (
 					// 3f2. Envía email de verificación vía Resend
 					const resend = new Resend(env.RESEND_API_KEY);
 					const result = await resend.emails.send({
-						from: env.RESEND_FROM || "Tempo <noreply@mgdc.site>",
+						from: env.RESEND_FROM || "Tempo <noreply@liuma.app>",
 						to: user.email,
 						subject: "Verifica tu correo / Verify your email",
 						text: `Hola ${user.name || ""},\n\nPor favor verifica tu correo electrónico haciendo clic en el siguiente enlace:\n${url}\n\nSi no solicitaste esta cuenta, puedes ignorar este mensaje.\n\n---\n\nHello ${user.name || ""},\n\nPlease verify your email address by clicking the link below:\n${url}\n\nIf you did not create this account, you can safely ignore this email.`,
