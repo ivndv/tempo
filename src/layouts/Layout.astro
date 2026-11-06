@@ -24,7 +24,7 @@ interface Props {
 const {
 	title = "Tempo",
 	description = "Maximiza tu productividad y concentración. La herramienta ideal para estudiantes, profesionales y creativos que buscan enfoque total.",
-	image = "https://assets.mgdc.site/tempo/og-image.png",
+	image = "https://assets.liuma.app/tempo/og-image.png",
 	lang = "es",
 	wide = false
 } = Astro.props;
@@ -40,7 +40,7 @@ const jsonLdDescription = lang === 'en'
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/png" href="https://assets.mgdc.site/tempo/favicon.png" />
+		<link rel="icon" type="image/png" href="https://assets.liuma.app/tempo/favicon.png" />
 		<meta name="generator" content={Astro.generator} />
 
 		<!-- SEO y metadatos -->
@@ -49,13 +49,13 @@ const jsonLdDescription = lang === 'en'
 		<link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />
 		<meta name="keywords" content="tempo, pomodoro, timer, focus, productivity, study, work, technique, tomato, temporizador, enfoque, productividad, estudio, trabajo, tecnica" />
 		<!-- Idiomas alternativos -->
-		<link rel="alternate" hreflang="x-default" href="https://tempo.mgdc.site" />
-		<link rel="alternate" hreflang="es" href="https://tempo.mgdc.site" />
-		<link rel="alternate" hreflang="en" href="https://tempo.mgdc.site/en" />
+		<link rel="alternate" hreflang="x-default" href="https://tempo.liuma.app" />
+		<link rel="alternate" hreflang="es" href="https://tempo.liuma.app" />
+		<link rel="alternate" hreflang="en" href="https://tempo.liuma.app/en" />
 
 		<ClientRouter />
 		<!-- Umami Analytics -->
-		<script defer src="https://umami.fluxdv.icu/script.js" data-website-id="933a5505-2604-4ea0-9870-1313b25d5827"></script>
+		<script defer src="https://umami.liuma.app/script.js" data-website-id="933a5505-2604-4ea0-9870-1313b25d5827"></script>
 		<script is:inline>
 			// 1. Obtiene el tema guardado o el del sistema
 			const getTheme = () => {

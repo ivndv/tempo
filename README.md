@@ -24,7 +24,7 @@ Aplicación web moderna diseñada para ayudarte a gestionar tu tiempo de estudio
 
 ## Uso
 
-- **Acceder a la Aplicación**: Entra directamente desde cualquier navegador aquí: [Tempo](https://tempo.mgdc.site/).
+- **Acceder a la Aplicación**: Entra directamente desde cualquier navegador aquí: [Tempo](https://tempo.liuma.app/).
 - **Modo Libre o Cuenta Personal**: Usa el temporizador al instante sin registrarte, o crea tu cuenta para sincronizar tus tareas e historial en la nube.
 - **Recuperar Contraseña**: Si pierdes tu acceso, solicita un enlace de restablecimiento desde la pantalla de inicio de sesión para recibirlo en tu correo.
 - **Configurar y Concentrarte**: Elige o crea una tarea, presiona iniciar y deja que la app organice tus bloques de enfoque y descansos.
@@ -46,7 +46,7 @@ Aplicación web moderna diseñada para ayudarte a gestionar tu tiempo de estudio
 
 ## Despliegue
 
-La aplicación está construida para ser sumamente ligera y se encuentra desplegada de forma global a través de Cloudflare Pages. Puedes usarla directamente aquí: [Tempo](https://tempo.mgdc.site/)
+La aplicación está construida para ser sumamente ligera y se encuentra desplegada de forma global a través de Cloudflare Pages. Puedes usarla directamente aquí: [Tempo](https://tempo.liuma.app/)
 
 ## Licencia
 
