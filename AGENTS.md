@@ -1,46 +1,35 @@
-# AGENTS.md — Guía para Agentes en Tempo
+# AGENTS.md — Tempo
 
-Guía operativa y técnica para agentes de Inteligencia Artificial que colaboren en el desarrollo, mantenimiento y optimización del proyecto **Tempo**.
+## 1. Visión general
 
----
+**Tempo** es una aplicación web de gestión de tareas y productividad personal basada en la técnica Pomodoro (bloques de enfoque de 25 minutos, descansos cortos y largos).
 
-## 1. Visión General del Proyecto
+- **Propósito:** temporizador interactivo con vinculación estricta a tareas, estadísticas de rendimiento en tiempo real y persistencia dual: modo invitado offline en `localStorage` y modo registrado persistido en SQLite en la nube vía API.
+- **Dominio en producción:** [https://tempo.mgdc.site](https://tempo.mgdc.site)
+- **Repositorio:** [https://github.com/ivndv/tempo](https://github.com/ivndv/tempo)
 
-**Tempo** es una aplicación web moderna diseñada para la gestión de tareas y productividad personal aplicando la técnica Pomodoro (bloques de enfoque de 25 minutos, descansos cortos y largos).
+## 2. Antes de tocar código
 
-* **Propósito:** Ofrecer un temporizador interactivo con vinculación estricta a tareas, estadísticas de rendimiento en tiempo real y arquitectura de persistencia dual: modo invitado offline en `localStorage` y modo registrado persistido en SQLite en la nube vía API.
-* **Dominio en Producción:** [https://tempo.mgdc.site](https://tempo.mgdc.site)
-* **Repositorio:** [https://github.com/ivndv/tempo](https://github.com/ivndv/tempo)
+- Antes de cambios estructurales, lee [`docs/DOCUMENTACION.md`](docs/DOCUMENTACION.md): arquitectura de sincronización offline-first, estados y reglas de negocio.
 
----
+**CodeGraph** (índice de símbolos del repo): usa `codegraph_explore` (`query`, `maxFiles`, `projectPath`) antes de un grep masivo o de leer varios archivos; devuelve fuente verbatim, rutas de llamada e impacto.
 
-## 2. Antes de Tocar Código
+- `codegraph sync /home/ivan/software-dev/tempo` tras editar, pull o cambiar de rama (incremental, uso normal).
+- `codegraph index /home/ivan/software-dev/tempo` solo al crear el índice, tras `codegraph upgrade` o si `status` avisa `built by vX` (rebuild completo).
+- `codegraph status /home/ivan/software-dev/tempo` para comprobar el estado.
 
-* **Documentación de Referencia:** Antes de realizar cambios estructurales, lee [`docs/DOCUMENTACION.md`](docs/DOCUMENTACION.md) para comprender la arquitectura de sincronización offline-first, estados y reglas de negocio.
-* **Uso del MCP CodeGraph:** Antes de realizar búsquedas masivas de texto o explorar múltiples archivos a ciegas, invoca la herramienta `codegraph_explore` para inspeccionar el flujo de llamadas y el código fuente verbatim de los símbolos en una sola llamada eficiente.
-* **Estado y Sincronización:**
-  ```bash
-  # Verificar el estado del índice
-  codegraph status /home/ivan/software-dev/tempo
-
-  # Sincronizar cambios en el árbol de archivos
-  codegraph sync /home/ivan/software-dev/tempo
-  ```
-
----
-
-## 3. Stack Tecnológico
+## 3. Stack tecnológico
 
 | Capa | Tecnología | Versión / Detalle |
 | :--- | :--- | :--- |
 | **Runtime & Gestor** | **Bun** | `v1.3.x` (`bun.lock`) |
-| **Lenguaje** | **TypeScript** | `^7.0.2` (Modo estricto con `tsconfig.json`) |
+| **Lenguaje** | **TypeScript** | `^7.0.2` (modo estricto con `tsconfig.json`) |
 | **Frontend & Framework** | **Astro 7** + **React 19** | `astro ^7.3.1`, `@astrojs/react ^6.0.5`, `react ^19.2.8` |
 | **Estilos & UI** | **Tailwind CSS 4** + **shadcn/ui** | `@tailwindcss/vite ^4.3.3`, `shadcn ^4.21.0` |
 | **Estado Global** | **Zustand 5** | `zustand ^5.0.15` (7 slices modulares combinados en `store.ts`) |
 | **Backend / Edge API** | **Hono 4** en Cloudflare Pages Functions | `hono ^4.13.5`, `@hono/zod-openapi ^1.6.3` |
 | **Base de Datos & ORM** | **Cloudflare D1 (SQLite)** + **Drizzle ORM** | `drizzle-orm ^0.45.2`, `drizzle-kit ^0.31.10` (9 tablas) |
-| **Autenticación** | **Better Auth** | `1.6.27` (fijado por compatibilidad de esquema D1) |
+| **Autenticación** | **Better Auth** | `1.6.27` |
 | **Seguridad de Passwords** | **Hashy** (microservicio Docker/Go) | Hashing seguro con Argon2id |
 | **Anti-Bot / Captcha** | **Cloudflare Turnstile** | `@marsidev/react-turnstile ^1.6.1` |
 | **Sesiones & Rate Limit** | **KV (sesiones) + D1 (rate limit)** | Sesiones Better Auth en KV; rate limiting en D1 (tabla `rate_limit`) |
@@ -53,13 +42,10 @@ Guía operativa y técnica para agentes de Inteligencia Artificial que colaboren
 | **Accesibilidad (A11y)** | **@axe-core/playwright** | `@axe-core/playwright ^4.13.0` (WCAG 2.1 AA) |
 | **Regresión Visual** | **Playwright Visual Snapshots** | Comparación de snapshots en Chromium Linux |
 | **Infraestructura & Edge** | **Cloudflare Pages, D1, KV & R2** | `wrangler ^4.129.0` |
-| **CI/CD** | **GitHub Actions** | Workflows automatizados de validación y despliegue |
 
----
+## 4. Estructura del código
 
-## 4. Estructura del Código
-
-```
+```text
 tempo/
 ├── functions/                     → Backend Edge (Cloudflare Pages Functions)
 │   ├── _controllers/              → Controladores de negocio (breaks, categorias, health, pomodoros, tareas)
@@ -109,16 +95,24 @@ tempo/
 │   └── smoke/                     → Pruebas de humo críticas en entorno completo (12 tests)
 │
 ├── public/                        → Assets estáticos públicos
-├── docs/                          → Documentación técnica interna (ignorado en Git)
+├── docs/                          → Documentación técnica interna
 ├── drizzle/                       → Migraciones SQL generadas por Drizzle
 ├── playwright.config.ts           → Configuración de pruebas E2E
 ├── playwright.smoke.config.ts     → Configuración de pruebas Smoke
 └── wrangler.json                  → Configuración de bindings D1, KV y Pages
 ```
 
----
+## 5. Arquitectura y flujo de datos
 
-## 5. Comandos de Desarrollo y Tooling
+- **Frontend:** Astro 7 + React 19; estado global en Zustand 5 con 7 slices combinados en `src/stores/store.ts` y persistencia centralizada en `src/stores/storage.ts`.
+- **Backend:** Hono 4 en Cloudflare Pages Functions, con contratos OpenAPI y Better Auth en `functions/api/[[route]].ts`.
+- **Persistencia dual:** invitado en `localStorage`; registrado en D1 (SQLite) a través de la API.
+- **Sincronización:** `src/lib/sync/sync.ts` y `syncLocalToCloud.ts` reconcilian el estado local con la nube.
+- **Sesiones y límites:** sesiones de Better Auth en KV; rate limiting en D1 (tabla `rate_limit`).
+- **Passwords:** hashing con Hashy (microservicio Docker/Go, Argon2id).
+- **i18n:** Paraglide JS compila los mensajes de `messages/` a funciones TypeScript puras.
+
+## 6. Comandos
 
 Todos los comandos se ejecutan con **Bun**:
 
@@ -135,9 +129,13 @@ bun run build
 # Previsualización del build estático
 bun run preview
 
-# Verificación y formato de código con Biome
+# Verificación de código con Biome
 bun run check
+
+# Lint con Biome
 bun run lint
+
+# Formato con Biome
 bun run format
 
 # Pruebas Unitarias (Vitest - 106 tests)
@@ -155,29 +153,36 @@ bun run db:gen             # Generar migraciones con drizzle-kit
 bun run db:check           # Verificar integridad del esquema Drizzle
 ```
 
----
+## 7. Convenciones y reglas críticas
 
-## 6. Convenciones Obligatorias para Agentes
+### 7.1 Regla de oro en ejecución de tests
 
-### 6.1 Regla de Oro en Ejecución de Tests
-* **NO ejecutar comandos de test de forma reactiva tras cada pequeño cambio.** Realizar todos los cambios de código primero y acumularlos; correr las suites de pruebas únicamente al final cuando todo el conjunto esté listo y verificado.
+- **NO ejecutar comandos de test de forma reactiva tras cada pequeño cambio.** Realizar todos los cambios de código primero y acumularlos; correr las suites de pruebas únicamente al final, cuando todo el conjunto esté listo y verificado.
 
-### 6.2 Reglas Críticas de Negocio
-* **Traducción obligatoria de IDs locales:** Jamás enviar IDs generados localmente (`Date.now() + random`) a endpoints de la API (`/api/*`) sin pasar previamente por `traducirTareaId` (`src/lib/sync/sync.ts:37`).
-* **Vinculación estricta de Pomodoro:** Prohibido iniciar un pomodoro sin un `tareaId` válido asignado.
-* **Compatibilidad de Better Auth:** Mantener la versión de `better-auth` en `1.6.27` para preservar la compatibilidad con el esquema actual de SQLite en Cloudflare D1.
+### 7.2 Reglas críticas de negocio
 
-### 6.3 Estilo de Código y Comentarios
-* **Lenguaje:** Todo el código, comentarios y documentación deben redactarse en **español**.
-* **Comentarios de 1 sola línea:** Concisos, directos y explicativos del *por qué*, sin bloques redundantes ni tecnicismos innecesarios.
-* **Tipado estricto:** Prohibido el uso de `any`; definir interfaces explícitas para props, estados y modelos de datos.
+- **Traducción obligatoria de IDs locales:** jamás enviar IDs generados localmente (`Date.now() + random`) a endpoints de la API (`/api/*`) sin pasar previamente por `traducirTareaId` (`src/lib/sync/sync.ts:37`).
+- **Vinculación estricta de Pomodoro:** prohibido iniciar un pomodoro sin un `tareaId` válido asignado.
+- **Compatibilidad de Better Auth:** mantener la versión de `better-auth` en `1.6.27` para preservar la compatibilidad con el esquema actual de SQLite en Cloudflare D1.
 
-### 6.4 Accesibilidad Web (WCAG 2.1 AA)
-* Todo elemento interactivo debe poseer etiquetas accesibles (`aria-label`, `aria-describedby` o texto visible/oculto para lectores de pantalla).
-* Mantener un contraste de color superior a **4.5:1** en ambos temas (claro y oscuro).
+### 7.3 Estilo de código y comentarios
 
-### 6.5 Flujo de Git y Despliegues
-* **PROHIBIDO realizar commits o push sin la aprobación explícita del usuario.**
-* **Flujo de ramas:** Todo desarrollo se realiza en la rama `develop` y se mergea hacia `main` mediante fast-forward una vez validado.
-* **Mensajes de commit:** Seguir *Conventional Commits* en minúsculas y español (`feat: ...`, `fix: ...`, `chore: ...`, `docs: ...`). **Estrictamente una sola línea de título sin cuerpo, saltos de línea ni viñetas adicionales**.
-* **Documentación:** El directorio `docs/` se mantiene estrictamente en `.gitignore`; la documentación técnica local no se sube al repositorio Git.
+- **Lenguaje:** todo el código, comentarios y documentación deben redactarse en **español**.
+- **Comentarios de una sola línea:** concisos, directos y explicativos del *por qué*, sin bloques redundantes ni tecnicismos innecesarios.
+- **Tipado estricto:** prohibido el uso de `any`; definir interfaces explícitas para props, estados y modelos de datos.
+
+### 7.4 Accesibilidad web (WCAG 2.1 AA)
+
+- Todo elemento interactivo debe poseer etiquetas accesibles (`aria-label`, `aria-describedby` o texto visible/oculto para lectores de pantalla).
+- Mantener un contraste de color superior a **4.5:1** en ambos temas (claro y oscuro).
+
+## 8. Flujo de Git y despliegue
+
+- **PROHIBIDO realizar commits o push sin la aprobación explícita del usuario.**
+- **Flujo de ramas:** todo desarrollo se realiza en la rama `develop`; el merge a `main` se hace mediante fast-forward solo con aprobación explícita y tras validar.
+- **Mensajes de commit:** seguir *Conventional Commits* en minúsculas y español (`feat: ...`, `fix: ...`, `chore: ...`, `docs: ...`). **Estrictamente una sola línea de título sin cuerpo, saltos de línea ni viñetas adicionales.**
+- **Documentación:** el directorio `docs/` se mantiene estrictamente en `.gitignore`; la documentación técnica local no se sube al repositorio Git.
+
+## 9. CI/CD
+
+- **GitHub Actions:** workflows automatizados de validación y despliegue.
