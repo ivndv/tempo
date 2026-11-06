@@ -10,4 +10,4 @@ Allow: /
 User-agent: *
 Allow: /
 
-Sitemap: https://tempo.liuma.app/sitemap-index.xml
+Sitemap: https://tempo-legacy.liuma.app/sitemap-index.xml

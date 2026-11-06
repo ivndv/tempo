@@ -5,7 +5,7 @@
 **Tempo** es una aplicación web de gestión de tareas y productividad personal basada en la técnica Pomodoro (bloques de enfoque de 25 minutos, descansos cortos y largos).
 
 - **Propósito:** temporizador interactivo con vinculación estricta a tareas, estadísticas de rendimiento en tiempo real y persistencia dual: modo invitado offline en `localStorage` y modo registrado persistido en SQLite en la nube vía API.
-- **Dominio en producción:** [https://tempo.liuma.app](https://tempo.liuma.app)
+- **Dominio en producción:** [https://tempo-legacy.liuma.app](https://tempo-legacy.liuma.app)
 - **Repositorio:** [https://github.com/ivndv/tempo](https://github.com/ivndv/tempo)
 
 ## 2. Antes de tocar código

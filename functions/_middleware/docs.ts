@@ -12,7 +12,7 @@ export function registerDocs(app: OpenAPIHono<{ Bindings: Bindings }>) {
 			description: "API de la aplicación Tempo Pomodoro",
 		},
 		servers: [
-			{ url: "https://tempo.liuma.app", description: "Producción" },
+			{ url: "https://tempo-legacy.liuma.app", description: "Producción" },
 			{ url: "http://localhost:4321", description: "Local" },
 		],
 	});

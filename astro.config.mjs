@@ -9,7 +9,7 @@ import { defineConfig } from "astro/config";
 export default defineConfig({
 	// Modo estático (sin servidor)
 	output: "static",
-	site: "https://tempo.liuma.app",
+	site: "https://tempo-legacy.liuma.app",
 	trailingSlash: "always",
 	// Preserva el whitespace del output de Astro 6 (default de v7 es 'jsx')
 	compressHTML: true,
